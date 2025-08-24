@@ -263,50 +263,50 @@ const QuickPixl = () => {
       <div className="bg-card border border-panel-border rounded-lg shadow-sm">
         {/* Header */}
         <div 
-          className="flex items-center justify-between p-4 cursor-pointer hover:bg-secondary/50 transition-colors"
+          className="flex items-center justify-between p-2.5 cursor-pointer hover:bg-secondary/50 transition-colors"
           onClick={() => setIsBackgroundExpanded(!isBackgroundExpanded)}
         >
           <div className="flex items-center space-x-2">
-            <Palette className="w-4 h-4 text-primary" />
-            <span className="font-medium text-foreground">Background</span>
+            <Palette className="w-3.5 h-3.5 text-primary" />
+            <span className="text-sm font-medium text-foreground">Background</span>
             {totalSelected > 0 && (
-              <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
+              <span className="bg-primary text-primary-foreground text-xs px-1.5 py-0.5 rounded-full">
                 {totalSelected}
               </span>
             )}
           </div>
           {isBackgroundExpanded ? (
-            <ChevronDown className="w-4 h-4 text-muted-foreground" />
+            <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
           ) : (
-            <ChevronRight className="w-4 h-4 text-muted-foreground" />
+            <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
           )}
         </div>
 
         {/* Content */}
         {isBackgroundExpanded && (
-          <div className="p-4 pt-0 space-y-6">
+          <div className="p-3 pt-0 space-y-3">
             {/* Color Selection */}
             <div>
-              <h4 className="text-sm font-medium text-foreground mb-3">Colors</h4>
+              <h4 className="text-xs font-medium text-foreground mb-2">Colors</h4>
               
               {/* Color Picker and Eyedropper */}
-              <div className="flex flex-col space-y-2 mb-3">
-                <div className="flex items-center space-x-2">
-                  <div className="flex items-center space-x-2 bg-secondary rounded-lg p-2 flex-1 min-w-0">
+              <div className="space-y-1.5">
+                <div className="flex items-center space-x-1.5">
+                  <div className="flex items-center space-x-1.5 bg-secondary rounded p-1.5 flex-1 min-w-0">
                     <input
                       ref={colorInputRef}
                       type="color"
                       value={currentColor}
                       onChange={(e) => setCurrentColor(e.target.value)}
-                      className="w-8 h-8 rounded border border-panel-border cursor-pointer flex-shrink-0"
+                      className="w-6 h-6 rounded border border-panel-border cursor-pointer flex-shrink-0"
                     />
                     <div className="flex items-center space-x-1 flex-1 min-w-0">
-                      <Hash className="w-3 h-3 text-muted-foreground flex-shrink-0" />
+                      <Hash className="w-2.5 h-2.5 text-muted-foreground flex-shrink-0" />
                       <input
                         type="text"
                         value={currentColor}
                         onChange={(e) => setCurrentColor(e.target.value)}
-                        className="bg-transparent text-sm text-foreground border-none outline-none flex-1 min-w-0"
+                        className="bg-transparent text-xs text-foreground border-none outline-none flex-1 min-w-0"
                         placeholder="#FF6B6B"
                       />
                     </div>
@@ -316,10 +316,10 @@ const QuickPixl = () => {
                     size="sm"
                     onClick={handleEyedropper}
                     disabled={isEyedropperActive}
-                    className="p-2 flex-shrink-0"
+                    className="p-1.5 flex-shrink-0"
                     title="Pick color from screen"
                   >
-                    <Pipette className={`w-4 h-4 ${isEyedropperActive ? 'animate-pulse' : ''}`} />
+                    <Pipette className={`w-3 h-3 ${isEyedropperActive ? 'animate-pulse' : ''}`} />
                   </Button>
                 </div>
                 <Button
@@ -327,7 +327,7 @@ const QuickPixl = () => {
                   size="sm"
                   onClick={handleAddColor}
                   disabled={!currentColor || selectedColors.includes(currentColor)}
-                  className="w-full"
+                  className="w-full h-6 text-xs"
                 >
                   Add Color
                 </Button>
@@ -335,37 +335,35 @@ const QuickPixl = () => {
 
               {/* Selected Colors */}
               {selectedColors.length > 0 && (
-                <div className="space-y-2">
-                  <div className="flex flex-wrap gap-2">
-                    {selectedColors.map((color) => (
+                <div className="flex flex-wrap gap-1">
+                  {selectedColors.map((color) => (
+                    <div 
+                      key={color}
+                      className="group flex items-center space-x-1 bg-secondary hover:bg-secondary/80 px-1.5 py-0.5 rounded text-xs transition-colors"
+                    >
                       <div 
-                        key={color}
-                        className="group flex items-center space-x-2 bg-secondary hover:bg-secondary/80 px-2 py-1 rounded text-xs transition-colors"
+                        className="w-3 h-3 rounded border border-panel-border"
+                        style={{ backgroundColor: color }}
+                      />
+                      <span className="text-foreground font-mono text-xs">{color}</span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleRemoveColor(color)}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity p-0 h-3 w-3 text-muted-foreground hover:text-foreground"
                       >
-                        <div 
-                          className="w-4 h-4 rounded border border-panel-border"
-                          style={{ backgroundColor: color }}
-                        />
-                        <span className="text-foreground font-mono">{color}</span>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleRemoveColor(color)}
-                          className="opacity-0 group-hover:opacity-100 transition-opacity p-0 h-4 w-4 text-muted-foreground hover:text-foreground"
-                        >
-                          <X className="w-3 h-3" />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
+                        <X className="w-2 h-2" />
+                      </Button>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
 
             {/* Image Upload */}
             <div>
-              <h4 className="text-sm font-medium text-foreground mb-3">Images</h4>
-              <div className="border-2 border-dashed border-panel-border rounded-lg p-4 text-center hover:border-muted-foreground transition-colors">
+              <h4 className="text-xs font-medium text-foreground mb-2">Images</h4>
+              <div className="border-2 border-dashed border-panel-border rounded p-2 text-center hover:border-muted-foreground transition-colors">
                 <input
                   type="file"
                   multiple
@@ -375,21 +373,21 @@ const QuickPixl = () => {
                   id="image-upload"
                 />
                 <label htmlFor="image-upload" className="cursor-pointer">
-                  <Upload className="w-6 h-6 text-muted-foreground mx-auto mb-2" />
-                  <p className="text-sm text-muted-foreground">
-                    Click to upload or drag and drop
+                  <Upload className="w-4 h-4 text-muted-foreground mx-auto mb-1" />
+                  <p className="text-xs text-muted-foreground">
+                    Click to upload
                   </p>
                 </label>
               </div>
               
               {uploadedImages.length > 0 && (
-                <div className="mt-3 grid grid-cols-3 gap-2">
+                <div className="mt-2 grid grid-cols-4 gap-1">
                   {uploadedImages.map((image, index) => (
                     <div key={index} className="relative group">
                       <div 
-                        className={`aspect-square rounded border-2 cursor-pointer transition-all ${
+                        className={`aspect-square rounded border cursor-pointer transition-all ${
                           selectedImages.includes(image)
-                            ? 'border-primary ring-2 ring-primary/20'
+                            ? 'border-primary ring-1 ring-primary/20'
                             : 'border-panel-border hover:border-muted-foreground'
                         }`}
                         onClick={() => handleImageSelect(image)}
@@ -401,7 +399,7 @@ const QuickPixl = () => {
                         />
                         {selectedImages.includes(image) && (
                           <div className="absolute inset-0 bg-primary/20 rounded flex items-center justify-center">
-                            <Check className="w-4 h-4 text-primary" />
+                            <Check className="w-3 h-3 text-primary" />
                           </div>
                         )}
                       </div>
@@ -413,10 +411,10 @@ const QuickPixl = () => {
                           e.stopPropagation();
                           handleImageDelete(image);
                         }}
-                        className="absolute -top-2 -right-2 w-5 h-5 p-0 bg-black/50 hover:bg-black/80 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="absolute -top-1 -right-1 w-4 h-4 p-0 bg-black/50 hover:bg-black/80 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                         title="Remove image"
                       >
-                        <X className="w-3 h-3" />
+                        <X className="w-2 h-2" />
                       </Button>
                     </div>
                   ))}
@@ -428,11 +426,11 @@ const QuickPixl = () => {
             <Button
               onClick={handleAddToVariation}
               disabled={totalSelected === 0}
-              className="w-full"
+              className="w-full h-6 text-xs"
               variant={totalSelected > 0 ? "default" : "secondary"}
             >
               {totalSelected > 0 
-                ? `Add ${selectedColors.length} colors, ${selectedImages.length} images to variation`
+                ? `Add ${selectedColors.length} colors, ${selectedImages.length} images`
                 : 'Select colors or images to add'
               }
             </Button>
