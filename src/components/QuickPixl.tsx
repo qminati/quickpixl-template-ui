@@ -26,7 +26,8 @@ import {
   Check,
   Palette,
   Pipette,
-  Hash
+  Hash,
+  Search
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import PlacementPlugin from './PlacementPlugin';
@@ -175,6 +176,10 @@ const QuickPixl = () => {
   const [templateVariations, setTemplateVariations] = useState<TemplateVariation[]>([]);
   const colorInputRef = useRef<HTMLInputElement>(null);
   const [blobUrls, setBlobUrls] = useState<Map<File, string>>(new Map());
+  
+  // Search State
+  const [isSearchVisible, setIsSearchVisible] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Cleanup function for blob URLs
   useEffect(() => {
@@ -967,8 +972,43 @@ const QuickPixl = () => {
                     <Button variant="ghost" size="sm" className="text-muted-foreground p-2">
                       <RefreshCw className="w-4 h-4" />
                     </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="text-muted-foreground p-2"
+                      onClick={() => setIsSearchVisible(!isSearchVisible)}
+                    >
+                      <Search className="w-4 h-4" />
+                    </Button>
                   </div>
                 </div>
+                
+                {/* Search Field - appears when search icon is clicked */}
+                {isSearchVisible && (
+                  <div className="mb-4">
+                    <div className="relative max-w-sm">
+                      <input
+                        type="text"
+                        placeholder="Search templates..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full h-8 pl-3 pr-8 text-sm bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                        autoFocus
+                      />
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-1 top-1/2 transform -translate-y-1/2 p-1 h-6 w-6"
+                        onClick={() => {
+                          setIsSearchVisible(false);
+                          setSearchQuery('');
+                        }}
+                      >
+                        <X className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Templates Grid */}
