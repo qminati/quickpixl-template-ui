@@ -728,8 +728,8 @@ const QuickPixl = () => {
         </div>
 
         {/* Right Sidebar - Render Queue */}
-        <div className="w-80 bg-panel border-l border-panel-border p-4">
-          <div className="mb-6">
+        <div className="w-80 bg-panel border-l border-panel-border p-4 flex flex-col">
+          <div className="flex-1">
             <h3 className="text-lg font-medium text-foreground mb-4">Render Queue</h3>
             <Button 
               className="w-full mb-4" 
@@ -738,19 +738,23 @@ const QuickPixl = () => {
             >
               + Add Selection
             </Button>
-            <div className="flex justify-between text-sm mb-4">
-              <button 
-                className="text-muted-foreground hover:text-foreground"
+            <div className="flex space-x-2 mb-6">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="flex-1"
                 onClick={() => console.log('Clear All')}
               >
                 Clear All
-              </button>
-              <button 
-                className="text-muted-foreground hover:text-foreground"
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="flex-1"
                 onClick={() => console.log('Remove Last')}
               >
                 Remove Last
-              </button>
+              </Button>
             </div>
             <div className="flex space-x-2 mb-6">
               <Button variant="secondary" size="sm" className="flex-1">
@@ -760,43 +764,45 @@ const QuickPixl = () => {
                 📁 Load
               </Button>
             </div>
+
+            {/* Categories */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-foreground">AMEN</span>
+                <div className="flex items-center space-x-2">
+                  <span className="text-xs text-muted-foreground">5 variations</span>
+                  <Clock className="w-4 h-4 text-muted-foreground" />
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-foreground">COLORS</span>
+                <div className="flex items-center space-x-2">
+                  <span className="text-xs text-muted-foreground">12 variations</span>
+                  <CheckCircle className="w-4 h-4 text-success" />
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-foreground">HUMAN</span>
+                <div className="flex items-center space-x-2">
+                  <span className="text-xs text-muted-foreground">8 variations</span>
+                  <AlertTriangle className="w-4 h-4 text-warning" />
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* Categories */}
-          <div className="space-y-4 mb-8">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-foreground">AMEN</span>
-              <div className="flex items-center space-x-2">
-                <span className="text-xs text-muted-foreground">5 variations</span>
-                <Clock className="w-4 h-4 text-muted-foreground" />
-              </div>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-foreground">COLORS</span>
-              <div className="flex items-center space-x-2">
-                <span className="text-xs text-muted-foreground">12 variations</span>
-                <CheckCircle className="w-4 h-4 text-success" />
-              </div>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-foreground">HUMAN</span>
-              <div className="flex items-center space-x-2">
-                <span className="text-xs text-muted-foreground">8 variations</span>
-                <AlertTriangle className="w-4 h-4 text-warning" />
-              </div>
-            </div>
+          {/* Start Rendering Button - Always at bottom */}
+          <div className="flex-shrink-0 mt-6">
+            <Button 
+              className="w-full bg-success hover:bg-success/90 text-white font-medium py-3"
+              onClick={() => console.log('Start Rendering')}
+            >
+              ▶ Start Rendering
+            </Button>
+            <p className="text-center text-xs text-muted-foreground mt-2">
+              Total: 25 images
+            </p>
           </div>
-
-          {/* Start Rendering Button */}
-          <Button 
-            className="w-full bg-success hover:bg-success/90 text-white font-medium py-3"
-            onClick={() => console.log('Start Rendering')}
-          >
-            ▶ Start Rendering
-          </Button>
-          <p className="text-center text-xs text-muted-foreground mt-2">
-            Total: 25 images
-          </p>
         </div>
       </div>
     </div>
