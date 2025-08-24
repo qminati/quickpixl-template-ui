@@ -787,6 +787,21 @@ const QuickPixl = () => {
                   <p className="text-xs text-muted-foreground">Use the Canvas or Templates sections to create variations</p>
                 </div>
               )}
+
+              {/* Send to Render Queue Button - Fixed at bottom */}
+              {(backgroundVariations.length > 0 || templateVariations.length > 0) && (
+                <div className="mt-6 pt-4 border-t border-panel-border">
+                  <Button
+                    className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+                    onClick={() => {
+                      // TODO: Implement send to render queue functionality
+                      console.log('Sending to render queue:', { backgroundVariations, templateVariations });
+                    }}
+                  >
+                    Send to Render Queue
+                  </Button>
+                </div>
+              )}
             </div>
           ) : (
             <div className="text-muted-foreground">
