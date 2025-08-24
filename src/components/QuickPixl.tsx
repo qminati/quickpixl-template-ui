@@ -90,10 +90,10 @@ const QuickPixl = () => {
   const [selectedTemplates, setSelectedTemplates] = useState<number[]>([]);
 
   const sidebarItems = [
-    { id: 'text', icon: Type, label: 'Text' },
     { id: 'canvas', icon: Layers, label: 'Canvas' },
     { id: 'templates', icon: FileImage, label: 'Templates' },
     { id: 'images', icon: ImageIcon, label: 'Images' },
+    { id: 'text', icon: Type, label: 'Text' },
     { id: 'variations', icon: Shuffle, label: 'Variations' }
   ];
 
