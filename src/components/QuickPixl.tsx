@@ -189,6 +189,11 @@ const QuickPixl = () => {
     );
   };
 
+  const handleImageDelete = (imageToDelete: File) => {
+    setUploadedImages(prev => prev.filter(img => img !== imageToDelete));
+    setSelectedImages(prev => prev.filter(img => img !== imageToDelete));
+  };
+
   const handleAddToVariation = () => {
     if (selectedColors.length === 0 && selectedImages.length === 0) return;
     
@@ -338,7 +343,7 @@ const QuickPixl = () => {
               {uploadedImages.length > 0 && (
                 <div className="mt-3 grid grid-cols-3 gap-2">
                   {uploadedImages.map((image, index) => (
-                    <div key={index} className="relative">
+                    <div key={index} className="relative group">
                       <div 
                         className={`aspect-square rounded border-2 cursor-pointer transition-all ${
                           selectedImages.includes(image)
@@ -358,6 +363,19 @@ const QuickPixl = () => {
                           </div>
                         )}
                       </div>
+                      {/* Delete button */}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleImageDelete(image);
+                        }}
+                        className="absolute -top-2 -right-2 w-5 h-5 p-0 bg-black/50 hover:bg-black/80 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                        title="Remove image"
+                      >
+                        <X className="w-3 h-3" />
+                      </Button>
                     </div>
                   ))}
                 </div>
