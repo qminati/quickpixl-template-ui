@@ -32,7 +32,15 @@ import { Button } from '@/components/ui/button';
 import PlacementPlugin from './PlacementPlugin';
 import CanvasEditor from './CanvasEditor';
 
-// Template placeholders - no imports needed
+// Import template images
+import templateFocusGood from '@/assets/template-focus-good.jpg';
+import templateBowlingCharacter from '@/assets/template-bowling-character.jpg';
+import templateSpareShirt from '@/assets/template-spare-shirt.jpg';
+import templateGirlsDiamonds from '@/assets/template-girls-diamonds.jpg';
+import templateBeLight from '@/assets/template-be-light.jpg';
+import templateGiveThanks from '@/assets/template-give-thanks.jpg';
+import templateInspirational from '@/assets/template-inspirational.jpg';
+import templateTouchdown from '@/assets/template-touchdown.jpg';
 
 // Define interfaces
 interface Variation {
@@ -73,56 +81,56 @@ const templates = [
     id: 1,
     title: "Focus on the Good",
     size: "1080×1080",
-    image: "https://via.placeholder.com/300x300/FF6B6B/FFFFFF?text=Focus+Good",
+    image: templateFocusGood,
     category: "TX: 1  IM: 0"
   },
   {
     id: 2,
     title: "Bowling Built My Character",
     size: "1200×800",
-    image: "https://via.placeholder.com/300x200/4ECDC4/FFFFFF?text=Bowling+Character",
+    image: templateBowlingCharacter,
     category: "TX: 2  IM: 1"
   },
   {
     id: 3,
     title: "This Is My Spare Shirt",
     size: "1080×1080",
-    image: "https://via.placeholder.com/300x300/45B7D1/FFFFFF?text=Spare+Shirt",
+    image: templateSpareShirt,
     category: "TX: 1  IM: 0"
   },
   {
     id: 4,
     title: "Some Girls Love Diamonds",
     size: "1200×1200",
-    image: "https://via.placeholder.com/300x300/F7DC6F/333333?text=Girls+Diamonds",
+    image: templateGirlsDiamonds,
     category: "TX: 3  IM: 1"
   },
   {
     id: 5,
     title: "Be The Light",
     size: "800×1200",
-    image: "https://via.placeholder.com/200x300/BB8FCE/FFFFFF?text=Be+Light",
+    image: templateBeLight,
     category: "TX: 1  IM: 0"
   },
   {
     id: 6,
     title: "Give Thanks to the Lord",
     size: "1080×1350",
-    image: "https://via.placeholder.com/300x375/F1948A/FFFFFF?text=Give+Thanks",
+    image: templateGiveThanks,
     category: "TX: 1  IM: 0"
   },
   {
     id: 7,
     title: "Inspirational Quote",
     size: "1080×1080",
-    image: "https://via.placeholder.com/300x300/58D68D/FFFFFF?text=Inspirational",
+    image: templateInspirational,
     category: "TX: 1  IM: 0"
   },
   {
     id: 8,
     title: "Touch Down Season",
     size: "1200×900",
-    image: "https://via.placeholder.com/300x225/E74C3C/FFFFFF?text=Touch+Down",
+    image: templateTouchdown,
     category: "TX: 1  IM: 0"
   }
 ];
