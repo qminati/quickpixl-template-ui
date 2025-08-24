@@ -12,7 +12,13 @@ import {
   User,
   Clock,
   CheckCircle,
-  AlertTriangle
+  AlertTriangle,
+  Plus,
+  Trash2,
+  Edit,
+  Copy,
+  FolderOpen,
+  RefreshCw
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -204,13 +210,26 @@ const QuickPixl = () => {
                 </div>
                 <span className="text-sm text-muted-foreground ml-4">Background</span>
               </div>
-              <div className="flex items-center space-x-2">
-                <Button variant="secondary" size="sm">+ New</Button>
-                <Button variant="ghost" size="sm" className="text-muted-foreground">🗑 Delete</Button>
-                <Button variant="ghost" size="sm" className="text-muted-foreground">✏️ Edit</Button>
-                <Button variant="ghost" size="sm" className="text-muted-foreground">📄 Duplicate</Button>
-                <Button variant="ghost" size="sm" className="text-muted-foreground">📁 Folder</Button>
-                <Button variant="ghost" size="sm" className="text-muted-foreground">🔄 Refresh</Button>
+              <div className="flex items-center space-x-1">
+                <Button variant="secondary" size="sm">
+                  <Plus className="w-4 h-4 mr-1" />
+                  New
+                </Button>
+                <Button variant="ghost" size="sm" className="text-muted-foreground p-2">
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+                <Button variant="ghost" size="sm" className="text-muted-foreground p-2">
+                  <Edit className="w-4 h-4" />
+                </Button>
+                <Button variant="ghost" size="sm" className="text-muted-foreground p-2">
+                  <Copy className="w-4 h-4" />
+                </Button>
+                <Button variant="ghost" size="sm" className="text-muted-foreground p-2">
+                  <FolderOpen className="w-4 h-4" />
+                </Button>
+                <Button variant="ghost" size="sm" className="text-muted-foreground p-2">
+                  <RefreshCw className="w-4 h-4" />
+                </Button>
               </div>
             </div>
           </div>
