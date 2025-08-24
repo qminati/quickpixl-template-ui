@@ -1,51 +1,34 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { AlertTriangle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import React from 'react';
 
 interface Props {
-  children: ReactNode;
-  fallback?: ReactNode;
+  children: React.ReactNode;
 }
 
 interface State {
   hasError: boolean;
-  error?: Error;
 }
 
-class ErrorBoundary extends Component<Props, State> {
+class ErrorBoundary extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = { hasError: false };
   }
 
-  static getDerivedStateFromError(error: Error): State {
-    return { hasError: true, error };
+  static getDerivedStateFromError(_: Error): State {
+    return { hasError: true };
   }
 
-  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('Error caught by boundary:', error, errorInfo);
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('ErrorBoundary caught an error:', error, errorInfo);
   }
 
   render() {
     if (this.state.hasError) {
-      if (this.props.fallback) {
-        return this.props.fallback;
-      }
-
       return (
-        <div className="flex items-center justify-center p-4 bg-card border border-panel-border rounded-lg">
+        <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
           <div className="text-center">
-            <AlertTriangle className="w-8 h-8 text-yellow-600 mx-auto mb-2" />
-            <p className="text-sm text-muted-foreground mb-3">
-              Something went wrong loading this component
-            </p>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => this.setState({ hasError: false, error: undefined })}
-            >
-              Try Again
-            </Button>
+            <h2 className="text-lg font-semibold mb-2">Something went wrong</h2>
+            <p className="text-muted-foreground">Please refresh the page to continue</p>
           </div>
         </div>
       );

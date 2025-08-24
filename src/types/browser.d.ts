@@ -1,16 +1,14 @@
-// TypeScript declarations for browser APIs
+interface EyeDropper {
+  open(): Promise<{ sRGBHex: string }>;
+}
+
+interface EyeDropperConstructor {
+  new (): EyeDropper;
+}
 
 declare global {
   interface Window {
-    EyeDropper?: {
-      new (): EyeDropper;
-    };
-  }
-
-  interface EyeDropper {
-    open(): Promise<{
-      sRGBHex: string;
-    }>;
+    EyeDropper?: EyeDropperConstructor;
   }
 }
 
