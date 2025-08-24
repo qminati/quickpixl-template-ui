@@ -135,6 +135,22 @@ const templates = [
   }
 ];
 
+// Mock folders
+const folders = [
+  {
+    id: 'folder-1',
+    name: 'Christmas Templates',
+    templateCount: 12,
+    type: 'folder'
+  },
+  {
+    id: 'folder-2', 
+    name: 'Sports Collection',
+    templateCount: 8,
+    type: 'folder'
+  }
+];
+
 const QuickPixl = () => {
   const [activeSection, setActiveSection] = useState('templates');
   const [selectedTemplates, setSelectedTemplates] = useState<number[]>([]);
@@ -957,6 +973,29 @@ const QuickPixl = () => {
 
               {/* Templates Grid */}
               <div className="grid grid-cols-4 gap-4">
+                {/* Render folders first */}
+                {folders.map((folder) => (
+                  <div 
+                    key={folder.id}
+                    className="bg-card rounded-lg overflow-hidden border cursor-pointer transition-all hover:border-primary border-panel-border"
+                    onClick={() => {
+                      // TODO: Handle folder click - could show folder contents
+                      console.log('Folder clicked:', folder.name);
+                    }}
+                  >
+                    <div className="aspect-square flex items-center justify-center bg-muted/30">
+                      <Folder className="w-16 h-16 text-muted-foreground" />
+                    </div>
+                    <div className="p-3">
+                      <h4 className="text-sm font-medium text-foreground mb-1">{folder.name}</h4>
+                      <div className="text-xs text-muted-foreground">
+                        {folder.templateCount} templates
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                {/* Then render existing templates */}
                 {templates.map((template) => (
                   <div 
                     key={template.id}
