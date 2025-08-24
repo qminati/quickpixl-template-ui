@@ -96,11 +96,11 @@ const PlacementPlugin = () => {
   };
 
   return (
-    <div className="bg-card border border-panel-border rounded-lg">
+    <div className="bg-card border border-panel-border rounded-lg flex flex-col max-h-full">
       {/* Header */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full p-2.5 flex items-center justify-between text-left hover:bg-accent/50 transition-colors rounded-t-lg"
+        className="w-full p-2.5 flex items-center justify-between text-left hover:bg-accent/50 transition-colors rounded-t-lg flex-shrink-0"
       >
         <div className="flex items-center space-x-2">
           <Layers className="w-3.5 h-3.5 text-primary" />
@@ -115,79 +115,83 @@ const PlacementPlugin = () => {
 
       {/* Content */}
       {isExpanded && (
-        <div className="p-3 pt-0 space-y-3">
+        <div className="flex flex-col min-h-0 flex-1">
           {/* Canvas Dimensions */}
-          <div className="space-y-2">
-            <label className="text-xs font-medium text-foreground">Canvas Size</label>
-            
-            {/* Preset Selector */}
-            <select
-              value={selectedPreset}
-              onChange={(e) => handlePresetChange(e.target.value)}
-              className="w-full h-7 px-2 bg-background border border-input rounded text-xs"
-            >
-              {presets.map(preset => (
-                <option key={preset.id} value={preset.id}>
-                  {preset.name}
-                </option>
-              ))}
-            </select>
+          <div className="p-3 pt-0 space-y-3 flex-shrink-0">
+            <div className="space-y-2">
+              <label className="text-xs font-medium text-foreground">Canvas Size</label>
+              
+              {/* Preset Selector */}
+              <select
+                value={selectedPreset}
+                onChange={(e) => handlePresetChange(e.target.value)}
+                className="w-full h-7 px-2 bg-background border border-input rounded text-xs"
+              >
+                {presets.map(preset => (
+                  <option key={preset.id} value={preset.id}>
+                    {preset.name}
+                  </option>
+                ))}
+              </select>
 
-            {/* Dimensions and DPI in one row */}
-            <div className="grid grid-cols-3 gap-1.5">
-              <div>
-                <label className="text-xs text-muted-foreground">W</label>
-                <Input
-                  type="number"
-                  value={canvasWidth}
-                  onChange={(e) => {
-                    setCanvasWidth(Number(e.target.value));
-                    setSelectedPreset('custom');
-                  }}
-                  className="h-6 text-xs"
-                />
-              </div>
-              <div>
-                <label className="text-xs text-muted-foreground">H</label>
-                <Input
-                  type="number"
-                  value={canvasHeight}
-                  onChange={(e) => {
-                    setCanvasHeight(Number(e.target.value));
-                    setSelectedPreset('custom');
-                  }}
-                  className="h-6 text-xs"
-                />
-              </div>
-              <div>
-                <label className="text-xs text-muted-foreground">DPI</label>
-                <Input
-                  type="number"
-                  value={dpi}
-                  onChange={(e) => setDpi(Number(e.target.value))}
-                  className="h-6 text-xs"
-                />
+              {/* Dimensions and DPI in one row */}
+              <div className="grid grid-cols-3 gap-1.5">
+                <div>
+                  <label className="text-xs text-muted-foreground">W</label>
+                  <Input
+                    type="number"
+                    value={canvasWidth}
+                    onChange={(e) => {
+                      setCanvasWidth(Number(e.target.value));
+                      setSelectedPreset('custom');
+                    }}
+                    className="h-6 text-xs"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground">H</label>
+                  <Input
+                    type="number"
+                    value={canvasHeight}
+                    onChange={(e) => {
+                      setCanvasHeight(Number(e.target.value));
+                      setSelectedPreset('custom');
+                    }}
+                    className="h-6 text-xs"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground">DPI</label>
+                  <Input
+                    type="number"
+                    value={dpi}
+                    onChange={(e) => setDpi(Number(e.target.value))}
+                    className="h-6 text-xs"
+                  />
+                </div>
               </div>
             </div>
           </div>
 
           {/* Container Controls */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <label className="text-xs font-medium text-foreground">Containers</label>
-              <Button
-                onClick={addContainer}
-                size="sm"
-                variant="outline"
-                className="h-6 px-1.5 text-xs"
-              >
-                <Plus className="w-3 h-3 mr-0.5" />
-                Add
-              </Button>
+          <div className="flex-1 min-h-0 px-3">
+            <div className="space-y-2 mb-3">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-medium text-foreground">Containers</label>
+                <Button
+                  onClick={addContainer}
+                  size="sm"
+                  variant="outline"
+                  className="h-6 px-1.5 text-xs"
+                >
+                  <Plus className="w-3 h-3 mr-0.5" />
+                  Add
+                </Button>
+              </div>
             </div>
 
-            {/* Container List */}
-            <div className="space-y-1 max-h-32 overflow-y-auto">
+            {/* Container List - Scrollable */}
+            <div className="h-full overflow-y-auto space-y-1">
               {containers.map((container) => (
                 <div
                   key={container.id}
@@ -239,80 +243,88 @@ const PlacementPlugin = () => {
                   No containers added yet
                 </div>
               )}
+
+              {/* Selected Container Properties */}
+              {selectedContainer && (
+                <div className="space-y-2 border-t border-panel-border pt-2 mt-3">
+                  <label className="text-xs font-medium text-foreground">Properties</label>
+                  {(() => {
+                    const container = containers.find(c => c.id === selectedContainer);
+                    if (!container) return null;
+                    
+                    return (
+                      <div className="grid grid-cols-4 gap-1.5">
+                        <div>
+                          <label className="text-xs text-muted-foreground">X</label>
+                          <Input
+                            type="number"
+                            value={container.x}
+                            onChange={(e) => {
+                              const newX = Number(e.target.value);
+                              setContainers(prev => prev.map(c => 
+                                c.id === selectedContainer ? { ...c, x: newX } : c
+                              ));
+                            }}
+                            className="h-6 text-xs"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-xs text-muted-foreground">Y</label>
+                          <Input
+                            type="number"
+                            value={container.y}
+                            onChange={(e) => {
+                              const newY = Number(e.target.value);
+                              setContainers(prev => prev.map(c => 
+                                c.id === selectedContainer ? { ...c, y: newY } : c
+                              ));
+                            }}
+                            className="h-6 text-xs"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-xs text-muted-foreground">W</label>
+                          <Input
+                            type="number"
+                            value={container.width}
+                            onChange={(e) => {
+                              const newWidth = Number(e.target.value);
+                              setContainers(prev => prev.map(c => 
+                                c.id === selectedContainer ? { ...c, width: newWidth } : c
+                              ));
+                            }}
+                            className="h-6 text-xs"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-xs text-muted-foreground">H</label>
+                          <Input
+                            type="number"
+                            value={container.height}
+                            onChange={(e) => {
+                              const newHeight = Number(e.target.value);
+                              setContainers(prev => prev.map(c => 
+                                c.id === selectedContainer ? { ...c, height: newHeight } : c
+                              ));
+                            }}
+                            className="h-6 text-xs"
+                          />
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Selected Container Properties */}
-          {selectedContainer && (
-            <div className="space-y-2 border-t border-panel-border pt-2">
-              <label className="text-xs font-medium text-foreground">Properties</label>
-              {(() => {
-                const container = containers.find(c => c.id === selectedContainer);
-                if (!container) return null;
-                
-                return (
-                  <div className="grid grid-cols-4 gap-1.5">
-                    <div>
-                      <label className="text-xs text-muted-foreground">X</label>
-                      <Input
-                        type="number"
-                        value={container.x}
-                        onChange={(e) => {
-                          const newX = Number(e.target.value);
-                          setContainers(prev => prev.map(c => 
-                            c.id === selectedContainer ? { ...c, x: newX } : c
-                          ));
-                        }}
-                        className="h-6 text-xs"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-xs text-muted-foreground">Y</label>
-                      <Input
-                        type="number"
-                        value={container.y}
-                        onChange={(e) => {
-                          const newY = Number(e.target.value);
-                          setContainers(prev => prev.map(c => 
-                            c.id === selectedContainer ? { ...c, y: newY } : c
-                          ));
-                        }}
-                        className="h-6 text-xs"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-xs text-muted-foreground">W</label>
-                      <Input
-                        type="number"
-                        value={container.width}
-                        onChange={(e) => {
-                          const newWidth = Number(e.target.value);
-                          setContainers(prev => prev.map(c => 
-                            c.id === selectedContainer ? { ...c, width: newWidth } : c
-                          ));
-                        }}
-                        className="h-6 text-xs"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-xs text-muted-foreground">H</label>
-                      <Input
-                        type="number"
-                        value={container.height}
-                        onChange={(e) => {
-                          const newHeight = Number(e.target.value);
-                          setContainers(prev => prev.map(c => 
-                            c.id === selectedContainer ? { ...c, height: newHeight } : c
-                          ));
-                        }}
-                        className="h-6 text-xs"
-                      />
-                    </div>
-                  </div>
-                );
-              })()}
-            </div>
-          )}
+          {/* Add to Variations button */}
+          <div className="p-3 pt-2 flex-shrink-0 border-t border-panel-border">
+            <Button variant="secondary" className="w-full h-8 text-xs">
+              <Plus className="w-3 h-3 mr-1" />
+              Add to Variations
+            </Button>
+          </div>
         </div>
       )}
     </div>
