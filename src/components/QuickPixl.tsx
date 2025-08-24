@@ -395,53 +395,6 @@ const QuickPixl = () => {
               }
             </Button>
 
-            {/* Variation Cards */}
-            {backgroundVariations.length > 0 && (
-              <div className="space-y-3">
-                <h4 className="text-sm font-medium text-foreground">Variations</h4>
-                {backgroundVariations.map((variation) => (
-                  <div key={variation.id} className="bg-secondary rounded-lg p-3 flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div className="flex space-x-1">
-                        {variation.colors.slice(0, 3).map((color, index) => (
-                          <div
-                            key={index}
-                            className="w-4 h-4 rounded border border-panel-border"
-                            style={{ backgroundColor: color }}
-                          />
-                        ))}
-                        {variation.colors.length > 3 && (
-                          <span className="text-xs text-muted-foreground">+{variation.colors.length - 3}</span>
-                        )}
-                      </div>
-                      <div className="flex space-x-1">
-                        {variation.images.slice(0, 2).map((image, index) => (
-                          <div key={index} className="w-4 h-4 rounded border border-panel-border overflow-hidden">
-                            <img
-                              src={URL.createObjectURL(image)}
-                              alt=""
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                        ))}
-                        {variation.images.length > 2 && (
-                          <span className="text-xs text-muted-foreground">+{variation.images.length - 2}</span>
-                        )}
-                      </div>
-                      <span className="text-sm text-foreground">{variation.description}</span>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleRemoveVariation(variation.id)}
-                      className="text-muted-foreground hover:text-foreground p-1"
-                    >
-                      <X className="w-4 h-4" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
         )}
       </div>
@@ -464,7 +417,64 @@ const QuickPixl = () => {
         </h3>
         <div className="space-y-4">
           {activeSection === 'canvas' ? (
-            <BackgroundPlugin />
+            <div className="space-y-4">
+              <BackgroundPlugin />
+              {/* Variation Cards Section - Outside of Background Plugin */}
+              {backgroundVariations.length > 0 && (
+                <div className="bg-card border border-panel-border rounded-lg p-4">
+                  <h4 className="text-sm font-medium text-foreground mb-3 flex items-center space-x-2">
+                    <Shuffle className="w-4 h-4 text-primary" />
+                    <span>Variations</span>
+                    <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
+                      {backgroundVariations.length}
+                    </span>
+                  </h4>
+                  <div className="space-y-3">
+                    {backgroundVariations.map((variation) => (
+                      <div key={variation.id} className="bg-secondary rounded-lg p-3 flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div className="flex space-x-1">
+                            {variation.colors.slice(0, 3).map((color, index) => (
+                              <div
+                                key={index}
+                                className="w-4 h-4 rounded border border-panel-border"
+                                style={{ backgroundColor: color }}
+                              />
+                            ))}
+                            {variation.colors.length > 3 && (
+                              <span className="text-xs text-muted-foreground">+{variation.colors.length - 3}</span>
+                            )}
+                          </div>
+                          <div className="flex space-x-1">
+                            {variation.images.slice(0, 2).map((image, index) => (
+                              <div key={index} className="w-4 h-4 rounded border border-panel-border overflow-hidden">
+                                <img
+                                  src={URL.createObjectURL(image)}
+                                  alt=""
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                            ))}
+                            {variation.images.length > 2 && (
+                              <span className="text-xs text-muted-foreground">+{variation.images.length - 2}</span>
+                            )}
+                          </div>
+                          <span className="text-sm text-foreground">{variation.description}</span>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleRemoveVariation(variation.id)}
+                          className="text-muted-foreground hover:text-foreground p-1"
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           ) : activeSection === 'variations' ? (
             <div className="space-y-4">
               {backgroundVariations.length > 0 ? (
@@ -726,15 +736,6 @@ const QuickPixl = () => {
                 <AlertTriangle className="w-4 h-4 text-warning" />
               </div>
             </div>
-            {backgroundVariations.length > 0 && (
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-foreground">BACKGROUND</span>
-                <div className="flex items-center space-x-2">
-                  <span className="text-xs text-muted-foreground">{backgroundVariations.length} variations</span>
-                  <Palette className="w-4 h-4 text-primary" />
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Start Rendering Button */}
@@ -745,7 +746,7 @@ const QuickPixl = () => {
             ▶ Start Rendering
           </Button>
           <p className="text-center text-xs text-muted-foreground mt-2">
-            Total: {25 + backgroundVariations.length} images
+            Total: 25 images
           </p>
         </div>
       </div>
