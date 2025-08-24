@@ -1120,13 +1120,6 @@ const QuickPixl = () => {
         <div className="w-80 bg-panel border-l border-panel-border p-4 flex flex-col">
           <div className="flex-1">
             <h3 className="text-lg font-medium text-foreground mb-4">Render Queue</h3>
-            <Button 
-              className="w-full mb-4" 
-              variant="secondary"
-              onClick={() => console.log('Add Selection')}
-            >
-              + Add Selection
-            </Button>
             <div className="flex space-x-2 mb-6">
               <Button 
                 variant="outline" 
