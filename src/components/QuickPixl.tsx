@@ -18,7 +18,13 @@ import {
   Edit,
   Copy,
   FolderOpen,
-  RefreshCw
+  RefreshCw,
+  ChevronDown,
+  ChevronRight,
+  Upload,
+  X,
+  Check,
+  Palette
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -31,6 +37,14 @@ import templateBeLight from '@/assets/template-be-light.jpg';
 import templateGiveThanks from '@/assets/template-give-thanks.jpg';
 import templateInspirational from '@/assets/template-inspirational.jpg';
 import templateTouchdown from '@/assets/template-touchdown.jpg';
+
+// Define interfaces
+interface Variation {
+  id: string;
+  colors: string[];
+  images: File[];
+  description: string;
+}
 
 const templates = [
   {
@@ -94,6 +108,21 @@ const templates = [
 const QuickPixl = () => {
   const [activeSection, setActiveSection] = useState('templates');
   const [selectedTemplates, setSelectedTemplates] = useState<number[]>([]);
+  
+  // Background Plugin State
+  const [selectedColors, setSelectedColors] = useState<string[]>([]);
+  const [uploadedImages, setUploadedImages] = useState<File[]>([]);
+  const [selectedImages, setSelectedImages] = useState<File[]>([]);
+  const [backgroundVariations, setBackgroundVariations] = useState<Variation[]>([]);
+  const [isBackgroundExpanded, setIsBackgroundExpanded] = useState(true);
+
+  // Color palette
+  const colorPalette = [
+    '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FECA57',
+    '#FF9FF3', '#54A0FF', '#5F27CD', '#00D2D3', '#FF9F43',
+    '#C44569', '#786FA6', '#F79F1F', '#A3CB38', '#1289A7',
+    '#D63031', '#74B9FF', '#6C5CE7', '#A29BFE', '#FD79A8'
+  ];
 
   const sidebarItems = [
     { id: 'canvas', icon: Layers, label: 'Canvas' },
@@ -112,6 +141,231 @@ const QuickPixl = () => {
     );
   };
 
+  // Background Plugin Handlers
+  const handleColorSelect = (color: string) => {
+    setSelectedColors(prev => 
+      prev.includes(color) 
+        ? prev.filter(c => c !== color)
+        : [...prev, color]
+    );
+  };
+
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || []);
+    setUploadedImages(prev => [...prev, ...files]);
+  };
+
+  const handleImageSelect = (image: File) => {
+    setSelectedImages(prev => 
+      prev.includes(image) 
+        ? prev.filter(img => img !== image)
+        : [...prev, image]
+    );
+  };
+
+  const handleAddToVariation = () => {
+    if (selectedColors.length === 0 && selectedImages.length === 0) return;
+    
+    const newVariation: Variation = {
+      id: Date.now().toString(),
+      colors: [...selectedColors],
+      images: [...selectedImages],
+      description: `${selectedColors.length} colors, ${selectedImages.length} images`
+    };
+    
+    setBackgroundVariations(prev => [...prev, newVariation]);
+    setSelectedColors([]);
+    setSelectedImages([]);
+  };
+
+  const handleRemoveVariation = (variationId: string) => {
+    setBackgroundVariations(prev => prev.filter(v => v.id !== variationId));
+  };
+
+  // Background Plugin Component
+  const BackgroundPlugin = () => {
+    const totalSelected = selectedColors.length + selectedImages.length;
+    
+    return (
+      <div className="bg-card border border-panel-border rounded-lg shadow-sm">
+        {/* Header */}
+        <div 
+          className="flex items-center justify-between p-4 cursor-pointer hover:bg-secondary/50 transition-colors"
+          onClick={() => setIsBackgroundExpanded(!isBackgroundExpanded)}
+        >
+          <div className="flex items-center space-x-2">
+            <Palette className="w-4 h-4 text-primary" />
+            <span className="font-medium text-foreground">Background</span>
+            {totalSelected > 0 && (
+              <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
+                {totalSelected}
+              </span>
+            )}
+          </div>
+          {isBackgroundExpanded ? (
+            <ChevronDown className="w-4 h-4 text-muted-foreground" />
+          ) : (
+            <ChevronRight className="w-4 h-4 text-muted-foreground" />
+          )}
+        </div>
+
+        {/* Content */}
+        {isBackgroundExpanded && (
+          <div className="p-4 pt-0 space-y-6">
+            {/* Color Selection */}
+            <div>
+              <h4 className="text-sm font-medium text-foreground mb-3">Colors</h4>
+              <div className="grid grid-cols-5 gap-2">
+                {colorPalette.map((color) => (
+                  <button
+                    key={color}
+                    onClick={() => handleColorSelect(color)}
+                    className={`w-8 h-8 rounded border-2 transition-all ${
+                      selectedColors.includes(color)
+                        ? 'border-white scale-110 shadow-lg'
+                        : 'border-panel-border hover:border-muted-foreground'
+                    }`}
+                    style={{ backgroundColor: color }}
+                  >
+                    {selectedColors.includes(color) && (
+                      <Check className="w-4 h-4 text-white mx-auto" />
+                    )}
+                  </button>
+                ))}
+              </div>
+              {selectedColors.length > 0 && (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {selectedColors.map((color) => (
+                    <div 
+                      key={color}
+                      className="flex items-center space-x-1 bg-secondary px-2 py-1 rounded text-xs"
+                    >
+                      <div 
+                        className="w-3 h-3 rounded border border-panel-border"
+                        style={{ backgroundColor: color }}
+                      />
+                      <span className="text-foreground">{color}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Image Upload */}
+            <div>
+              <h4 className="text-sm font-medium text-foreground mb-3">Images</h4>
+              <div className="border-2 border-dashed border-panel-border rounded-lg p-4 text-center hover:border-muted-foreground transition-colors">
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="hidden"
+                  id="image-upload"
+                />
+                <label htmlFor="image-upload" className="cursor-pointer">
+                  <Upload className="w-6 h-6 text-muted-foreground mx-auto mb-2" />
+                  <p className="text-sm text-muted-foreground">
+                    Click to upload or drag and drop
+                  </p>
+                </label>
+              </div>
+              
+              {uploadedImages.length > 0 && (
+                <div className="mt-3 grid grid-cols-3 gap-2">
+                  {uploadedImages.map((image, index) => (
+                    <div key={index} className="relative">
+                      <div 
+                        className={`aspect-square rounded border-2 cursor-pointer transition-all ${
+                          selectedImages.includes(image)
+                            ? 'border-primary ring-2 ring-primary/20'
+                            : 'border-panel-border hover:border-muted-foreground'
+                        }`}
+                        onClick={() => handleImageSelect(image)}
+                      >
+                        <img
+                          src={URL.createObjectURL(image)}
+                          alt={`Uploaded ${index + 1}`}
+                          className="w-full h-full object-cover rounded"
+                        />
+                        {selectedImages.includes(image) && (
+                          <div className="absolute inset-0 bg-primary/20 rounded flex items-center justify-center">
+                            <Check className="w-4 h-4 text-primary" />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Add to Variation Button */}
+            <Button
+              onClick={handleAddToVariation}
+              disabled={totalSelected === 0}
+              className="w-full"
+              variant={totalSelected > 0 ? "default" : "secondary"}
+            >
+              {totalSelected > 0 
+                ? `Add ${selectedColors.length} colors, ${selectedImages.length} images to variation`
+                : 'Select colors or images to add'
+              }
+            </Button>
+
+            {/* Variation Cards */}
+            {backgroundVariations.length > 0 && (
+              <div className="space-y-3">
+                <h4 className="text-sm font-medium text-foreground">Variations</h4>
+                {backgroundVariations.map((variation) => (
+                  <div key={variation.id} className="bg-secondary rounded-lg p-3 flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className="flex space-x-1">
+                        {variation.colors.slice(0, 3).map((color, index) => (
+                          <div
+                            key={index}
+                            className="w-4 h-4 rounded border border-panel-border"
+                            style={{ backgroundColor: color }}
+                          />
+                        ))}
+                        {variation.colors.length > 3 && (
+                          <span className="text-xs text-muted-foreground">+{variation.colors.length - 3}</span>
+                        )}
+                      </div>
+                      <div className="flex space-x-1">
+                        {variation.images.slice(0, 2).map((image, index) => (
+                          <div key={index} className="w-4 h-4 rounded border border-panel-border overflow-hidden">
+                            <img
+                              src={URL.createObjectURL(image)}
+                              alt=""
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        ))}
+                        {variation.images.length > 2 && (
+                          <span className="text-xs text-muted-foreground">+{variation.images.length - 2}</span>
+                        )}
+                      </div>
+                      <span className="text-sm text-foreground">{variation.description}</span>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleRemoveVariation(variation.id)}
+                      className="text-muted-foreground hover:text-foreground p-1"
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   const renderSettingsPanel = () => {
     const settingsMap = {
       text: 'Text Settings',
@@ -126,9 +380,15 @@ const QuickPixl = () => {
         <h3 className="text-foreground text-lg font-medium mb-4">
           {settingsMap[activeSection as keyof typeof settingsMap]}
         </h3>
-          <div className="space-y-4 text-muted-foreground">
-            <p className="text-sm">Settings panel ready for {activeSection} configuration.</p>
-          </div>
+        <div className="space-y-4">
+          {activeSection === 'canvas' ? (
+            <BackgroundPlugin />
+          ) : (
+            <div className="text-muted-foreground">
+              <p className="text-sm">Settings panel ready for {activeSection} configuration.</p>
+            </div>
+          )}
+        </div>
       </div>
     );
   };
@@ -321,6 +581,15 @@ const QuickPixl = () => {
                 <AlertTriangle className="w-4 h-4 text-warning" />
               </div>
             </div>
+            {backgroundVariations.length > 0 && (
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-foreground">BACKGROUND</span>
+                <div className="flex items-center space-x-2">
+                  <span className="text-xs text-muted-foreground">{backgroundVariations.length} variations</span>
+                  <Palette className="w-4 h-4 text-primary" />
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Start Rendering Button */}
@@ -331,7 +600,7 @@ const QuickPixl = () => {
             ▶ Start Rendering
           </Button>
           <p className="text-center text-xs text-muted-foreground mt-2">
-            Total: 25 images
+            Total: {25 + backgroundVariations.length} images
           </p>
         </div>
       </div>
