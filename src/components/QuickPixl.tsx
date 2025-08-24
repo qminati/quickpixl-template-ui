@@ -458,7 +458,7 @@ const QuickPixl = () => {
                 <Plus className="w-3 h-3 mr-1" />
                 {selectedColors.length + selectedImages.length > 0 
                   ? `Add ${selectedColors.length} colors, ${selectedImages.length} images, placements`
-                  : 'Select colors, images, or create placements to add'
+                  : 'Add Variation'
                 }
               </Button>
               
