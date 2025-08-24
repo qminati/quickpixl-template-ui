@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { 
   Type, 
   Image as ImageIcon, 
@@ -24,7 +24,9 @@ import {
   Upload,
   X,
   Check,
-  Palette
+  Palette,
+  Pipette,
+  Hash
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -115,6 +117,9 @@ const QuickPixl = () => {
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const [backgroundVariations, setBackgroundVariations] = useState<Variation[]>([]);
   const [isBackgroundExpanded, setIsBackgroundExpanded] = useState(true);
+  const [currentColor, setCurrentColor] = useState('#FF6B6B');
+  const [isEyedropperActive, setIsEyedropperActive] = useState(false);
+  const colorInputRef = useRef<HTMLInputElement>(null);
 
   // Color palette
   const colorPalette = [
@@ -142,17 +147,38 @@ const QuickPixl = () => {
   };
 
   // Background Plugin Handlers
-  const handleColorSelect = (color: string) => {
-    setSelectedColors(prev => 
-      prev.includes(color) 
-        ? prev.filter(c => c !== color)
-        : [...prev, color]
-    );
+  const handleAddColor = () => {
+    if (currentColor && !selectedColors.includes(currentColor)) {
+      setSelectedColors(prev => [...prev, currentColor]);
+    }
+  };
+
+  const handleRemoveColor = (colorToRemove: string) => {
+    setSelectedColors(prev => prev.filter(color => color !== colorToRemove));
+  };
+
+  const handleEyedropper = async () => {
+    if ('EyeDropper' in window) {
+      try {
+        setIsEyedropperActive(true);
+        const eyeDropper = new (window as any).EyeDropper();
+        const result = await eyeDropper.open();
+        setCurrentColor(result.sRGBHex);
+        setIsEyedropperActive(false);
+      } catch (e) {
+        setIsEyedropperActive(false);
+        console.log('Eyedropper cancelled');
+      }
+    } else {
+      console.log('EyeDropper API not supported');
+    }
   };
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
     setUploadedImages(prev => [...prev, ...files]);
+    // Auto-select uploaded images
+    setSelectedImages(prev => [...prev, ...files]);
   };
 
   const handleImageSelect = (image: File) => {
@@ -215,38 +241,73 @@ const QuickPixl = () => {
             {/* Color Selection */}
             <div>
               <h4 className="text-sm font-medium text-foreground mb-3">Colors</h4>
-              <div className="grid grid-cols-5 gap-2">
-                {colorPalette.map((color) => (
-                  <button
-                    key={color}
-                    onClick={() => handleColorSelect(color)}
-                    className={`w-8 h-8 rounded border-2 transition-all ${
-                      selectedColors.includes(color)
-                        ? 'border-white scale-110 shadow-lg'
-                        : 'border-panel-border hover:border-muted-foreground'
-                    }`}
-                    style={{ backgroundColor: color }}
-                  >
-                    {selectedColors.includes(color) && (
-                      <Check className="w-4 h-4 text-white mx-auto" />
-                    )}
-                  </button>
-                ))}
+              
+              {/* Color Picker and Eyedropper */}
+              <div className="flex items-center space-x-2 mb-3">
+                <div className="flex items-center space-x-2 bg-secondary rounded-lg p-2 flex-1">
+                  <input
+                    ref={colorInputRef}
+                    type="color"
+                    value={currentColor}
+                    onChange={(e) => setCurrentColor(e.target.value)}
+                    className="w-8 h-8 rounded border border-panel-border cursor-pointer"
+                  />
+                  <div className="flex items-center space-x-1 flex-1">
+                    <Hash className="w-3 h-3 text-muted-foreground" />
+                    <input
+                      type="text"
+                      value={currentColor}
+                      onChange={(e) => setCurrentColor(e.target.value)}
+                      className="bg-transparent text-sm text-foreground border-none outline-none flex-1"
+                      placeholder="#FF6B6B"
+                    />
+                  </div>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleEyedropper}
+                  disabled={isEyedropperActive}
+                  className="p-2"
+                  title="Pick color from screen"
+                >
+                  <Pipette className={`w-4 h-4 ${isEyedropperActive ? 'animate-pulse' : ''}`} />
+                </Button>
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={handleAddColor}
+                  disabled={!currentColor || selectedColors.includes(currentColor)}
+                >
+                  Add
+                </Button>
               </div>
+
+              {/* Selected Colors */}
               {selectedColors.length > 0 && (
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {selectedColors.map((color) => (
-                    <div 
-                      key={color}
-                      className="flex items-center space-x-1 bg-secondary px-2 py-1 rounded text-xs"
-                    >
+                <div className="space-y-2">
+                  <div className="flex flex-wrap gap-2">
+                    {selectedColors.map((color) => (
                       <div 
-                        className="w-3 h-3 rounded border border-panel-border"
-                        style={{ backgroundColor: color }}
-                      />
-                      <span className="text-foreground">{color}</span>
-                    </div>
-                  ))}
+                        key={color}
+                        className="group flex items-center space-x-2 bg-secondary hover:bg-secondary/80 px-2 py-1 rounded text-xs transition-colors"
+                      >
+                        <div 
+                          className="w-4 h-4 rounded border border-panel-border"
+                          style={{ backgroundColor: color }}
+                        />
+                        <span className="text-foreground font-mono">{color}</span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleRemoveColor(color)}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity p-0 h-4 w-4 text-muted-foreground hover:text-foreground"
+                        >
+                          <X className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
@@ -383,6 +444,69 @@ const QuickPixl = () => {
         <div className="space-y-4">
           {activeSection === 'canvas' ? (
             <BackgroundPlugin />
+          ) : activeSection === 'variations' ? (
+            <div className="space-y-4">
+              {backgroundVariations.length > 0 ? (
+                <div className="bg-card border border-panel-border rounded-lg p-4">
+                  <h4 className="text-sm font-medium text-foreground mb-3 flex items-center space-x-2">
+                    <Palette className="w-4 h-4 text-primary" />
+                    <span>Background Variations</span>
+                    <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
+                      {backgroundVariations.length}
+                    </span>
+                  </h4>
+                  <div className="space-y-3">
+                    {backgroundVariations.map((variation) => (
+                      <div key={variation.id} className="bg-secondary rounded-lg p-3 flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div className="flex space-x-1">
+                            {variation.colors.slice(0, 3).map((color, index) => (
+                              <div
+                                key={index}
+                                className="w-4 h-4 rounded border border-panel-border"
+                                style={{ backgroundColor: color }}
+                              />
+                            ))}
+                            {variation.colors.length > 3 && (
+                              <span className="text-xs text-muted-foreground">+{variation.colors.length - 3}</span>
+                            )}
+                          </div>
+                          <div className="flex space-x-1">
+                            {variation.images.slice(0, 2).map((image, index) => (
+                              <div key={index} className="w-4 h-4 rounded border border-panel-border overflow-hidden">
+                                <img
+                                  src={URL.createObjectURL(image)}
+                                  alt=""
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                            ))}
+                            {variation.images.length > 2 && (
+                              <span className="text-xs text-muted-foreground">+{variation.images.length - 2}</span>
+                            )}
+                          </div>
+                          <span className="text-sm text-foreground">{variation.description}</span>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleRemoveVariation(variation.id)}
+                          className="text-muted-foreground hover:text-foreground p-1"
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-card border border-panel-border rounded-lg p-4 text-center">
+                  <Palette className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+                  <p className="text-sm text-muted-foreground mb-2">No variations created yet</p>
+                  <p className="text-xs text-muted-foreground">Use the Canvas section to create background variations</p>
+                </div>
+              )}
+            </div>
           ) : (
             <div className="text-muted-foreground">
               <p className="text-sm">Settings panel ready for {activeSection} configuration.</p>
