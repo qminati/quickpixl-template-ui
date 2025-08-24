@@ -32,6 +32,9 @@ import {
 import { Button } from '@/components/ui/button';
 import PlacementPlugin from './PlacementPlugin';
 import CanvasEditor from './CanvasEditor';
+import ErrorBoundary from './ErrorBoundary';
+import { validateImage, handleImageError, createImageFallback } from '@/utils/imageUtils';
+import { toast } from 'sonner';
 
 // Import template images
 import templateFocusGood from '@/assets/template-focus-good.jpg';
@@ -274,33 +277,67 @@ const QuickPixl = () => {
   };
 
   const handleEyedropper = async () => {
-    if ('EyeDropper' in window) {
-      try {
-        setIsEyedropperActive(true);
-        const eyeDropper = new (window as any).EyeDropper();
-        const result = await eyeDropper.open();
-        setCurrentColor(result.sRGBHex);
-      } catch (e) {
-        console.log('Eyedropper cancelled');
-      } finally {
-        setIsEyedropperActive(false);
-      }
-    } else {
-      // Better fallback for unsupported browsers (Safari, Firefox)
-      alert('Eyedropper is not supported in your browser. Please use the color picker or enter a hex value instead.');
+    if (!('EyeDropper' in window)) {
+      toast.error('Eyedropper not supported in this browser. Using color picker instead.');
       // Auto-focus the color input as fallback
       if (colorInputRef.current) {
         colorInputRef.current.focus();
         colorInputRef.current.click();
       }
+      return;
+    }
+
+    try {
+      setIsEyedropperActive(true);
+      const eyeDropper = new window.EyeDropper!();
+      const result = await eyeDropper.open();
+      setCurrentColor(result.sRGBHex);
+      toast.success('Color picked successfully!');
+    } catch (error) {
+      if (error instanceof Error && error.name !== 'AbortError') {
+        console.error('Eyedropper error:', error);
+        toast.error('Failed to pick color. Please try again.');
+      }
+      // AbortError is expected when user cancels, so we don't show an error
+    } finally {
+      setIsEyedropperActive(false);
     }
   };
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
-    setUploadedImages(prev => [...prev, ...files]);
-    // Auto-select uploaded images
-    setSelectedImages(prev => [...prev, ...files]);
+    if (files.length === 0) return;
+
+    const validFiles: File[] = [];
+    let hasErrors = false;
+
+    for (const file of files) {
+      try {
+        const validation = await validateImage(file);
+        if (validation.isValid) {
+          validFiles.push(file);
+        } else {
+          hasErrors = true;
+          toast.error(`${file.name}: ${validation.error}`);
+        }
+      } catch (error) {
+        hasErrors = true;
+        toast.error(`Failed to validate ${file.name}`);
+      }
+    }
+
+    if (validFiles.length > 0) {
+      setUploadedImages(prev => [...prev, ...validFiles]);
+      setSelectedImages(prev => [...prev, ...validFiles]);
+      toast.success(`${validFiles.length} image${validFiles.length > 1 ? 's' : ''} uploaded successfully!`);
+    }
+
+    if (hasErrors && validFiles.length === 0) {
+      toast.error('No valid images could be uploaded');
+    }
+
+    // Clear the input
+    event.target.value = '';
   };
 
   const handleImageSelect = (image: File) => {
@@ -312,19 +349,27 @@ const QuickPixl = () => {
   };
 
   const handleImageDelete = (imageToDelete: File) => {
-    // Clean up the blob URL for this specific image
-    const url = blobUrls.get(imageToDelete);
-    if (url) {
-      URL.revokeObjectURL(url);
-      setBlobUrls(prev => {
-        const newMap = new Map(prev);
-        newMap.delete(imageToDelete);
-        return newMap;
-      });
+    try {
+      // Clean up the blob URL for this specific image
+      const url = blobUrls.get(imageToDelete);
+      if (url) {
+        URL.revokeObjectURL(url);
+        setBlobUrls(prev => {
+          const newMap = new Map(prev);
+          newMap.delete(imageToDelete);
+          return newMap;
+        });
+      }
+      
+      // Remove from uploaded and selected images
+      setUploadedImages(prev => prev.filter(img => img !== imageToDelete));
+      setSelectedImages(prev => prev.filter(img => img !== imageToDelete));
+      
+      toast.success('Image removed successfully');
+    } catch (error) {
+      console.error('Error deleting image:', error);
+      toast.error('Failed to remove image');
     }
-    
-    setUploadedImages(prev => prev.filter(img => img !== imageToDelete));
-    setSelectedImages(prev => prev.filter(img => img !== imageToDelete));
   };
 
   const handleAddToVariation = () => {
@@ -487,6 +532,7 @@ const QuickPixl = () => {
                           src={getBlobUrl(image)}
                           alt={`Uploaded ${index + 1}`}
                           className="w-full h-full object-cover rounded"
+                          onError={handleImageError}
                         />
                         {selectedImages.includes(image) && (
                           <div className="absolute inset-0 bg-primary/20 rounded flex items-center justify-center">
@@ -549,6 +595,7 @@ const QuickPixl = () => {
                               src={template.image} 
                               alt={template.title}
                               className="w-full h-full object-cover"
+                              onError={handleImageError}
                             />
                           </div>
                           <div className="flex-1 min-w-0">
@@ -623,12 +670,13 @@ const QuickPixl = () => {
                         <div className="flex space-x-1">
                           {variation.templates.map((template) => (
                             <div key={template.id} className="w-8 h-8 rounded overflow-hidden">
-                              <img 
-                                src={template.image} 
-                                alt={template.title}
-                                className="w-full h-full object-cover"
-                                title={template.title}
-                              />
+                               <img 
+                                 src={template.image} 
+                                 alt={template.title}
+                                 className="w-full h-full object-cover"
+                                 title={template.title}
+                                 onError={handleImageError}
+                               />
                             </div>
                           ))}
                         </div>
@@ -813,12 +861,13 @@ const QuickPixl = () => {
                         <div className="flex space-x-1">
                           {variation.templates.map((template) => (
                             <div key={template.id} className="w-8 h-8 rounded overflow-hidden">
-                              <img 
-                                src={template.image} 
-                                alt={template.title}
-                                className="w-full h-full object-cover"
-                                title={template.title}
-                              />
+                               <img 
+                                 src={template.image} 
+                                 alt={template.title}
+                                 className="w-full h-full object-cover"
+                                 title={template.title}
+                                 onError={handleImageError}
+                               />
                             </div>
                           ))}
                         </div>
@@ -865,40 +914,41 @@ const QuickPixl = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      {/* Header */}
-      <header className="h-12 bg-panel border-b border-panel-border flex items-center justify-between px-4">
-        <div className="flex items-center space-x-6">
-          <div className="flex items-center space-x-2">
-            <div className="w-6 h-6 bg-primary rounded-sm flex items-center justify-center">
-              <span className="text-xs font-bold text-primary-foreground">QP</span>
+    <ErrorBoundary>
+      <div className="min-h-screen bg-background text-foreground">
+        {/* Header */}
+        <header className="h-12 bg-panel border-b border-panel-border flex items-center justify-between px-4">
+          <div className="flex items-center space-x-6">
+            <div className="flex items-center space-x-2">
+              <div className="w-6 h-6 bg-primary rounded-sm flex items-center justify-center">
+                <span className="text-xs font-bold text-primary-foreground">QP</span>
+              </div>
+              <span className="font-semibold text-foreground">QuickPixl</span>
             </div>
-            <span className="font-semibold text-foreground">QuickPixl</span>
+            <nav className="flex items-center space-x-4 text-sm text-muted-foreground">
+              <button className="hover:text-foreground transition-colors">File</button>
+              <button className="hover:text-foreground transition-colors">Account</button>
+              <button className="hover:text-foreground transition-colors">Help</button>
+            </nav>
           </div>
-          <nav className="flex items-center space-x-4 text-sm text-muted-foreground">
-            <button className="hover:text-foreground transition-colors">File</button>
-            <button className="hover:text-foreground transition-colors">Account</button>
-            <button className="hover:text-foreground transition-colors">Help</button>
-          </nav>
-        </div>
-        <div className="flex items-center space-x-2">
-          <button className="p-2 hover:bg-secondary rounded transition-colors">
-            <Settings className="w-4 h-4" />
-          </button>
-          <button className="p-2 hover:bg-secondary rounded transition-colors">
-            <Folder className="w-4 h-4" />
-          </button>
-          <button className="p-2 hover:bg-secondary rounded transition-colors">
-            <Mail className="w-4 h-4" />
-          </button>
-          <button className="p-2 hover:bg-secondary rounded transition-colors">
-            <HelpCircle className="w-4 h-4" />
-          </button>
-          <button className="p-2 hover:bg-secondary rounded transition-colors">
-            <User className="w-4 h-4" />
-          </button>
-        </div>
-      </header>
+          <div className="flex items-center space-x-2">
+            <button className="p-2 hover:bg-secondary rounded transition-colors">
+              <Settings className="w-4 h-4" />
+            </button>
+            <button className="p-2 hover:bg-secondary rounded transition-colors">
+              <Folder className="w-4 h-4" />
+            </button>
+            <button className="p-2 hover:bg-secondary rounded transition-colors">
+              <Mail className="w-4 h-4" />
+            </button>
+            <button className="p-2 hover:bg-secondary rounded transition-colors">
+              <HelpCircle className="w-4 h-4" />
+            </button>
+            <button className="p-2 hover:bg-secondary rounded transition-colors">
+              <User className="w-4 h-4" />
+            </button>
+          </div>
+        </header>
 
       <div className="flex h-[calc(100vh-3rem)]">
         {/* Left Sidebar */}
@@ -1045,11 +1095,12 @@ const QuickPixl = () => {
                     }`}
                   >
                     <div className="aspect-square overflow-hidden">
-                      <img 
-                        src={template.image} 
-                        alt={template.title}
-                        className="w-full h-full object-cover"
-                      />
+                         <img 
+                           src={template.image} 
+                           alt={template.title}
+                           className="w-full h-full object-cover"
+                           onError={handleImageError}
+                         />
                     </div>
                     <div className="p-3">
                       <h4 className="text-sm font-medium text-foreground mb-1">{template.title}</h4>
@@ -1141,9 +1192,10 @@ const QuickPixl = () => {
               Total: 25 images
             </p>
           </div>
+          </div>
         </div>
       </div>
-    </div>
+    </ErrorBoundary>
   );
 };
 

@@ -31,6 +31,8 @@ interface Container {
   name: string;
 }
 
+type ResizeHandle = 'nw' | 'ne' | 'sw' | 'se' | null;
+
 const CanvasEditor: React.FC<CanvasEditorProps> = ({ 
   canvasWidth,
   canvasHeight,
@@ -42,8 +44,9 @@ const CanvasEditor: React.FC<CanvasEditorProps> = ({
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [isResizing, setIsResizing] = useState<string | null>(null);
+  const [isResizing, setIsResizing] = useState<ResizeHandle>(null);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [resizeStart, setResizeStart] = useState({ x: 0, y: 0, width: 0, height: 0 });
   const [zoom, setZoom] = useState(1);
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
 
@@ -113,23 +116,46 @@ const CanvasEditor: React.FC<CanvasEditorProps> = ({
     return marks;
   };
 
-  const handleMouseDown = useCallback((e: React.MouseEvent, containerId?: string) => {
-    if (!svgRef.current) return;
+  // Improved coordinate calculation with bounds checking
+  const getCanvasCoordinates = useCallback((clientX: number, clientY: number) => {
+    if (!svgRef.current) return { x: 0, y: 0 };
     
     const rect = svgRef.current.getBoundingClientRect();
-    const x = (e.clientX - rect.left) * (canvasWidth / displaySize.width);
-    const y = (e.clientY - rect.top) * (canvasHeight / displaySize.height);
+    const x = Math.max(0, Math.min(canvasWidth, (clientX - rect.left) * (canvasWidth / displaySize.width)));
+    const y = Math.max(0, Math.min(canvasHeight, (clientY - rect.top) * (canvasHeight / displaySize.height)));
     
-    if (containerId) {
+    return { x, y };
+  }, [canvasWidth, canvasHeight, displaySize]);
+
+  const handleMouseDown = useCallback((e: React.MouseEvent, containerId?: string, resizeHandle?: ResizeHandle) => {
+    if (!svgRef.current) return;
+    
+    const coords = getCanvasCoordinates(e.clientX, e.clientY);
+    
+    if (resizeHandle && containerId) {
+      // Start resizing
+      const container = containers.find(c => c.id === containerId);
+      if (container) {
+        setIsResizing(resizeHandle);
+        setSelectedContainer(containerId);
+        setResizeStart({
+          x: coords.x,
+          y: coords.y,
+          width: container.width,
+          height: container.height
+        });
+      }
+    } else if (containerId) {
+      // Start dragging
       setSelectedContainer(containerId);
       setIsDragging(true);
       setDragStart({ x: e.clientX, y: e.clientY });
     } else {
-      // Create new container
+      // Create new container with bounds checking
       const newContainer: Container = {
         id: `container-${Date.now()}`,
-        x: x - 50,
-        y: y - 50,
+        x: Math.max(0, Math.min(canvasWidth - 100, coords.x - 50)),
+        y: Math.max(0, Math.min(canvasHeight - 100, coords.y - 50)),
         width: 100,
         height: 100,
         rotation: 0,
@@ -140,22 +166,68 @@ const CanvasEditor: React.FC<CanvasEditorProps> = ({
       setContainers(prev => [...prev, newContainer]);
       setSelectedContainer(newContainer.id);
     }
-  }, [canvasWidth, canvasHeight, displaySize, containers.length]);
+  }, [canvasWidth, canvasHeight, displaySize, containers, getCanvasCoordinates]);
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
-    if (!isDragging || !selectedContainer) return;
-    
-    const deltaX = (e.clientX - dragStart.x) * (canvasWidth / displaySize.width);
-    const deltaY = (e.clientY - dragStart.y) * (canvasHeight / displaySize.height);
-    
-    setContainers(prev => prev.map(container => 
-      container.id === selectedContainer
-        ? { ...container, x: Math.max(0, container.x + deltaX), y: Math.max(0, container.y + deltaY) }
-        : container
-    ));
-    
-    setDragStart({ x: e.clientX, y: e.clientY });
-  }, [isDragging, selectedContainer, dragStart, canvasWidth, canvasHeight, displaySize]);
+    if (isResizing && selectedContainer) {
+      // Handle resizing
+      const coords = getCanvasCoordinates(e.clientX, e.clientY);
+      const container = containers.find(c => c.id === selectedContainer);
+      if (!container) return;
+
+      let newWidth = container.width;
+      let newHeight = container.height;
+      let newX = container.x;
+      let newY = container.y;
+
+      const deltaX = coords.x - resizeStart.x;
+      const deltaY = coords.y - resizeStart.y;
+
+      switch (isResizing) {
+        case 'se': // bottom-right
+          newWidth = Math.max(20, Math.min(canvasWidth - container.x, resizeStart.width + deltaX));
+          newHeight = Math.max(20, Math.min(canvasHeight - container.y, resizeStart.height + deltaY));
+          break;
+        case 'sw': // bottom-left
+          newWidth = Math.max(20, resizeStart.width - deltaX);
+          newHeight = Math.max(20, Math.min(canvasHeight - container.y, resizeStart.height + deltaY));
+          newX = Math.max(0, container.x + resizeStart.width - newWidth);
+          break;
+        case 'ne': // top-right
+          newWidth = Math.max(20, Math.min(canvasWidth - container.x, resizeStart.width + deltaX));
+          newHeight = Math.max(20, resizeStart.height - deltaY);
+          newY = Math.max(0, container.y + resizeStart.height - newHeight);
+          break;
+        case 'nw': // top-left
+          newWidth = Math.max(20, resizeStart.width - deltaX);
+          newHeight = Math.max(20, resizeStart.height - deltaY);
+          newX = Math.max(0, container.x + resizeStart.width - newWidth);
+          newY = Math.max(0, container.y + resizeStart.height - newHeight);
+          break;
+      }
+
+      setContainers(prev => prev.map(c => 
+        c.id === selectedContainer
+          ? { ...c, x: newX, y: newY, width: newWidth, height: newHeight }
+          : c
+      ));
+    } else if (isDragging && selectedContainer) {
+      // Handle dragging with improved bounds checking
+      const deltaX = (e.clientX - dragStart.x) * (canvasWidth / displaySize.width);
+      const deltaY = (e.clientY - dragStart.y) * (canvasHeight / displaySize.height);
+      
+      setContainers(prev => prev.map(container => {
+        if (container.id === selectedContainer) {
+          const newX = Math.max(0, Math.min(canvasWidth - container.width, container.x + deltaX));
+          const newY = Math.max(0, Math.min(canvasHeight - container.height, container.y + deltaY));
+          return { ...container, x: newX, y: newY };
+        }
+        return container;
+      }));
+      
+      setDragStart({ x: e.clientX, y: e.clientY });
+    }
+  }, [isDragging, isResizing, selectedContainer, dragStart, resizeStart, canvasWidth, canvasHeight, displaySize, containers, getCanvasCoordinates]);
 
   const handleMouseUp = useCallback(() => {
     setIsDragging(false);
@@ -163,7 +235,7 @@ const CanvasEditor: React.FC<CanvasEditorProps> = ({
   }, []);
 
   useEffect(() => {
-    if (isDragging) {
+    if (isDragging || isResizing) {
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
       return () => {
@@ -171,7 +243,7 @@ const CanvasEditor: React.FC<CanvasEditorProps> = ({
         document.removeEventListener('mouseup', handleMouseUp);
       };
     }
-  }, [isDragging, handleMouseMove, handleMouseUp]);
+  }, [isDragging, isResizing, handleMouseMove, handleMouseUp]);
 
   const handleZoomIn = () => setZoom(prev => Math.min(prev * 1.2, 5));
   const handleZoomOut = () => setZoom(prev => Math.max(prev / 1.2, 0.1));
@@ -288,10 +360,10 @@ const CanvasEditor: React.FC<CanvasEditorProps> = ({
                       strokeWidth={selectedContainer === container.id ? "2" : "1"}
                       strokeDasharray={selectedContainer === container.id ? "5,5" : "none"}
                       className="cursor-move"
-                      onMouseDown={(e) => {
-                        e.stopPropagation();
-                        handleMouseDown(e as any, container.id);
-                      }}
+                        onMouseDown={(e) => {
+                          e.stopPropagation();
+                          handleMouseDown(e as any, container.id);
+                        }}
                       transform={`rotate(${container.rotation} ${container.x + container.width/2} ${container.y + container.height/2})`}
                     />
                     
@@ -311,7 +383,7 @@ const CanvasEditor: React.FC<CanvasEditorProps> = ({
                     {/* Selection Handles */}
                     {selectedContainer === container.id && (
                       <>
-                        {/* Corner resize handles */}
+                        {/* Corner resize handles with proper event handling */}
                         <circle
                           cx={container.x + container.width}
                           cy={container.y + container.height}
@@ -320,6 +392,10 @@ const CanvasEditor: React.FC<CanvasEditorProps> = ({
                           stroke="white"
                           strokeWidth="1"
                           className="cursor-nw-resize"
+                          onMouseDown={(e) => {
+                            e.stopPropagation();
+                            handleMouseDown(e as any, container.id, 'se');
+                          }}
                         />
                         <circle
                           cx={container.x}
@@ -329,6 +405,36 @@ const CanvasEditor: React.FC<CanvasEditorProps> = ({
                           stroke="white"
                           strokeWidth="1"
                           className="cursor-nw-resize"
+                          onMouseDown={(e) => {
+                            e.stopPropagation();
+                            handleMouseDown(e as any, container.id, 'nw');
+                          }}
+                        />
+                        <circle
+                          cx={container.x + container.width}
+                          cy={container.y}
+                          r="4"
+                          fill="hsl(var(--primary))"
+                          stroke="white"
+                          strokeWidth="1"
+                          className="cursor-ne-resize"
+                          onMouseDown={(e) => {
+                            e.stopPropagation();
+                            handleMouseDown(e as any, container.id, 'ne');
+                          }}
+                        />
+                        <circle
+                          cx={container.x}
+                          cy={container.y + container.height}
+                          r="4"
+                          fill="hsl(var(--primary))"
+                          stroke="white"
+                          strokeWidth="1"
+                          className="cursor-sw-resize"
+                          onMouseDown={(e) => {
+                            e.stopPropagation();
+                            handleMouseDown(e as any, container.id, 'sw');
+                          }}
                         />
                       </>
                     )}
