@@ -243,43 +243,46 @@ const QuickPixl = () => {
               <h4 className="text-sm font-medium text-foreground mb-3">Colors</h4>
               
               {/* Color Picker and Eyedropper */}
-              <div className="flex items-center space-x-2 mb-3">
-                <div className="flex items-center space-x-2 bg-secondary rounded-lg p-2 flex-1">
-                  <input
-                    ref={colorInputRef}
-                    type="color"
-                    value={currentColor}
-                    onChange={(e) => setCurrentColor(e.target.value)}
-                    className="w-8 h-8 rounded border border-panel-border cursor-pointer"
-                  />
-                  <div className="flex items-center space-x-1 flex-1">
-                    <Hash className="w-3 h-3 text-muted-foreground" />
+              <div className="flex flex-col space-y-2 mb-3">
+                <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-2 bg-secondary rounded-lg p-2 flex-1 min-w-0">
                     <input
-                      type="text"
+                      ref={colorInputRef}
+                      type="color"
                       value={currentColor}
                       onChange={(e) => setCurrentColor(e.target.value)}
-                      className="bg-transparent text-sm text-foreground border-none outline-none flex-1"
-                      placeholder="#FF6B6B"
+                      className="w-8 h-8 rounded border border-panel-border cursor-pointer flex-shrink-0"
                     />
+                    <div className="flex items-center space-x-1 flex-1 min-w-0">
+                      <Hash className="w-3 h-3 text-muted-foreground flex-shrink-0" />
+                      <input
+                        type="text"
+                        value={currentColor}
+                        onChange={(e) => setCurrentColor(e.target.value)}
+                        className="bg-transparent text-sm text-foreground border-none outline-none flex-1 min-w-0"
+                        placeholder="#FF6B6B"
+                      />
+                    </div>
                   </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleEyedropper}
+                    disabled={isEyedropperActive}
+                    className="p-2 flex-shrink-0"
+                    title="Pick color from screen"
+                  >
+                    <Pipette className={`w-4 h-4 ${isEyedropperActive ? 'animate-pulse' : ''}`} />
+                  </Button>
                 </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleEyedropper}
-                  disabled={isEyedropperActive}
-                  className="p-2"
-                  title="Pick color from screen"
-                >
-                  <Pipette className={`w-4 h-4 ${isEyedropperActive ? 'animate-pulse' : ''}`} />
-                </Button>
                 <Button
                   variant="default"
                   size="sm"
                   onClick={handleAddColor}
                   disabled={!currentColor || selectedColors.includes(currentColor)}
+                  className="w-full"
                 >
-                  Add
+                  Add Color
                 </Button>
               </div>
 
