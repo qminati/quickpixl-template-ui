@@ -490,11 +490,11 @@ const QuickPixl = () => {
     };
 
     return (
-      <div className="w-80 bg-panel border-r border-panel-border p-4">
+      <div className="w-80 bg-panel border-r border-panel-border p-4 flex flex-col h-full">
         <h3 className="text-foreground text-lg font-medium mb-4">
           {settingsMap[activeSection as keyof typeof settingsMap]}
         </h3>
-        <div className="space-y-4">
+        <div className="flex-1 space-y-4 overflow-y-auto">
           {activeSection === 'templates' ? (
             <div className="space-y-4">
               {/* Added Templates Section */}
@@ -780,36 +780,39 @@ const QuickPixl = () => {
                 </div>
               )}
               
-              {backgroundVariations.length === 0 && templateVariations.length === 0 && (
-                <div className="bg-card border border-panel-border rounded-lg p-4 text-center">
-                  <Shuffle className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-                  <p className="text-sm text-muted-foreground mb-2">No variations created yet</p>
-                  <p className="text-xs text-muted-foreground">Use the Canvas or Templates sections to create variations</p>
-                </div>
-              )}
+               {backgroundVariations.length === 0 && templateVariations.length === 0 && (
+                 <div className="bg-card border border-panel-border rounded-lg p-4 text-center">
+                   <Shuffle className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+                   <p className="text-sm text-muted-foreground mb-2">No variations created yet</p>
+                   <p className="text-xs text-muted-foreground">Use the Canvas or Templates sections to create variations</p>
+                 </div>
+               )}
+             </div>
+           ) : (
+             <div className="text-muted-foreground">
+               <p className="text-sm">Settings panel ready for {activeSection} configuration.</p>
+             </div>
+           )}
+         </div>
 
-              {/* Send to Render Queue Button - Fixed at bottom */}
-              {(backgroundVariations.length > 0 || templateVariations.length > 0) && (
-                <div className="mt-6 pt-4 border-t border-panel-border">
-                  <Button
-                    className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
-                    onClick={() => {
-                      // TODO: Implement send to render queue functionality
-                      console.log('Sending to render queue:', { backgroundVariations, templateVariations });
-                    }}
-                  >
-                    Send to Render Queue
-                  </Button>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="text-muted-foreground">
-              <p className="text-sm">Settings panel ready for {activeSection} configuration.</p>
-            </div>
-          )}
-        </div>
-      </div>
+         {/* Send to Render Queue Button - Fixed at bottom for variations section */}
+         {activeSection === 'variations' && (backgroundVariations.length > 0 || templateVariations.length > 0) && (
+           <div className="flex-shrink-0 mt-6">
+             <Button
+               className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-medium py-3"
+               onClick={() => {
+                 // TODO: Implement send to render queue functionality
+                 console.log('Sending to render queue:', { backgroundVariations, templateVariations });
+               }}
+             >
+               Send to Render Queue
+             </Button>
+             <p className="text-center text-xs text-muted-foreground mt-2">
+               Total: {backgroundVariations.length + templateVariations.length} variations
+             </p>
+           </div>
+         )}
+       </div>
     );
   };
 
