@@ -173,19 +173,18 @@ const PlacementPlugin = () => {
             </div>
           </div>
 
-          {/* Container Controls */}
+          {/* Placement Controls */}
           <div className="flex-1 min-h-0 px-2.5">
             <div className="space-y-1.5 mb-2">
               <div className="flex items-center justify-between">
-                <label className="text-xs font-medium text-foreground">Containers</label>
                 <Button
                   onClick={addContainer}
                   size="sm"
-                  variant="outline"
-                  className="h-5 px-1 text-xs"
+                  variant="default"
+                  className="h-5 px-2 text-xs w-full"
                 >
                   <Plus className="w-2.5 h-2.5 mr-0.5" />
-                  Add
+                  Add Current Placement
                 </Button>
               </div>
             </div>
@@ -317,6 +316,51 @@ const PlacementPlugin = () => {
               )}
             </div>
           </div>
+
+          {/* Current Placement Configuration */}
+          {containers.length > 0 && (
+            <div className="p-2.5 pt-1.5 flex-shrink-0 border-t border-panel-border">
+              <label className="text-xs font-medium text-foreground mb-1.5 block">Current Configuration</label>
+              <div className="relative bg-secondary/30 rounded border border-panel-border h-16 overflow-hidden">
+                {/* Canvas representation */}
+                <div className="absolute inset-1 bg-background rounded-sm">
+                  {/* Show containers as small rectangles */}
+                  {containers.map((container) => {
+                    if (!container.visible) return null;
+                    
+                    // Scale down the container positions/sizes for the preview
+                    const scale = Math.min(60 / canvasWidth, 56 / canvasHeight);
+                    const scaledX = (container.x * scale) + 2;
+                    const scaledY = (container.y * scale) + 2;
+                    const scaledWidth = Math.max(container.width * scale, 2);
+                    const scaledHeight = Math.max(container.height * scale, 2);
+                    
+                    return (
+                      <div
+                        key={container.id}
+                        className={`absolute border rounded-sm ${
+                          selectedContainer === container.id
+                            ? 'border-primary bg-primary/20'
+                            : 'border-muted-foreground bg-muted/30'
+                        }`}
+                        style={{
+                          left: `${scaledX}px`,
+                          top: `${scaledY}px`,
+                          width: `${scaledWidth}px`,
+                          height: `${scaledHeight}px`,
+                        }}
+                        title={container.name}
+                      />
+                    );
+                  })}
+                </div>
+                {/* Canvas dimensions label */}
+                <div className="absolute bottom-0.5 right-1 text-xs text-muted-foreground bg-background/80 px-1 rounded">
+                  {canvasWidth}×{canvasHeight}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
