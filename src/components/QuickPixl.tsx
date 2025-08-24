@@ -120,35 +120,28 @@ const QuickPixl = () => {
   const [currentColor, setCurrentColor] = useState('#FF6B6B');
   const [isEyedropperActive, setIsEyedropperActive] = useState(false);
   const colorInputRef = useRef<HTMLInputElement>(null);
+  const [blobUrls, setBlobUrls] = useState<Map<File, string>>(new Map());
 
-  // Add memory cleanup for blob URLs
+  // Cleanup function for blob URLs
   useEffect(() => {
-    // Create array to track blob URLs
-    const blobUrls: string[] = [];
-    
-    // Find all blob URLs in the DOM
-    const images = document.querySelectorAll('img[src^="blob:"]');
-    images.forEach((img) => {
-      blobUrls.push((img as HTMLImageElement).src);
-    });
-    
-    // Cleanup function
     return () => {
-      blobUrls.forEach(url => {
+      blobUrls.forEach((url) => {
         URL.revokeObjectURL(url);
       });
     };
-  }, [uploadedImages, backgroundVariations]);
-
-  // Helper to create and track blob URLs
-  const createBlobUrl = (file: File): string => {
-    return URL.createObjectURL(file);
-  };
+  }, [blobUrls]);
 
   // Helper to safely get blob URL with cleanup tracking
   const getBlobUrl = (file: File): string => {
-    // Consider using a Map to track URLs if needed
-    return URL.createObjectURL(file);
+    // Check if we already have a URL for this file
+    if (blobUrls.has(file)) {
+      return blobUrls.get(file)!;
+    }
+    
+    // Create new URL and track it
+    const url = URL.createObjectURL(file);
+    setBlobUrls(prev => new Map(prev).set(file, url));
+    return url;
   };
 
   // Color palette
@@ -226,6 +219,17 @@ const QuickPixl = () => {
   };
 
   const handleImageDelete = (imageToDelete: File) => {
+    // Clean up the blob URL for this specific image
+    const url = blobUrls.get(imageToDelete);
+    if (url) {
+      URL.revokeObjectURL(url);
+      setBlobUrls(prev => {
+        const newMap = new Map(prev);
+        newMap.delete(imageToDelete);
+        return newMap;
+      });
+    }
+    
     setUploadedImages(prev => prev.filter(img => img !== imageToDelete));
     setSelectedImages(prev => prev.filter(img => img !== imageToDelete));
   };
