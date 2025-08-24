@@ -215,6 +215,14 @@ const QuickPixl = () => {
     setTemplateVariations(prev => prev.filter(v => v.id !== variationId));
   };
 
+  const handleDoubleClickTemplateVariation = (variation: TemplateVariation) => {
+    // Add the templates from this variation back to the added templates
+    const templatesNotAlreadyAdded = variation.templates.filter(
+      template => !addedTemplates.find(t => t.id === template.id)
+    );
+    setAddedTemplates(prev => [...prev, ...templatesNotAlreadyAdded]);
+  };
+
   // Background Plugin Handlers
   const handleAddColor = () => {
     if (currentColor && !selectedColors.includes(currentColor)) {
@@ -553,13 +561,21 @@ const QuickPixl = () => {
                   </h4>
                   <div className="space-y-2">
                     {templateVariations.map((variation) => (
-                      <div key={variation.id} className="bg-secondary/30 rounded-lg p-3">
+                      <div 
+                        key={variation.id} 
+                        className="bg-secondary/30 rounded-lg p-3 cursor-pointer hover:bg-secondary/50 transition-colors"
+                        onDoubleClick={() => handleDoubleClickTemplateVariation(variation)}
+                        title="Double-click to add templates back to panel"
+                      >
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-xs font-medium text-foreground">{variation.description}</span>
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => handleRemoveTemplateVariation(variation.id)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRemoveTemplateVariation(variation.id);
+                            }}
                             className="p-1 text-muted-foreground hover:text-destructive"
                           >
                             <Trash2 className="w-3 h-3" />
@@ -726,13 +742,21 @@ const QuickPixl = () => {
                   </h4>
                   <div className="space-y-2">
                     {templateVariations.map((variation) => (
-                      <div key={variation.id} className="bg-secondary/30 rounded-lg p-3">
+                      <div 
+                        key={variation.id} 
+                        className="bg-secondary/30 rounded-lg p-3 cursor-pointer hover:bg-secondary/50 transition-colors"
+                        onDoubleClick={() => handleDoubleClickTemplateVariation(variation)}
+                        title="Double-click to add templates back to panel"
+                      >
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-xs font-medium text-foreground">{variation.description}</span>
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => handleRemoveTemplateVariation(variation.id)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRemoveTemplateVariation(variation.id);
+                            }}
                             className="p-1 text-muted-foreground hover:text-destructive"
                           >
                             <Trash2 className="w-3 h-3" />
