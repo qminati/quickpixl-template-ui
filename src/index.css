@@ -2,40 +2,51 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* QuickPixl Design System - Dark theme interface */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Dark theme base colors */
+    --background: 0 0% 10%;
+    --foreground: 0 0% 98%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    /* Panel colors */
+    --panel-bg: 0 0% 18%;
+    --panel-border: 0 0% 25%;
+    
+    /* Card colors */
+    --card: 0 0% 18%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    /* Interactive elements */
+    --primary: 25 95% 53%;  /* Orange accent */
+    --primary-foreground: 0 0% 98%;
+    --primary-hover: 25 95% 48%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Secondary elements */
+    --secondary: 0 0% 25%;
+    --secondary-foreground: 0 0% 85%;
+    --secondary-hover: 0 0% 30%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Muted elements */
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 65%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Accent colors */
+    --accent: 25 95% 53%;
+    --accent-foreground: 0 0% 98%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Success/warning colors */
+    --success: 142 76% 36%;
+    --warning: 48 96% 53%;
+    --destructive: 0 84% 60%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    /* Borders and inputs */
+    --border: 0 0% 25%;
+    --input: 0 0% 20%;
+    --ring: 25 95% 53%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-
+    /* Radius */
     --radius: 0.5rem;
 
     --sidebar-background: 0 0% 98%;
