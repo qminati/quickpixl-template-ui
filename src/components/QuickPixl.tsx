@@ -50,6 +50,20 @@ interface Variation {
   description: string;
 }
 
+interface Template {
+  id: number;
+  title: string;
+  size: string;
+  image: string;
+  category: string;
+}
+
+interface TemplateVariation {
+  id: string;
+  templates: Template[];
+  description: string;
+}
+
 const templates = [
   {
     id: 1,
@@ -121,6 +135,10 @@ const QuickPixl = () => {
   const [isBackgroundExpanded, setIsBackgroundExpanded] = useState(true);
   const [currentColor, setCurrentColor] = useState('#FF6B6B');
   const [isEyedropperActive, setIsEyedropperActive] = useState(false);
+  
+  // Template Settings State
+  const [addedTemplates, setAddedTemplates] = useState<Template[]>([]);
+  const [templateVariations, setTemplateVariations] = useState<TemplateVariation[]>([]);
   const colorInputRef = useRef<HTMLInputElement>(null);
   const [blobUrls, setBlobUrls] = useState<Map<File, string>>(new Map());
 
@@ -163,12 +181,38 @@ const QuickPixl = () => {
   ];
 
   const handleTemplateSelect = (templateId: number) => {
-    console.log('Template selected:', templateId);
+    const template = templates.find(t => t.id === templateId);
+    if (template && !addedTemplates.find(t => t.id === templateId)) {
+      setAddedTemplates(prev => [...prev, template]);
+    }
     setSelectedTemplates(prev => 
       prev.includes(templateId) 
         ? prev.filter(id => id !== templateId)
         : [...prev, templateId]
     );
+  };
+
+  // Template Settings Handlers
+  const handleRemoveTemplate = (templateId: number) => {
+    setAddedTemplates(prev => prev.filter(t => t.id !== templateId));
+  };
+
+  const handleAddTemplateToVariation = () => {
+    if (addedTemplates.length === 0) return;
+    
+    const newVariation: TemplateVariation = {
+      id: `template-variation-${Date.now()}`,
+      templates: [...addedTemplates],
+      description: `${addedTemplates.length} template${addedTemplates.length > 1 ? 's' : ''}`
+    };
+    
+    setTemplateVariations(prev => [...prev, newVariation]);
+    // Clear added templates after adding to variation
+    setAddedTemplates([]);
+  };
+
+  const handleRemoveTemplateVariation = (variationId: string) => {
+    setTemplateVariations(prev => prev.filter(v => v.id !== variationId));
   };
 
   // Background Plugin Handlers
@@ -443,7 +487,103 @@ const QuickPixl = () => {
           {settingsMap[activeSection as keyof typeof settingsMap]}
         </h3>
         <div className="space-y-4">
-          {activeSection === 'canvas' ? (
+          {activeSection === 'templates' ? (
+            <div className="space-y-4">
+              {/* Added Templates Section */}
+              {addedTemplates.length > 0 && (
+                <div className="space-y-3">
+                  <label className="text-sm font-medium text-foreground">Selected Templates</label>
+                  <div className="space-y-2">
+                    {addedTemplates.map((template) => (
+                      <div key={template.id} className="bg-card border border-panel-border rounded-lg p-3">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-12 h-12 rounded overflow-hidden flex-shrink-0">
+                            <img 
+                              src={template.image} 
+                              alt={template.title}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-sm font-medium text-foreground truncate">{template.title}</h4>
+                            <div className="flex justify-between items-center text-xs text-muted-foreground mt-1">
+                              <span>{template.size}</span>
+                              <span>{template.category}</span>
+                            </div>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleRemoveTemplate(template.id)}
+                            className="p-1 text-muted-foreground hover:text-destructive"
+                            title="Remove template"
+                          >
+                            <X className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Add Template Button */}
+              <Button
+                onClick={handleAddTemplateToVariation}
+                disabled={addedTemplates.length === 0}
+                className="w-full h-7 text-xs"
+                variant={addedTemplates.length > 0 ? "default" : "secondary"}
+              >
+                <Plus className="w-3 h-3 mr-1" />
+                {addedTemplates.length > 0 
+                  ? `Add ${addedTemplates.length} template${addedTemplates.length > 1 ? 's' : ''}`
+                  : 'Add Template'
+                }
+              </Button>
+
+              {/* Template Variation Cards */}
+              {templateVariations.length > 0 && (
+                <div className="bg-card border border-panel-border rounded-lg p-4">
+                  <h4 className="text-sm font-medium text-foreground mb-3 flex items-center space-x-2">
+                    <FileImage className="w-4 h-4 text-primary" />
+                    <span>Template Variations</span>
+                    <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
+                      {templateVariations.length}
+                    </span>
+                  </h4>
+                  <div className="space-y-2">
+                    {templateVariations.map((variation) => (
+                      <div key={variation.id} className="bg-secondary/30 rounded-lg p-3">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-xs font-medium text-foreground">{variation.description}</span>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleRemoveTemplateVariation(variation.id)}
+                            className="p-1 text-muted-foreground hover:text-destructive"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </Button>
+                        </div>
+                        <div className="flex space-x-1">
+                          {variation.templates.map((template) => (
+                            <div key={template.id} className="w-8 h-8 rounded overflow-hidden">
+                              <img 
+                                src={template.image} 
+                                alt={template.title}
+                                className="w-full h-full object-cover"
+                                title={template.title}
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : activeSection === 'canvas' ? (
             <div className="space-y-4">
               <BackgroundPlugin />
               <PlacementPlugin />
@@ -520,7 +660,7 @@ const QuickPixl = () => {
             </div>
           ) : activeSection === 'variations' ? (
             <div className="space-y-4">
-              {backgroundVariations.length > 0 ? (
+              {backgroundVariations.length > 0 && (
                 <div className="bg-card border border-panel-border rounded-lg p-4">
                   <h4 className="text-sm font-medium text-foreground mb-3 flex items-center space-x-2">
                     <Palette className="w-4 h-4 text-primary" />
@@ -573,11 +713,54 @@ const QuickPixl = () => {
                     ))}
                   </div>
                 </div>
-              ) : (
+              )}
+              
+              {templateVariations.length > 0 && (
+                <div className="bg-card border border-panel-border rounded-lg p-4">
+                  <h4 className="text-sm font-medium text-foreground mb-3 flex items-center space-x-2">
+                    <FileImage className="w-4 h-4 text-primary" />
+                    <span>Template Variations</span>
+                    <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
+                      {templateVariations.length}
+                    </span>
+                  </h4>
+                  <div className="space-y-2">
+                    {templateVariations.map((variation) => (
+                      <div key={variation.id} className="bg-secondary/30 rounded-lg p-3">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-xs font-medium text-foreground">{variation.description}</span>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleRemoveTemplateVariation(variation.id)}
+                            className="p-1 text-muted-foreground hover:text-destructive"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </Button>
+                        </div>
+                        <div className="flex space-x-1">
+                          {variation.templates.map((template) => (
+                            <div key={template.id} className="w-8 h-8 rounded overflow-hidden">
+                              <img 
+                                src={template.image} 
+                                alt={template.title}
+                                className="w-full h-full object-cover"
+                                title={template.title}
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {backgroundVariations.length === 0 && templateVariations.length === 0 && (
                 <div className="bg-card border border-panel-border rounded-lg p-4 text-center">
-                  <Palette className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+                  <Shuffle className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
                   <p className="text-sm text-muted-foreground mb-2">No variations created yet</p>
-                  <p className="text-xs text-muted-foreground">Use the Canvas section to create background variations</p>
+                  <p className="text-xs text-muted-foreground">Use the Canvas or Templates sections to create variations</p>
                 </div>
               )}
             </div>
