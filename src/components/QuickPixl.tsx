@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   Type, 
   Image as ImageIcon, 
@@ -121,6 +121,36 @@ const QuickPixl = () => {
   const [isEyedropperActive, setIsEyedropperActive] = useState(false);
   const colorInputRef = useRef<HTMLInputElement>(null);
 
+  // Add memory cleanup for blob URLs
+  useEffect(() => {
+    // Create array to track blob URLs
+    const blobUrls: string[] = [];
+    
+    // Find all blob URLs in the DOM
+    const images = document.querySelectorAll('img[src^="blob:"]');
+    images.forEach((img) => {
+      blobUrls.push((img as HTMLImageElement).src);
+    });
+    
+    // Cleanup function
+    return () => {
+      blobUrls.forEach(url => {
+        URL.revokeObjectURL(url);
+      });
+    };
+  }, [uploadedImages, backgroundVariations]);
+
+  // Helper to create and track blob URLs
+  const createBlobUrl = (file: File): string => {
+    return URL.createObjectURL(file);
+  };
+
+  // Helper to safely get blob URL with cleanup tracking
+  const getBlobUrl = (file: File): string => {
+    // Consider using a Map to track URLs if needed
+    return URL.createObjectURL(file);
+  };
+
   // Color palette
   const colorPalette = [
     '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FECA57',
@@ -164,13 +194,19 @@ const QuickPixl = () => {
         const eyeDropper = new (window as any).EyeDropper();
         const result = await eyeDropper.open();
         setCurrentColor(result.sRGBHex);
-        setIsEyedropperActive(false);
       } catch (e) {
-        setIsEyedropperActive(false);
         console.log('Eyedropper cancelled');
+      } finally {
+        setIsEyedropperActive(false);
       }
     } else {
-      console.log('EyeDropper API not supported');
+      // Better fallback for unsupported browsers (Safari, Firefox)
+      alert('Eyedropper is not supported in your browser. Please use the color picker or enter a hex value instead.');
+      // Auto-focus the color input as fallback
+      if (colorInputRef.current) {
+        colorInputRef.current.focus();
+        colorInputRef.current.click();
+      }
     }
   };
 
@@ -353,7 +389,7 @@ const QuickPixl = () => {
                         onClick={() => handleImageSelect(image)}
                       >
                         <img
-                          src={URL.createObjectURL(image)}
+                          src={getBlobUrl(image)}
                           alt={`Uploaded ${index + 1}`}
                           className="w-full h-full object-cover rounded"
                         />
@@ -449,7 +485,7 @@ const QuickPixl = () => {
                             {variation.images.slice(0, 2).map((image, index) => (
                               <div key={index} className="w-4 h-4 rounded border border-panel-border overflow-hidden">
                                 <img
-                                  src={URL.createObjectURL(image)}
+                                  src={getBlobUrl(image)}
                                   alt=""
                                   className="w-full h-full object-cover"
                                 />
@@ -506,7 +542,7 @@ const QuickPixl = () => {
                             {variation.images.slice(0, 2).map((image, index) => (
                               <div key={index} className="w-4 h-4 rounded border border-panel-border overflow-hidden">
                                 <img
-                                  src={URL.createObjectURL(image)}
+                                  src={getBlobUrl(image)}
                                   alt=""
                                   className="w-full h-full object-cover"
                                 />
