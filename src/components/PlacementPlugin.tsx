@@ -3,16 +3,23 @@ import {
   ChevronDown, 
   ChevronRight, 
   Plus, 
-  Settings, 
   Layers,
-  Move,
-  RotateCw,
-  Maximize2,
   Copy,
   Trash2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+
+interface PlacementPluginProps {
+  canvasWidth: number;
+  setCanvasWidth: (width: number) => void;
+  canvasHeight: number;
+  setCanvasHeight: (height: number) => void;
+  containers: Container[];
+  setContainers: React.Dispatch<React.SetStateAction<Container[]>>;
+  selectedContainer: string | null;
+  setSelectedContainer: React.Dispatch<React.SetStateAction<string | null>>;
+}
 
 interface Container {
   id: string;
@@ -26,14 +33,19 @@ interface Container {
   name: string;
 }
 
-const PlacementPlugin = () => {
+const PlacementPlugin: React.FC<PlacementPluginProps> = ({
+  canvasWidth,
+  setCanvasWidth,
+  canvasHeight,
+  setCanvasHeight,
+  containers,
+  setContainers,
+  selectedContainer,
+  setSelectedContainer
+}) => {
   const [isExpanded, setIsExpanded] = useState(true);
-  const [canvasWidth, setCanvasWidth] = useState(1080);
-  const [canvasHeight, setCanvasHeight] = useState(1080);
   const [dpi, setDpi] = useState(300);
   const [selectedPreset, setSelectedPreset] = useState('custom');
-  const [containers, setContainers] = useState<Container[]>([]);
-  const [selectedContainer, setSelectedContainer] = useState<string | null>(null);
 
   const presets = [
     { id: 'custom', name: 'Custom', width: 1080, height: 1080 },
@@ -63,7 +75,7 @@ const PlacementPlugin = () => {
       rotation: 0,
       locked: false,
       visible: true,
-      name: `Placement ${containers.length + 1}`
+      name: `Container ${containers.length + 1}`
     };
     setContainers(prev => [...prev, newContainer]);
   };

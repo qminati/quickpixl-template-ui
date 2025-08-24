@@ -10,6 +10,15 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
+interface CanvasEditorProps {
+  canvasWidth: number;
+  canvasHeight: number;
+  containers: Container[];
+  setContainers: React.Dispatch<React.SetStateAction<Container[]>>;
+  selectedContainer: string | null;
+  setSelectedContainer: React.Dispatch<React.SetStateAction<string | null>>;
+}
+
 interface Container {
   id: string;
   x: number;
@@ -22,19 +31,16 @@ interface Container {
   name: string;
 }
 
-interface CanvasEditorProps {
-  canvasWidth?: number;
-  canvasHeight?: number;
-}
-
 const CanvasEditor: React.FC<CanvasEditorProps> = ({ 
-  canvasWidth = 1080, 
-  canvasHeight = 1080 
+  canvasWidth,
+  canvasHeight,
+  containers,
+  setContainers,
+  selectedContainer,
+  setSelectedContainer
 }) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [containers, setContainers] = useState<Container[]>([]);
-  const [selectedContainer, setSelectedContainer] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState<string | null>(null);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });

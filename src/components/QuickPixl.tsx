@@ -32,15 +32,7 @@ import { Button } from '@/components/ui/button';
 import PlacementPlugin from './PlacementPlugin';
 import CanvasEditor from './CanvasEditor';
 
-// Import template images
-import templateFocusGood from '@/assets/template-focus-good.jpg';
-import templateBowlingCharacter from '@/assets/template-bowling-character.jpg';
-import templateSpareShirt from '@/assets/template-spare-shirt.jpg';
-import templateGirlsDiamonds from '@/assets/template-girls-diamonds.jpg';
-import templateBeLight from '@/assets/template-be-light.jpg';
-import templateGiveThanks from '@/assets/template-give-thanks.jpg';
-import templateInspirational from '@/assets/template-inspirational.jpg';
-import templateTouchdown from '@/assets/template-touchdown.jpg';
+// Template placeholders - no imports needed
 
 // Define interfaces
 interface Variation {
@@ -64,61 +56,73 @@ interface TemplateVariation {
   description: string;
 }
 
+interface Container {
+  id: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  rotation: number;
+  locked: boolean;
+  visible: boolean;
+  name: string;
+}
+
 const templates = [
   {
     id: 1,
     title: "Focus on the Good",
     size: "1080×1080",
-    image: templateFocusGood,
+    image: "https://via.placeholder.com/300x300/FF6B6B/FFFFFF?text=Focus+Good",
     category: "TX: 1  IM: 0"
   },
   {
     id: 2,
     title: "Bowling Built My Character",
     size: "1200×800",
-    image: templateBowlingCharacter,
+    image: "https://via.placeholder.com/300x200/4ECDC4/FFFFFF?text=Bowling+Character",
     category: "TX: 2  IM: 1"
   },
   {
     id: 3,
     title: "This Is My Spare Shirt",
     size: "1080×1080",
-    image: templateSpareShirt,
+    image: "https://via.placeholder.com/300x300/45B7D1/FFFFFF?text=Spare+Shirt",
     category: "TX: 1  IM: 0"
   },
   {
     id: 4,
     title: "Some Girls Love Diamonds",
     size: "1200×1200",
-    image: templateGirlsDiamonds,
+    image: "https://via.placeholder.com/300x300/F7DC6F/333333?text=Girls+Diamonds",
     category: "TX: 3  IM: 1"
   },
   {
     id: 5,
     title: "Be The Light",
     size: "800×1200",
-    image: templateBeLight,
+    image: "https://via.placeholder.com/200x300/BB8FCE/FFFFFF?text=Be+Light",
     category: "TX: 1  IM: 0"
   },
   {
     id: 6,
     title: "Give Thanks to the Lord",
     size: "1080×1350",
-    image: templateGiveThanks,
+    image: "https://via.placeholder.com/300x375/F1948A/FFFFFF?text=Give+Thanks",
     category: "TX: 1  IM: 0"
   },
   {
     id: 7,
     title: "Inspirational Quote",
     size: "1080×1080",
-    image: templateInspirational,
+    image: "https://via.placeholder.com/300x300/58D68D/FFFFFF?text=Inspirational",
     category: "TX: 1  IM: 0"
   },
   {
     id: 8,
     title: "Touch Down Season",
     size: "1200×900",
-    image: templateTouchdown,
+    image: "https://via.placeholder.com/300x225/E74C3C/FFFFFF?text=Touch+Down",
     category: "TX: 1  IM: 0"
   }
 ];
@@ -126,6 +130,12 @@ const templates = [
 const QuickPixl = () => {
   const [activeSection, setActiveSection] = useState('templates');
   const [selectedTemplates, setSelectedTemplates] = useState<number[]>([]);
+  
+  // Canvas and Placement State (lifted up from PlacementPlugin)
+  const [canvasWidth, setCanvasWidth] = useState(1080);
+  const [canvasHeight, setCanvasHeight] = useState(1080);
+  const [containers, setContainers] = useState<Container[]>([]);
+  const [selectedContainer, setSelectedContainer] = useState<string | null>(null);
   
   // Background Plugin State
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
@@ -602,7 +612,16 @@ const QuickPixl = () => {
           ) : activeSection === 'canvas' ? (
             <div className="space-y-4">
               <BackgroundPlugin />
-              <PlacementPlugin />
+              <PlacementPlugin 
+                canvasWidth={canvasWidth}
+                setCanvasWidth={setCanvasWidth}
+                canvasHeight={canvasHeight}
+                setCanvasHeight={setCanvasHeight}
+                containers={containers}
+                setContainers={setContainers}
+                selectedContainer={selectedContainer}
+                setSelectedContainer={setSelectedContainer}
+              />
               
               {/* Combined Add to Variations Button */}
               <Button
@@ -881,7 +900,14 @@ const QuickPixl = () => {
         {/* Main Canvas Area */}
         <div className="flex-1 overflow-hidden">
           {activeSection === 'canvas' ? (
-            <CanvasEditor />
+            <CanvasEditor 
+              canvasWidth={canvasWidth}
+              canvasHeight={canvasHeight}
+              containers={containers}
+              setContainers={setContainers}
+              selectedContainer={selectedContainer}
+              setSelectedContainer={setSelectedContainer}
+            />
           ) : (
             <div className="p-6 overflow-auto h-full">
               <div className="mb-6">
@@ -1003,14 +1029,14 @@ const QuickPixl = () => {
                 <span className="text-sm font-medium text-foreground">COLORS</span>
                 <div className="flex items-center space-x-2">
                   <span className="text-xs text-muted-foreground">12 variations</span>
-                  <CheckCircle className="w-4 h-4 text-success" />
+                  <CheckCircle className="w-4 h-4 text-green-600" />
                 </div>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-foreground">HUMAN</span>
                 <div className="flex items-center space-x-2">
                   <span className="text-xs text-muted-foreground">8 variations</span>
-                  <AlertTriangle className="w-4 h-4 text-warning" />
+                  <AlertTriangle className="w-4 h-4 text-yellow-600" />
                 </div>
               </div>
             </div>
@@ -1019,7 +1045,7 @@ const QuickPixl = () => {
           {/* Start Rendering Button - Always at bottom */}
           <div className="flex-shrink-0 mt-6">
             <Button 
-              className="w-full bg-success hover:bg-success/90 text-white font-medium py-3"
+              className="w-full bg-green-600 hover:bg-green-600/90 text-white font-medium py-3"
               onClick={() => console.log('Start Rendering')}
             >
               ▶ Start Rendering
