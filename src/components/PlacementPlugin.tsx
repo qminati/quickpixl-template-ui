@@ -100,16 +100,16 @@ const PlacementPlugin = () => {
       {/* Header */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full p-2.5 flex items-center justify-between text-left hover:bg-accent/50 transition-colors rounded-t-lg flex-shrink-0"
+        className="w-full p-2 flex items-center justify-between text-left hover:bg-accent/50 transition-colors rounded-t-lg flex-shrink-0"
       >
-        <div className="flex items-center space-x-2">
-          <Layers className="w-3.5 h-3.5 text-primary" />
-          <span className="text-sm font-medium text-foreground">Placement</span>
+        <div className="flex items-center space-x-1.5">
+          <Layers className="w-3 h-3 text-primary" />
+          <span className="text-xs font-medium text-foreground">Placement</span>
         </div>
         {isExpanded ? (
-          <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
+          <ChevronDown className="w-3 h-3 text-muted-foreground" />
         ) : (
-          <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
+          <ChevronRight className="w-3 h-3 text-muted-foreground" />
         )}
       </button>
 
@@ -117,15 +117,15 @@ const PlacementPlugin = () => {
       {isExpanded && (
         <div className="flex flex-col min-h-0 flex-1">
           {/* Canvas Dimensions */}
-          <div className="p-3 pt-0 space-y-3 flex-shrink-0">
-            <div className="space-y-2">
+          <div className="p-2.5 pt-0 space-y-2 flex-shrink-0">
+            <div className="space-y-1.5">
               <label className="text-xs font-medium text-foreground">Canvas Size</label>
               
               {/* Preset Selector */}
               <select
                 value={selectedPreset}
                 onChange={(e) => handlePresetChange(e.target.value)}
-                className="w-full h-7 px-2 bg-background border border-input rounded text-xs"
+                className="w-full h-6 px-1.5 bg-background border border-input rounded text-xs"
               >
                 {presets.map(preset => (
                   <option key={preset.id} value={preset.id}>
@@ -135,7 +135,7 @@ const PlacementPlugin = () => {
               </select>
 
               {/* Dimensions and DPI in one row */}
-              <div className="grid grid-cols-3 gap-1.5">
+              <div className="grid grid-cols-3 gap-1">
                 <div>
                   <label className="text-xs text-muted-foreground">W</label>
                   <Input
@@ -145,7 +145,7 @@ const PlacementPlugin = () => {
                       setCanvasWidth(Number(e.target.value));
                       setSelectedPreset('custom');
                     }}
-                    className="h-6 text-xs"
+                    className="h-5 text-xs"
                   />
                 </div>
                 <div>
@@ -157,7 +157,7 @@ const PlacementPlugin = () => {
                       setCanvasHeight(Number(e.target.value));
                       setSelectedPreset('custom');
                     }}
-                    className="h-6 text-xs"
+                    className="h-5 text-xs"
                   />
                 </div>
                 <div>
@@ -166,7 +166,7 @@ const PlacementPlugin = () => {
                     type="number"
                     value={dpi}
                     onChange={(e) => setDpi(Number(e.target.value))}
-                    className="h-6 text-xs"
+                    className="h-5 text-xs"
                   />
                 </div>
               </div>
@@ -174,35 +174,35 @@ const PlacementPlugin = () => {
           </div>
 
           {/* Container Controls */}
-          <div className="flex-1 min-h-0 px-3">
-            <div className="space-y-2 mb-3">
+          <div className="flex-1 min-h-0 px-2.5">
+            <div className="space-y-1.5 mb-2">
               <div className="flex items-center justify-between">
                 <label className="text-xs font-medium text-foreground">Containers</label>
                 <Button
                   onClick={addContainer}
                   size="sm"
                   variant="outline"
-                  className="h-6 px-1.5 text-xs"
+                  className="h-5 px-1 text-xs"
                 >
-                  <Plus className="w-3 h-3 mr-0.5" />
+                  <Plus className="w-2.5 h-2.5 mr-0.5" />
                   Add
                 </Button>
               </div>
             </div>
 
             {/* Container List - Scrollable */}
-            <div className="h-full overflow-y-auto space-y-1">
+            <div className="h-full overflow-y-auto space-y-0.5">
               {containers.map((container) => (
                 <div
                   key={container.id}
-                  className={`flex items-center justify-between p-1.5 rounded border transition-colors cursor-pointer ${
+                  className={`flex items-center justify-between p-1 rounded border transition-colors cursor-pointer ${
                     selectedContainer === container.id
                       ? 'border-primary bg-primary/10'
                       : 'border-panel-border hover:bg-accent/50'
                   }`}
                   onClick={() => setSelectedContainer(container.id)}
                 >
-                  <div className="flex items-center space-x-1.5 flex-1 min-w-0">
+                  <div className="flex items-center space-x-1 flex-1 min-w-0">
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -223,7 +223,7 @@ const PlacementPlugin = () => {
                       className="p-0.5 text-muted-foreground hover:text-foreground"
                       title="Duplicate"
                     >
-                      <Copy className="w-2.5 h-2.5" />
+                      <Copy className="w-2 h-2" />
                     </button>
                     <button
                       onClick={(e) => {
@@ -233,27 +233,27 @@ const PlacementPlugin = () => {
                       className="p-0.5 text-muted-foreground hover:text-destructive"
                       title="Delete"
                     >
-                      <Trash2 className="w-2.5 h-2.5" />
+                      <Trash2 className="w-2 h-2" />
                     </button>
                   </div>
                 </div>
               ))}
               {containers.length === 0 && (
-                <div className="text-xs text-muted-foreground text-center py-2">
+                <div className="text-xs text-muted-foreground text-center py-1">
                   No containers added yet
                 </div>
               )}
 
               {/* Selected Container Properties */}
               {selectedContainer && (
-                <div className="space-y-2 border-t border-panel-border pt-2 mt-3">
+                <div className="space-y-1.5 border-t border-panel-border pt-1.5 mt-2">
                   <label className="text-xs font-medium text-foreground">Properties</label>
                   {(() => {
                     const container = containers.find(c => c.id === selectedContainer);
                     if (!container) return null;
                     
                     return (
-                      <div className="grid grid-cols-4 gap-1.5">
+                      <div className="grid grid-cols-4 gap-1">
                         <div>
                           <label className="text-xs text-muted-foreground">X</label>
                           <Input
@@ -265,7 +265,7 @@ const PlacementPlugin = () => {
                                 c.id === selectedContainer ? { ...c, x: newX } : c
                               ));
                             }}
-                            className="h-6 text-xs"
+                            className="h-5 text-xs"
                           />
                         </div>
                         <div>
@@ -279,7 +279,7 @@ const PlacementPlugin = () => {
                                 c.id === selectedContainer ? { ...c, y: newY } : c
                               ));
                             }}
-                            className="h-6 text-xs"
+                            className="h-5 text-xs"
                           />
                         </div>
                         <div>
@@ -293,7 +293,7 @@ const PlacementPlugin = () => {
                                 c.id === selectedContainer ? { ...c, width: newWidth } : c
                               ));
                             }}
-                            className="h-6 text-xs"
+                            className="h-5 text-xs"
                           />
                         </div>
                         <div>
@@ -307,7 +307,7 @@ const PlacementPlugin = () => {
                                 c.id === selectedContainer ? { ...c, height: newHeight } : c
                               ));
                             }}
-                            className="h-6 text-xs"
+                            className="h-5 text-xs"
                           />
                         </div>
                       </div>
@@ -316,14 +316,6 @@ const PlacementPlugin = () => {
                 </div>
               )}
             </div>
-          </div>
-
-          {/* Add to Variations button */}
-          <div className="p-3 pt-2 flex-shrink-0 border-t border-panel-border">
-            <Button variant="secondary" className="w-full h-8 text-xs">
-              <Plus className="w-3 h-3 mr-1" />
-              Add to Variations
-            </Button>
           </div>
         </div>
       )}

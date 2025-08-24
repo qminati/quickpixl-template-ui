@@ -422,19 +422,6 @@ const QuickPixl = () => {
               )}
             </div>
 
-            {/* Add to Variation Button */}
-            <Button
-              onClick={handleAddToVariation}
-              disabled={totalSelected === 0}
-              className="w-full h-6 text-xs"
-              variant={totalSelected > 0 ? "default" : "secondary"}
-            >
-              {totalSelected > 0 
-                ? `Add ${selectedColors.length} colors, ${selectedImages.length} images`
-                : 'Select colors or images to add'
-              }
-            </Button>
-
           </div>
         )}
       </div>
@@ -460,6 +447,21 @@ const QuickPixl = () => {
             <div className="space-y-4">
               <BackgroundPlugin />
               <PlacementPlugin />
+              
+              {/* Combined Add to Variations Button */}
+              <Button
+                onClick={handleAddToVariation}
+                disabled={selectedColors.length + selectedImages.length === 0}
+                className="w-full h-7 text-xs"
+                variant={selectedColors.length + selectedImages.length > 0 ? "default" : "secondary"}
+              >
+                <Plus className="w-3 h-3 mr-1" />
+                {selectedColors.length + selectedImages.length > 0 
+                  ? `Add ${selectedColors.length} colors, ${selectedImages.length} images`
+                  : 'Select colors or images to add'
+                }
+              </Button>
+              
               {/* Variation Cards Section - Outside of Background Plugin */}
               {backgroundVariations.length > 0 && (
                 <div className="bg-card border border-panel-border rounded-lg p-4">
