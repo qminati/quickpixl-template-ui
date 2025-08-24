@@ -29,6 +29,8 @@ import {
   Hash
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import PlacementPlugin from './PlacementPlugin';
+import CanvasEditor from './CanvasEditor';
 
 // Import template images
 import templateFocusGood from '@/assets/template-focus-good.jpg';
@@ -459,6 +461,7 @@ const QuickPixl = () => {
           {activeSection === 'canvas' ? (
             <div className="space-y-4">
               <BackgroundPlugin />
+              <PlacementPlugin />
               {/* Variation Cards Section - Outside of Background Plugin */}
               {backgroundVariations.length > 0 && (
                 <div className="bg-card border border-panel-border rounded-lg p-4">
@@ -651,71 +654,77 @@ const QuickPixl = () => {
         {renderSettingsPanel()}
 
         {/* Main Canvas Area */}
-        <div className="flex-1 p-6 overflow-auto">
-          <div className="mb-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center space-x-4">
-                <span className="text-sm text-muted-foreground">Size:</span>
-                <div className="flex items-center space-x-2">
-                  <span className="text-sm text-muted-foreground">S</span>
-                  <div className="w-20 h-1 bg-secondary rounded relative">
-                    <div className="absolute left-1/2 w-3 h-3 bg-primary rounded-full -top-1 transform -translate-x-1/2"></div>
+        <div className="flex-1 overflow-hidden">
+          {activeSection === 'canvas' ? (
+            <CanvasEditor />
+          ) : (
+            <div className="p-6 overflow-auto h-full">
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center space-x-4">
+                    <span className="text-sm text-muted-foreground">Size:</span>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-sm text-muted-foreground">S</span>
+                      <div className="w-20 h-1 bg-secondary rounded relative">
+                        <div className="absolute left-1/2 w-3 h-3 bg-primary rounded-full -top-1 transform -translate-x-1/2"></div>
+                      </div>
+                      <span className="text-sm text-muted-foreground">L</span>
+                    </div>
+                    <span className="text-sm text-muted-foreground ml-4">Background</span>
                   </div>
-                  <span className="text-sm text-muted-foreground">L</span>
+                  <div className="flex items-center space-x-1">
+                    <Button variant="secondary" size="sm">
+                      <Plus className="w-4 h-4 mr-1" />
+                      New
+                    </Button>
+                    <Button variant="ghost" size="sm" className="text-muted-foreground p-2">
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                    <Button variant="ghost" size="sm" className="text-muted-foreground p-2">
+                      <Edit className="w-4 h-4" />
+                    </Button>
+                    <Button variant="ghost" size="sm" className="text-muted-foreground p-2">
+                      <Copy className="w-4 h-4" />
+                    </Button>
+                    <Button variant="ghost" size="sm" className="text-muted-foreground p-2">
+                      <FolderOpen className="w-4 h-4" />
+                    </Button>
+                    <Button variant="ghost" size="sm" className="text-muted-foreground p-2">
+                      <RefreshCw className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
-                <span className="text-sm text-muted-foreground ml-4">Background</span>
               </div>
-              <div className="flex items-center space-x-1">
-                <Button variant="secondary" size="sm">
-                  <Plus className="w-4 h-4 mr-1" />
-                  New
-                </Button>
-                <Button variant="ghost" size="sm" className="text-muted-foreground p-2">
-                  <Trash2 className="w-4 h-4" />
-                </Button>
-                <Button variant="ghost" size="sm" className="text-muted-foreground p-2">
-                  <Edit className="w-4 h-4" />
-                </Button>
-                <Button variant="ghost" size="sm" className="text-muted-foreground p-2">
-                  <Copy className="w-4 h-4" />
-                </Button>
-                <Button variant="ghost" size="sm" className="text-muted-foreground p-2">
-                  <FolderOpen className="w-4 h-4" />
-                </Button>
-                <Button variant="ghost" size="sm" className="text-muted-foreground p-2">
-                  <RefreshCw className="w-4 h-4" />
-                </Button>
+
+              {/* Templates Grid */}
+              <div className="grid grid-cols-4 gap-4">
+                {templates.map((template) => (
+                  <div 
+                    key={template.id}
+                    onClick={() => handleTemplateSelect(template.id)}
+                    className={`bg-card rounded-lg overflow-hidden border cursor-pointer transition-all hover:border-primary ${
+                      selectedTemplates.includes(template.id) ? 'border-primary ring-2 ring-primary/20' : 'border-panel-border'
+                    }`}
+                  >
+                    <div className="aspect-square overflow-hidden">
+                      <img 
+                        src={template.image} 
+                        alt={template.title}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="p-3">
+                      <h4 className="text-sm font-medium text-foreground mb-1">{template.title}</h4>
+                      <div className="flex justify-between items-center text-xs text-muted-foreground">
+                        <span>{template.size}</span>
+                        <span>{template.category}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
-          </div>
-
-          {/* Templates Grid */}
-          <div className="grid grid-cols-4 gap-4">
-            {templates.map((template) => (
-              <div 
-                key={template.id}
-                onClick={() => handleTemplateSelect(template.id)}
-                className={`bg-card rounded-lg overflow-hidden border cursor-pointer transition-all hover:border-primary ${
-                  selectedTemplates.includes(template.id) ? 'border-primary ring-2 ring-primary/20' : 'border-panel-border'
-                }`}
-              >
-                <div className="aspect-square overflow-hidden">
-                  <img 
-                    src={template.image} 
-                    alt={template.title}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="p-3">
-                  <h4 className="text-sm font-medium text-foreground mb-1">{template.title}</h4>
-                  <div className="flex justify-between items-center text-xs text-muted-foreground">
-                    <span>{template.size}</span>
-                    <span>{template.category}</span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+          )}
         </div>
 
         {/* Right Sidebar - Render Queue */}
