@@ -1472,6 +1472,14 @@ const QuickPixl = () => {
                   onAddVariation={handleAddRotateFlipVariation}
                 />
                 
+                <ColorFillPlugin
+                  isExpanded={isColorFillExpanded}
+                  onToggleExpanded={() => setIsColorFillExpanded(!isColorFillExpanded)}
+                  settings={colorFillSettings}
+                  onSettingsChange={setColorFillSettings}
+                  onAddVariation={handleAddColorFillVariation}
+                />
+                
                 {/* Font Variations Cards */}
                 {fontVariations.length > 0 && (
                   <div className="bg-card border border-panel-border rounded-lg p-4">
@@ -1506,6 +1514,66 @@ const QuickPixl = () => {
                                 {availableFonts.find(f => f.family === font)?.name || font}
                               </span>
                             ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Color Fill Variations Cards */}
+                {colorFillVariations.length > 0 && (
+                  <div className="bg-card border border-panel-border rounded-lg p-4">
+                    <h4 className="text-sm font-medium text-foreground mb-3 flex items-center space-x-2">
+                      <Palette className="w-4 h-4 text-primary" />
+                      <span>Color Fill Variations</span>
+                      <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
+                        {colorFillVariations.length}
+                      </span>
+                    </h4>
+                    <div className="space-y-2">
+                      {colorFillVariations.map((variation) => (
+                        <div key={variation.id} className="bg-secondary/30 rounded-lg p-3">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-xs font-medium text-foreground">{variation.description}</span>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleRemoveColorFillVariation(variation.id)}
+                              className="p-1 text-muted-foreground hover:text-destructive"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </Button>
+                          </div>
+                          <div className="flex items-center space-x-2 text-xs text-muted-foreground">
+                            <span className="capitalize">{variation.settings.mode}</span>
+                            {variation.settings.mode === 'solid' && (
+                              <div 
+                                className="w-3 h-3 rounded border border-border"
+                                style={{ backgroundColor: variation.settings.solid.color }}
+                              />
+                            )}
+                            {variation.settings.mode === 'gradient' && (
+                              <>
+                                <span>•</span>
+                                <span className="capitalize">{variation.settings.gradient.type}</span>
+                                <span>({variation.settings.gradient.stops.length} stops)</span>
+                              </>
+                            )}
+                            {variation.settings.mode === 'palette' && (
+                              <>
+                                <span>•</span>
+                                <span className="capitalize">{variation.settings.palette.source}</span>
+                                <span>({variation.settings.palette.colors.length} colors)</span>
+                              </>
+                            )}
+                            {variation.settings.mode === 'image' && (
+                              <>
+                                <span>•</span>
+                                <span className="capitalize">{variation.settings.image.mode}</span>
+                                <span>({variation.settings.image.images.length} images)</span>
+                              </>
+                            )}
                           </div>
                         </div>
                       ))}
@@ -1569,7 +1637,7 @@ const QuickPixl = () => {
          </div>
 
           {/* Send to Render Queue Button - Fixed at bottom for variations section */}
-          {activeSection === 'variations' && (backgroundVariations.length > 0 || templateVariations.length > 0 || fontVariations.length > 0 || typographyVariations.length > 0 || textShapeVariations.length > 0) && (
+          {activeSection === 'variations' && (backgroundVariations.length > 0 || templateVariations.length > 0 || fontVariations.length > 0 || typographyVariations.length > 0 || textShapeVariations.length > 0 || rotateFlipVariations.length > 0 || colorFillVariations.length > 0) && (
             <div className="flex-shrink-0 mt-6">
               <Button
                 className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-medium py-3"
@@ -1580,7 +1648,7 @@ const QuickPixl = () => {
                 Send to Render Queue
               </Button>
               <p className="text-center text-xs text-muted-foreground mt-2">
-                Total: {backgroundVariations.length + templateVariations.length + fontVariations.length + typographyVariations.length + textShapeVariations.length} variations
+                Total: {backgroundVariations.length + templateVariations.length + fontVariations.length + typographyVariations.length + textShapeVariations.length + rotateFlipVariations.length + colorFillVariations.length} variations
               </p>
             </div>
           )}
