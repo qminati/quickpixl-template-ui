@@ -27,7 +27,8 @@ import {
   Palette,
   Pipette,
   Hash,
-  Search
+  Search,
+  Shapes
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -37,8 +38,9 @@ import ErrorBoundary from './ErrorBoundary';
 import TextEditor from './TextEditor';
 import { validateImage, handleImageError, createImageFallback } from '@/utils/imageUtils';
 import { toast } from 'sonner';
-import { Container, Variation, Template, TemplateVariation, FontVariation, TypographySettings, TypographyVariation } from '@/types/interfaces';
+import { Container, Variation, Template, TemplateVariation, FontVariation, TypographySettings, TypographyVariation, ShapeSettings, TextShapeVariation } from '@/types/interfaces';
 import TypographyPlugin from './TypographyPlugin';
+import TextShapePlugin from './TextShapePlugin';
 
 // Import template images
 import templateFocusGood from '@/assets/template-focus-good.jpg';
@@ -176,6 +178,27 @@ const QuickPixl = () => {
     strokeColor: '#000000'
   });
   const [typographyVariations, setTypographyVariations] = useState<TypographyVariation[]>([]);
+  
+  // Text Shape Plugin State
+  const [isTextShapeExpanded, setIsTextShapeExpanded] = useState(true);
+  const [selectedShape, setSelectedShape] = useState<keyof ShapeSettings>('none');
+  const [shapeSettings, setShapeSettings] = useState<ShapeSettings>({
+    none: null,
+    circle: { radius: 100, startAngle: 0, direction: 'clockwise' },
+    arc: { radius: 150, arcAngle: 90, flip: false },
+    arch: { height: 30, curve: 50 },
+    angle: { angle: 0, skew: 0 },
+    flag: { waveHeight: 20, waveLength: 100, reverse: false },
+    wave: { amplitude: 20, frequency: 3, phase: 0 },
+    distort: {
+      topLeft: { x: 0, y: 0 },
+      topRight: { x: 0, y: 0 },
+      bottomLeft: { x: 0, y: 0 },
+      bottomRight: { x: 0, y: 0 },
+      intensity: 50
+    }
+  });
+  const [textShapeVariations, setTextShapeVariations] = useState<TextShapeVariation[]>([]);
   
   // Search State
   const [isSearchVisible, setIsSearchVisible] = useState(false);
@@ -463,6 +486,48 @@ const QuickPixl = () => {
   const handleRemoveTypographyVariation = (variationId: string) => {
     setTypographyVariations(prev => prev.filter(v => v.id !== variationId));
     toast.success('Typography variation removed');
+  };
+
+  // Text Shape Plugin Handlers
+  const generateTextShapeDescription = (shape: keyof ShapeSettings, settings: any): string => {
+    if (shape === 'none') return 'No shape';
+    
+    let description = shape.charAt(0).toUpperCase() + shape.slice(1);
+    
+    if (settings) {
+      switch (shape) {
+        case 'circle':
+          description += ` (${settings.radius}px, ${settings.direction})`;
+          break;
+        case 'arc':
+          description += ` (${settings.radius}px, ${settings.arcAngle}°)`;
+          break;
+        case 'wave':
+          description += ` (${settings.amplitude}px, ${settings.frequency} waves)`;
+          break;
+        default:
+          break;
+      }
+    }
+    
+    return description;
+  };
+
+  const handleAddTextShapeVariation = () => {
+    const newVariation: TextShapeVariation = {
+      id: `text-shape-variation-${Date.now()}`,
+      shape: selectedShape,
+      settings: selectedShape === 'none' ? null : shapeSettings[selectedShape],
+      description: generateTextShapeDescription(selectedShape, selectedShape === 'none' ? null : shapeSettings[selectedShape])
+    };
+    
+    setTextShapeVariations(prev => [...prev, newVariation]);
+    toast.success('Text shape variation added');
+  };
+
+  const handleRemoveTextShapeVariation = (variationId: string) => {
+    setTextShapeVariations(prev => prev.filter(v => v.id !== variationId));
+    toast.success('Text shape variation removed');
   };
 
   // Available fonts list
@@ -1157,6 +1222,15 @@ const QuickPixl = () => {
                   onSettingsChange={setTypographySettings}
                   onAddVariation={handleAddTypographyVariation}
                 />
+                <TextShapePlugin
+                  isExpanded={isTextShapeExpanded}
+                  onToggleExpanded={() => setIsTextShapeExpanded(!isTextShapeExpanded)}
+                  selectedShape={selectedShape}
+                  onShapeChange={setSelectedShape}
+                  shapeSettings={shapeSettings}
+                  onShapeSettingsChange={setShapeSettings}
+                  onAddVariation={handleAddTextShapeVariation}
+                />
                 
                 {/* Font Variations Cards */}
                 {fontVariations.length > 0 && (
@@ -1255,7 +1329,7 @@ const QuickPixl = () => {
          </div>
 
           {/* Send to Render Queue Button - Fixed at bottom for variations section */}
-          {activeSection === 'variations' && (backgroundVariations.length > 0 || templateVariations.length > 0 || fontVariations.length > 0 || typographyVariations.length > 0) && (
+          {activeSection === 'variations' && (backgroundVariations.length > 0 || templateVariations.length > 0 || fontVariations.length > 0 || typographyVariations.length > 0 || textShapeVariations.length > 0) && (
             <div className="flex-shrink-0 mt-6">
               <Button
                 className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-medium py-3"
@@ -1266,7 +1340,7 @@ const QuickPixl = () => {
                 Send to Render Queue
               </Button>
               <p className="text-center text-xs text-muted-foreground mt-2">
-                Total: {backgroundVariations.length + templateVariations.length + fontVariations.length} variations
+                Total: {backgroundVariations.length + templateVariations.length + fontVariations.length + typographyVariations.length + textShapeVariations.length} variations
               </p>
             </div>
           )}

@@ -62,3 +62,49 @@ export interface TypographyVariation {
   settings: TypographySettings;
   description: string;
 }
+
+export interface ShapeSettings {
+  none: null;
+  circle: {
+    radius: number;
+    startAngle: number;
+    direction: 'clockwise' | 'counter-clockwise';
+  };
+  arc: {
+    radius: number;
+    arcAngle: number;
+    flip: boolean;
+  };
+  arch: {
+    height: number;
+    curve: number;
+  };
+  angle: {
+    angle: number;
+    skew: number;
+  };
+  flag: {
+    waveHeight: number;
+    waveLength: number;
+    reverse: boolean;
+  };
+  wave: {
+    amplitude: number;
+    frequency: number;
+    phase: number;
+  };
+  distort: {
+    topLeft: { x: number; y: number };
+    topRight: { x: number; y: number };
+    bottomLeft: { x: number; y: number };
+    bottomRight: { x: number; y: number };
+    intensity: number;
+  };
+}
+
+export interface TextShapeVariation {
+  id: string;
+  shape: keyof ShapeSettings;
+  settings: any;
+  description: string;
+}
