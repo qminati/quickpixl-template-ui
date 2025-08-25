@@ -30,6 +30,7 @@ import {
   Search
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import PlacementPlugin from './PlacementPlugin';
 import CanvasEditor from './CanvasEditor';
 import ErrorBoundary from './ErrorBoundary';
@@ -178,7 +179,7 @@ const QuickPixl = () => {
   // Template Settings State
   const [addedTemplates, setAddedTemplates] = useState<Template[]>([]);
   const [templateVariations, setTemplateVariations] = useState<TemplateVariation[]>([]);
-  const [templateBackgroundColor, setTemplateBackgroundColor] = useState('#ffffff');
+  const [templateBackgroundColor, setTemplateBackgroundColor] = useState('#000000');
   const colorInputRef = useRef<HTMLInputElement>(null);
   const [blobUrls, setBlobUrls] = useState<Map<File, string>>(new Map());
   
@@ -1010,17 +1011,41 @@ const QuickPixl = () => {
                       <span className="text-sm text-muted-foreground">L</span>
                     </div>
                     <div className="flex items-center space-x-2 ml-4">
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="h-7 px-2 text-xs"
-                        style={{ backgroundColor: templateBackgroundColor }}
-                        onClick={() => {
-                          // You can implement a color picker modal here later
-                        }}
-                      >
-                        Background
-                      </Button>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="h-7 px-2 text-xs border-panel-border hover:bg-secondary"
+                          >
+                            <div 
+                              className="w-3 h-3 rounded mr-1 border border-panel-border" 
+                              style={{ backgroundColor: templateBackgroundColor }}
+                            />
+                            Background
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-64 p-3" align="start">
+                          <div className="space-y-3">
+                            <div className="flex items-center space-x-2">
+                              <input
+                                type="color"
+                                value={templateBackgroundColor}
+                                onChange={(e) => setTemplateBackgroundColor(e.target.value)}
+                                className="w-8 h-8 rounded border border-panel-border cursor-pointer"
+                              />
+                              <input
+                                type="text"
+                                value={templateBackgroundColor}
+                                onChange={(e) => setTemplateBackgroundColor(e.target.value)}
+                                className="flex-1 px-2 py-1 text-xs bg-background border border-panel-border rounded"
+                                placeholder="#ffffff"
+                              />
+                            </div>
+                            <div className="text-xs text-muted-foreground">Template background color</div>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
                       <div className="flex items-center space-x-1">
                         {[
                           { color: '#000000', name: 'Black' },
