@@ -199,12 +199,12 @@ const TextEditor: React.FC<TextEditorProps> = ({ onSubmitVariation }) => {
           )}
 
           {activeMode === 'list' && (
-            <div className="flex-1 flex flex-col">
+            <div className="flex-1 flex flex-col min-h-[350px]">
               <h3 className="text-sm font-medium text-foreground mb-3 flex-shrink-0">Input List</h3>
               
               {/* Horizontal Scrollable Input Fields */}
-              <div className="overflow-x-auto flex-1">
-                <div className="flex space-x-3 h-full" style={{ minWidth: 'max-content' }}>
+              <div className="overflow-x-auto flex-1 min-h-[300px]">
+                <div className="flex space-x-3 h-full min-h-[300px]" style={{ minWidth: 'max-content' }}>
                   {listInputs.map((input, index) => (
                     <div key={input.id} className="flex flex-col space-y-2 min-w-[200px] h-full">
                       {/* Input Label */}
@@ -228,7 +228,7 @@ const TextEditor: React.FC<TextEditorProps> = ({ onSubmitVariation }) => {
                         placeholder="Type your text here..."
                         value={input.text}
                         onChange={(e) => updateListInput(input.id, e.target.value)}
-                        className="flex-1 w-full p-3 bg-background border border-input rounded-md resize-none text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                        className="flex-1 min-h-[250px] w-full p-3 bg-background border border-input rounded-md resize-none text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                       />
                     </div>
                   ))}
