@@ -52,15 +52,18 @@ const TextEditor: React.FC<TextEditorProps> = ({ onSubmitVariation }) => {
 
   return (
     <div className="h-full flex flex-col">
-      {/* Main Canvas Area */}
-      <div className="flex-1 p-6">
+      {/* Main Content */}
+      <div className="flex-1 p-6 overflow-auto">
         {/* Preview Canvas */}
         <div className="bg-background border border-input rounded-lg mb-4" style={{ height: '300px' }}>
-          {/* Top Toolbar */}
+          {/* Top Toolbar with Text Input */}
           <div className="bg-muted/30 border-b border-input px-4 py-2 rounded-t-lg">
-            <Button variant="secondary" size="sm">
-              Edit Sample Text
-            </Button>
+            <Input
+              placeholder="Edit Sample Text"
+              value={previewText}
+              onChange={(e) => setPreviewText(e.target.value)}
+              className="w-64 h-8 bg-background"
+            />
           </div>
           
           {/* Canvas Content */}
@@ -71,14 +74,15 @@ const TextEditor: React.FC<TextEditorProps> = ({ onSubmitVariation }) => {
           </div>
         </div>
 
-        {/* Bottom Panel - Text Input Mode */}
+        {/* Text Input Mode Panel */}
         <div className="bg-card border border-input rounded-lg p-4">
-          {/* Mode Toggle Buttons */}
-          <div className="flex items-center space-x-2 mb-4">
-            <span className="text-sm text-muted-foreground mr-2">Text Input Mode:</span>
+          {/* Compact Mode Toggle Buttons */}
+          <div className="flex items-center space-x-1 mb-4">
+            <span className="text-xs text-muted-foreground mr-2">Text Input Mode:</span>
             <Button
               variant={activeMode === 'manual' ? 'default' : 'outline'}
               size="sm"
+              className="h-7 px-3 text-xs"
               onClick={() => setActiveMode('manual')}
             >
               Manual Input
@@ -86,6 +90,7 @@ const TextEditor: React.FC<TextEditorProps> = ({ onSubmitVariation }) => {
             <Button
               variant={activeMode === 'bulk' ? 'default' : 'outline'}
               size="sm"
+              className="h-7 px-3 text-xs"
               onClick={() => setActiveMode('bulk')}
             >
               Bulk Text
@@ -93,6 +98,7 @@ const TextEditor: React.FC<TextEditorProps> = ({ onSubmitVariation }) => {
             <Button
               variant={activeMode === 'list' ? 'default' : 'outline'}
               size="sm"
+              className="h-7 px-3 text-xs"
               onClick={() => setActiveMode('list')}
             >
               Input List
@@ -131,7 +137,7 @@ const TextEditor: React.FC<TextEditorProps> = ({ onSubmitVariation }) => {
               </div>
 
               {/* Add Button */}
-              <div className="flex justify-end mb-4">
+              <div className="flex justify-end">
                 <Button
                   variant="outline"
                   size="sm"
@@ -162,15 +168,17 @@ const TextEditor: React.FC<TextEditorProps> = ({ onSubmitVariation }) => {
               </div>
             </div>
           )}
-
-          {/* Submit Button */}
-          <Button 
-            onClick={handleSubmit}
-            className="w-full mt-4 py-3 font-medium"
-          >
-            Submit Variation
-          </Button>
         </div>
+      </div>
+
+      {/* Submit Button Container - Fixed at Bottom */}
+      <div className="border-t border-input bg-card p-4">
+        <Button 
+          onClick={handleSubmit}
+          className="w-full py-3 font-medium"
+        >
+          Submit Variation
+        </Button>
       </div>
     </div>
   );
