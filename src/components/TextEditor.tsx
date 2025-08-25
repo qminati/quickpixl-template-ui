@@ -19,6 +19,13 @@ const TextEditor: React.FC<TextEditorProps> = ({ onSubmitVariation }) => {
     { id: '2', text: '' },
     { id: '3', text: '' }
   ]);
+  const [listInputs, setListInputs] = useState<TextInput[]>([
+    { id: '1', text: '' },
+    { id: '2', text: '' },
+    { id: '3', text: '' },
+    { id: '4', text: '' },
+    { id: '5', text: '' }
+  ]);
   const [previewText, setPreviewText] = useState('Sample Text');
 
   const addTextInput = () => {
@@ -45,8 +52,39 @@ const TextEditor: React.FC<TextEditorProps> = ({ onSubmitVariation }) => {
     setPreviewText(firstText);
   };
 
+  const addListInput = () => {
+    const newInput: TextInput = {
+      id: String(listInputs.length + 1),
+      text: ''
+    };
+    setListInputs([...listInputs, newInput]);
+  };
+
+  const removeListInput = (id: string) => {
+    if (listInputs.length > 1) {
+      setListInputs(listInputs.filter(input => input.id !== id));
+    }
+  };
+
+  const updateListInput = (id: string, text: string) => {
+    setListInputs(listInputs.map(input => 
+      input.id === id ? { ...input, text } : input
+    ));
+    
+    // Update preview with first non-empty text or sample text
+    const firstText = listInputs.find(input => input.text.trim())?.text || 'Sample Text';
+    setPreviewText(firstText);
+  };
+
   const handleSubmit = () => {
-    const texts = textInputs.map(input => input.text).filter(text => text.trim());
+    let texts: string[] = [];
+    
+    if (activeMode === 'manual') {
+      texts = textInputs.map(input => input.text).filter(text => text.trim());
+    } else if (activeMode === 'list') {
+      texts = listInputs.map(input => input.text).filter(text => text.trim());
+    }
+    
     onSubmitVariation(texts);
   };
 
@@ -163,8 +201,50 @@ const TextEditor: React.FC<TextEditorProps> = ({ onSubmitVariation }) => {
           {activeMode === 'list' && (
             <div>
               <h3 className="text-sm font-medium text-foreground mb-3">Input List</h3>
-              <div className="text-sm text-muted-foreground">
-                Upload a CSV or TXT file with text variations
+              
+              {/* Horizontal Scrollable Input Fields */}
+              <div className="overflow-x-auto">
+                <div className="flex space-x-3 pb-2" style={{ minWidth: 'max-content' }}>
+                  {listInputs.map((input, index) => (
+                    <div key={input.id} className="flex flex-col space-y-2 min-w-[200px]">
+                      {/* Input Label */}
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-muted-foreground">
+                          Input {index + 1}
+                        </span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeListInput(input.id)}
+                          disabled={listInputs.length <= 1}
+                          className="p-1 h-6 w-6"
+                        >
+                          <Minus className="w-3 h-3" />
+                        </Button>
+                      </div>
+                      
+                      {/* Input Field */}
+                      <Input
+                        placeholder="Type your text here..."
+                        value={input.text}
+                        onChange={(e) => updateListInput(input.id, e.target.value)}
+                        className="bg-background"
+                      />
+                    </div>
+                  ))}
+                  
+                  {/* Add Button Column */}
+                  <div className="flex flex-col justify-end min-w-[50px]">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={addListInput}
+                      className="p-2 h-8 w-8 mb-1"
+                    >
+                      <Plus className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
               </div>
             </div>
           )}
