@@ -187,6 +187,7 @@ const QuickPixl = () => {
   const [isFontsExpanded, setIsFontsExpanded] = useState(true);
   const [selectedFonts, setSelectedFonts] = useState<string[]>([]);
   const [fontSearchQuery, setFontSearchQuery] = useState('');
+  const [fontVariations, setFontVariations] = useState<{ id: string; fonts: string[]; description: string; }[]>([]);
   
   // Search State
   const [isSearchVisible, setIsSearchVisible] = useState(false);
@@ -416,9 +417,19 @@ const QuickPixl = () => {
   const handleAddFontsToVariation = () => {
     if (selectedFonts.length === 0) return;
     
-    console.log('Adding fonts to variation:', selectedFonts);
-    toast.success(`${selectedFonts.length} font${selectedFonts.length > 1 ? 's' : ''} added to variation`);
+    const newFontVariation = {
+      id: `font-variation-${Date.now()}`,
+      fonts: [...selectedFonts],
+      description: `${selectedFonts.length} font${selectedFonts.length > 1 ? 's' : ''}`
+    };
+    
+    setFontVariations(prev => [...prev, newFontVariation]);
     setSelectedFonts([]);
+    toast.success(`${newFontVariation.fonts.length} font${newFontVariation.fonts.length > 1 ? 's' : ''} added to variation`);
+  };
+
+  const handleRemoveFontVariation = (variationId: string) => {
+    setFontVariations(prev => prev.filter(v => v.id !== variationId));
   };
 
   // Available fonts list
@@ -1015,17 +1026,98 @@ const QuickPixl = () => {
                 </div>
               )}
               
-               {backgroundVariations.length === 0 && templateVariations.length === 0 && (
+              {fontVariations.length > 0 && (
+                <div className="bg-card border border-panel-border rounded-lg p-4">
+                  <h4 className="text-sm font-medium text-foreground mb-3 flex items-center space-x-2">
+                    <Type className="w-4 h-4 text-primary" />
+                    <span>Font Variations</span>
+                    <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
+                      {fontVariations.length}
+                    </span>
+                  </h4>
+                  <div className="space-y-2">
+                    {fontVariations.map((variation) => (
+                      <div key={variation.id} className="bg-secondary/30 rounded-lg p-3">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-xs font-medium text-foreground">{variation.description}</span>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleRemoveFontVariation(variation.id)}
+                            className="p-1 text-muted-foreground hover:text-destructive"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </Button>
+                        </div>
+                        <div className="flex flex-wrap gap-1">
+                          {variation.fonts.map((font, index) => (
+                            <span 
+                              key={index}
+                              className="bg-secondary px-2 py-1 rounded text-xs text-foreground"
+                              style={{ fontFamily: font }}
+                            >
+                              {availableFonts.find(f => f.family === font)?.name || font}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+               {backgroundVariations.length === 0 && templateVariations.length === 0 && fontVariations.length === 0 && (
                  <div className="bg-card border border-panel-border rounded-lg p-4 text-center">
                    <Shuffle className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
                    <p className="text-sm text-muted-foreground mb-2">No variations created yet</p>
-                   <p className="text-xs text-muted-foreground">Use the Canvas or Templates sections to create variations</p>
+                   <p className="text-xs text-muted-foreground">Use the Canvas, Templates, or Text sections to create variations</p>
                  </div>
                )}
              </div>
             ) : activeSection === 'text' ? (
               <div className="space-y-4">
                 <FontsPlugin />
+                
+                {/* Font Variations Cards */}
+                {fontVariations.length > 0 && (
+                  <div className="bg-card border border-panel-border rounded-lg p-4">
+                    <h4 className="text-sm font-medium text-foreground mb-3 flex items-center space-x-2">
+                      <Type className="w-4 h-4 text-primary" />
+                      <span>Font Variations</span>
+                      <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
+                        {fontVariations.length}
+                      </span>
+                    </h4>
+                    <div className="space-y-2">
+                      {fontVariations.map((variation) => (
+                        <div key={variation.id} className="bg-secondary/30 rounded-lg p-3">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-xs font-medium text-foreground">{variation.description}</span>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleRemoveFontVariation(variation.id)}
+                              className="p-1 text-muted-foreground hover:text-destructive"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </Button>
+                          </div>
+                          <div className="flex flex-wrap gap-1">
+                            {variation.fonts.map((font, index) => (
+                              <span 
+                                key={index}
+                                className="bg-secondary px-2 py-1 rounded text-xs text-foreground"
+                                style={{ fontFamily: font }}
+                              >
+                                {availableFonts.find(f => f.family === font)?.name || font}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="text-muted-foreground">
@@ -1034,23 +1126,23 @@ const QuickPixl = () => {
             )}
          </div>
 
-         {/* Send to Render Queue Button - Fixed at bottom for variations section */}
-         {activeSection === 'variations' && (backgroundVariations.length > 0 || templateVariations.length > 0) && (
-           <div className="flex-shrink-0 mt-6">
-             <Button
-               className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-medium py-3"
-               onClick={() => {
-                 // TODO: Implement send to render queue functionality
-                 console.log('Sending to render queue:', { backgroundVariations, templateVariations });
-               }}
-             >
-               Send to Render Queue
-             </Button>
-             <p className="text-center text-xs text-muted-foreground mt-2">
-               Total: {backgroundVariations.length + templateVariations.length} variations
-             </p>
-           </div>
-         )}
+          {/* Send to Render Queue Button - Fixed at bottom for variations section */}
+          {activeSection === 'variations' && (backgroundVariations.length > 0 || templateVariations.length > 0 || fontVariations.length > 0) && (
+            <div className="flex-shrink-0 mt-6">
+              <Button
+                className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-medium py-3"
+                onClick={() => {
+                  // TODO: Implement send to render queue functionality
+                  console.log('Sending to render queue:', { backgroundVariations, templateVariations, fontVariations });
+                }}
+              >
+                Send to Render Queue
+              </Button>
+              <p className="text-center text-xs text-muted-foreground mt-2">
+                Total: {backgroundVariations.length + templateVariations.length + fontVariations.length} variations
+              </p>
+            </div>
+          )}
        </div>
     );
   };
