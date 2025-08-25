@@ -43,3 +43,22 @@ export interface TextInput {
   id: string;
   text: string;
 }
+
+export interface TypographySettings {
+  bold: boolean;
+  italic: boolean;
+  underline: boolean;
+  textCase: 'normal' | 'uppercase' | 'lowercase';
+  letterSpacing: number;
+  wordSpacing: number;
+  textAlign: 'left' | 'center' | 'right' | 'justify';
+  textStroke: boolean;
+  strokeWidth?: number;
+  strokeColor?: string;
+}
+
+export interface TypographyVariation {
+  id: string;
+  settings: TypographySettings;
+  description: string;
+}

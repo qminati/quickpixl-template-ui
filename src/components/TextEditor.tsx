@@ -2,14 +2,19 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Plus, Minus } from 'lucide-react';
-import { TextInput } from '@/types/interfaces';
+import { TextInput, TypographySettings } from '@/types/interfaces';
 
 interface TextEditorProps {
   onSubmitVariation: (texts: string[]) => void;
   lastSelectedFont?: string;
+  typographySettings?: TypographySettings;
 }
 
-const TextEditor: React.FC<TextEditorProps> = ({ onSubmitVariation, lastSelectedFont = 'Inter, sans-serif' }) => {
+const TextEditor: React.FC<TextEditorProps> = ({ 
+  onSubmitVariation, 
+  lastSelectedFont = 'Inter, sans-serif',
+  typographySettings
+}) => {
   const [activeMode, setActiveMode] = useState<'manual' | 'bulk' | 'list'>('manual');
   const [textInputs, setTextInputs] = useState<TextInput[]>([
     { id: '1', text: '' },
@@ -105,7 +110,17 @@ const TextEditor: React.FC<TextEditorProps> = ({ onSubmitVariation, lastSelected
           <div className="h-full flex items-center justify-center bg-muted/10">
             <h1 
               className="text-4xl font-bold text-foreground"
-              style={{ fontFamily: lastSelectedFont }}
+              style={{ 
+                fontFamily: lastSelectedFont,
+                fontWeight: typographySettings?.bold ? 'bold' : 'normal',
+                fontStyle: typographySettings?.italic ? 'italic' : 'normal',
+                textDecoration: typographySettings?.underline ? 'underline' : 'none',
+                textTransform: typographySettings?.textCase === 'normal' ? 'none' : (typographySettings?.textCase || 'none') as any,
+                letterSpacing: typographySettings?.letterSpacing ? `${typographySettings.letterSpacing}px` : 'normal',
+                wordSpacing: typographySettings?.wordSpacing ? `${typographySettings.wordSpacing}px` : 'normal',
+                textAlign: (typographySettings?.textAlign || 'center') as any,
+                WebkitTextStroke: typographySettings?.textStroke ? `${typographySettings.strokeWidth || 1}px ${typographySettings.strokeColor || '#000000'}` : 'none'
+              }}
             >
               {previewText}
             </h1>

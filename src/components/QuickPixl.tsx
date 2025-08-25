@@ -37,7 +37,8 @@ import ErrorBoundary from './ErrorBoundary';
 import TextEditor from './TextEditor';
 import { validateImage, handleImageError, createImageFallback } from '@/utils/imageUtils';
 import { toast } from 'sonner';
-import { Container, Variation, Template, TemplateVariation, FontVariation } from '@/types/interfaces';
+import { Container, Variation, Template, TemplateVariation, FontVariation, TypographySettings, TypographyVariation } from '@/types/interfaces';
+import TypographyPlugin from './TypographyPlugin';
 
 // Import template images
 import templateFocusGood from '@/assets/template-focus-good.jpg';
@@ -159,6 +160,22 @@ const QuickPixl = () => {
   const [fontSearchQuery, setFontSearchQuery] = useState('');
   const [fontVariations, setFontVariations] = useState<FontVariation[]>([]);
   const [lastSelectedFont, setLastSelectedFont] = useState<string>('Inter, sans-serif');
+  
+  // Typography Plugin State
+  const [isTypographyExpanded, setIsTypographyExpanded] = useState(true);
+  const [typographySettings, setTypographySettings] = useState<TypographySettings>({
+    bold: false,
+    italic: false,
+    underline: false,
+    textCase: 'normal',
+    letterSpacing: 0,
+    wordSpacing: 0,
+    textAlign: 'center',
+    textStroke: false,
+    strokeWidth: 1,
+    strokeColor: '#000000'
+  });
+  const [typographyVariations, setTypographyVariations] = useState<TypographyVariation[]>([]);
   
   // Search State
   const [isSearchVisible, setIsSearchVisible] = useState(false);
@@ -416,6 +433,36 @@ const QuickPixl = () => {
 
   const handleRemoveFontVariation = (variationId: string) => {
     setFontVariations(prev => prev.filter(v => v.id !== variationId));
+  };
+
+  // Typography Plugin Handlers
+  const generateTypographyDescription = (settings: TypographySettings): string => {
+    const features = [];
+    if (settings.bold) features.push('Bold');
+    if (settings.italic) features.push('Italic');
+    if (settings.underline) features.push('Underline');
+    if (settings.textCase !== 'normal') features.push(settings.textCase);
+    if (settings.textStroke) features.push('Stroke');
+    if (settings.letterSpacing !== 0) features.push(`Letter: ${settings.letterSpacing}px`);
+    if (settings.wordSpacing !== 0) features.push(`Word: ${settings.wordSpacing}px`);
+    
+    return features.length > 0 ? features.join(', ') : 'Default typography';
+  };
+
+  const handleAddTypographyVariation = () => {
+    const newVariation: TypographyVariation = {
+      id: `typography-variation-${Date.now()}`,
+      settings: { ...typographySettings },
+      description: generateTypographyDescription(typographySettings)
+    };
+    
+    setTypographyVariations(prev => [...prev, newVariation]);
+    toast.success('Typography variation added');
+  };
+
+  const handleRemoveTypographyVariation = (variationId: string) => {
+    setTypographyVariations(prev => prev.filter(v => v.id !== variationId));
+    toast.success('Typography variation removed');
   };
 
   // Available fonts list
@@ -1050,9 +1097,49 @@ const QuickPixl = () => {
                     ))}
                   </div>
                 </div>
-              )}
-              
-               {backgroundVariations.length === 0 && templateVariations.length === 0 && fontVariations.length === 0 && (
+               )}
+               
+               {typographyVariations.length > 0 && (
+                 <div className="bg-card border border-panel-border rounded-lg p-4">
+                   <h4 className="text-sm font-medium text-foreground mb-3 flex items-center space-x-2">
+                     <Type className="w-4 h-4 text-primary" />
+                     <span>Typography Variations</span>
+                     <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
+                       {typographyVariations.length}
+                     </span>
+                   </h4>
+                   <div className="space-y-2">
+                     {typographyVariations.map((variation) => (
+                       <div key={variation.id} className="bg-secondary/30 rounded-lg p-3">
+                         <div className="flex items-center justify-between mb-2">
+                           <span className="text-xs font-medium text-foreground">{variation.description}</span>
+                           <Button
+                             variant="ghost"
+                             size="sm"
+                             onClick={() => handleRemoveTypographyVariation(variation.id)}
+                             className="p-1 text-muted-foreground hover:text-destructive"
+                           >
+                             <Trash2 className="w-3 h-3" />
+                           </Button>
+                         </div>
+                         <div className="flex items-center space-x-2 text-xs text-muted-foreground">
+                           {variation.settings.bold && <span className="font-bold">B</span>}
+                           {variation.settings.italic && <span className="italic">I</span>}
+                           {variation.settings.underline && <span className="underline">U</span>}
+                           {variation.settings.textCase !== 'normal' && (
+                             <span>{variation.settings.textCase === 'uppercase' ? 'ABC' : 'abc'}</span>
+                           )}
+                           {variation.settings.textStroke && <span>STR</span>}
+                           <span>•</span>
+                           <span>{variation.settings.textAlign}</span>
+                         </div>
+                       </div>
+                     ))}
+                   </div>
+                 </div>
+               )}
+               
+                {backgroundVariations.length === 0 && templateVariations.length === 0 && fontVariations.length === 0 && typographyVariations.length === 0 && (
                  <div className="bg-card border border-panel-border rounded-lg p-4 text-center">
                    <Shuffle className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
                    <p className="text-sm text-muted-foreground mb-2">No variations created yet</p>
@@ -1063,6 +1150,13 @@ const QuickPixl = () => {
             ) : activeSection === 'text' ? (
               <div className="space-y-4">
                 <FontsPlugin />
+                <TypographyPlugin
+                  isExpanded={isTypographyExpanded}
+                  onToggleExpanded={() => setIsTypographyExpanded(!isTypographyExpanded)}
+                  settings={typographySettings}
+                  onSettingsChange={setTypographySettings}
+                  onAddVariation={handleAddTypographyVariation}
+                />
                 
                 {/* Font Variations Cards */}
                 {fontVariations.length > 0 && (
@@ -1104,6 +1198,54 @@ const QuickPixl = () => {
                     </div>
                   </div>
                 )}
+
+                {/* Typography Variations Cards */}
+                {typographyVariations.length > 0 && (
+                  <div className="bg-card border border-panel-border rounded-lg p-4">
+                    <h4 className="text-sm font-medium text-foreground mb-3 flex items-center space-x-2">
+                      <Type className="w-4 h-4 text-primary" />
+                      <span>Typography Variations</span>
+                      <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
+                        {typographyVariations.length}
+                      </span>
+                    </h4>
+                    <div className="space-y-2">
+                      {typographyVariations.map((variation) => (
+                        <div 
+                          key={variation.id} 
+                          className="bg-secondary/30 rounded-lg p-3 cursor-pointer hover:bg-secondary/50 transition-colors"
+                        >
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-xs font-medium text-foreground">{variation.description}</span>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleRemoveTypographyVariation(variation.id);
+                              }}
+                              className="p-1 text-muted-foreground hover:text-destructive"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </Button>
+                          </div>
+                          {/* Visual preview of key settings */}
+                          <div className="flex items-center space-x-2 text-xs text-muted-foreground">
+                            {variation.settings.bold && <span className="font-bold">B</span>}
+                            {variation.settings.italic && <span className="italic">I</span>}
+                            {variation.settings.underline && <span className="underline">U</span>}
+                            {variation.settings.textCase !== 'normal' && (
+                              <span>{variation.settings.textCase === 'uppercase' ? 'ABC' : 'abc'}</span>
+                            )}
+                            {variation.settings.textStroke && <span>STR</span>}
+                            <span>•</span>
+                            <span>{variation.settings.textAlign}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="text-muted-foreground">
@@ -1113,7 +1255,7 @@ const QuickPixl = () => {
          </div>
 
           {/* Send to Render Queue Button - Fixed at bottom for variations section */}
-          {activeSection === 'variations' && (backgroundVariations.length > 0 || templateVariations.length > 0 || fontVariations.length > 0) && (
+          {activeSection === 'variations' && (backgroundVariations.length > 0 || templateVariations.length > 0 || fontVariations.length > 0 || typographyVariations.length > 0) && (
             <div className="flex-shrink-0 mt-6">
               <Button
                 className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-medium py-3"
@@ -1210,6 +1352,7 @@ const QuickPixl = () => {
             <TextEditor 
               onSubmitVariation={handleSubmitVariation} 
               lastSelectedFont={lastSelectedFont}
+              typographySettings={typographySettings}
             />
           ) : (
             <div className="p-6 overflow-auto h-full">
