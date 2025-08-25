@@ -108,3 +108,16 @@ export interface TextShapeVariation {
   settings: any;
   description: string;
 }
+
+export interface RotateFlipSettings {
+  enabled: boolean;
+  rotation: number;
+  flipHorizontal: boolean;
+  flipVertical: boolean;
+}
+
+export interface RotateFlipVariation {
+  id: string;
+  settings: RotateFlipSettings;
+  description: string;
+}

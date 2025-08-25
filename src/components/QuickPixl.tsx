@@ -28,7 +28,8 @@ import {
   Pipette,
   Hash,
   Search,
-  Shapes
+  Shapes,
+  RotateCw
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -38,9 +39,10 @@ import ErrorBoundary from './ErrorBoundary';
 import TextEditor from './TextEditor';
 import { validateImage, handleImageError, createImageFallback } from '@/utils/imageUtils';
 import { toast } from 'sonner';
-import { Container, Variation, Template, TemplateVariation, FontVariation, TypographySettings, TypographyVariation, ShapeSettings, TextShapeVariation } from '@/types/interfaces';
+import { Container, Variation, Template, TemplateVariation, FontVariation, TypographySettings, TypographyVariation, ShapeSettings, TextShapeVariation, RotateFlipSettings, RotateFlipVariation } from '@/types/interfaces';
 import TypographyPlugin from './TypographyPlugin';
 import TextShapePlugin from './TextShapePlugin';
+import RotateFlipPlugin from './RotateFlipPlugin';
 
 // Import template images
 import templateFocusGood from '@/assets/template-focus-good.jpg';
@@ -203,6 +205,18 @@ const QuickPixl = () => {
     }
   });
   const [textShapeVariations, setTextShapeVariations] = useState<TextShapeVariation[]>([]);
+  
+  // Rotate & Flip Settings State
+  const [rotateFlipSettings, setRotateFlipSettings] = useState<RotateFlipSettings>({
+    enabled: false,
+    rotation: 0,
+    flipHorizontal: false,
+    flipVertical: false
+  });
+  const [rotateFlipVariations, setRotateFlipVariations] = useState<RotateFlipVariation[]>([]);
+  
+  // Rotate & Flip Plugin State
+  const [isRotateFlipExpanded, setIsRotateFlipExpanded] = useState(true);
   
   // Search State
   const [isSearchVisible, setIsSearchVisible] = useState(false);
@@ -517,6 +531,28 @@ const QuickPixl = () => {
     return description;
   };
 
+  const generateRotateFlipDescription = (settings: RotateFlipSettings): string => {
+    const parts = [];
+    
+    if (settings.rotation !== 0) {
+      parts.push(`${settings.rotation}°`);
+    }
+    
+    if (settings.flipHorizontal) {
+      parts.push('H-Flip');
+    }
+    
+    if (settings.flipVertical) {
+      parts.push('V-Flip');
+    }
+    
+    if (parts.length === 0) {
+      return 'No Transform';
+    }
+    
+    return parts.join(', ');
+  };
+
   // Helper to scroll new cards into view
   const scrollNewCardIntoView = () => {
     const targets = [leftSettingsRef.current, variationsRef.current];
@@ -542,9 +578,30 @@ const QuickPixl = () => {
     if (textShapeVariations.length > 0) scrollNewCardIntoView();
   }, [textShapeVariations.length]);
 
+  // Auto-scroll when rotate flip variations are added
+  useEffect(() => {
+    if (rotateFlipVariations.length > 0) scrollNewCardIntoView();
+  }, [rotateFlipVariations.length]);
+
   const handleRemoveTextShapeVariation = (variationId: string) => {
     setTextShapeVariations(prev => prev.filter(v => v.id !== variationId));
     toast.success('Text shape variation removed');
+  };
+
+  const handleAddRotateFlipVariation = () => {
+    const newVariation: RotateFlipVariation = {
+      id: `rotate-flip-variation-${Date.now()}`,
+      settings: { ...rotateFlipSettings },
+      description: generateRotateFlipDescription(rotateFlipSettings)
+    };
+
+    setRotateFlipVariations(prev => [...prev, newVariation]);
+    toast.success('Rotate & flip variation added');
+  };
+
+  const handleRemoveRotateFlipVariation = (variationId: string) => {
+    setRotateFlipVariations(prev => prev.filter(v => v.id !== variationId));
+    toast.success('Rotate & flip variation removed');
   };
 
   // Available fonts list
@@ -1225,6 +1282,58 @@ const QuickPixl = () => {
                   </div>
                 )}
                 
+                {rotateFlipVariations.length > 0 && (
+                  <div className="bg-card border border-panel-border rounded-lg p-4">
+                    <h4 className="text-sm font-medium text-foreground mb-3 flex items-center space-x-2">
+                      <RotateCw className="w-4 h-4 text-primary" />
+                      <span>Rotate & Flip Variations</span>
+                      <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
+                        {rotateFlipVariations.length}
+                      </span>
+                    </h4>
+                    <div className="space-y-2">
+                      {rotateFlipVariations.map((variation) => (
+                        <div key={variation.id} className="bg-secondary/30 rounded-lg p-3">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-xs font-medium text-foreground">{variation.description}</span>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleRemoveRotateFlipVariation(variation.id)}
+                              className="p-1 text-muted-foreground hover:text-destructive"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </Button>
+                          </div>
+                          <div className="flex items-center space-x-2 text-xs text-muted-foreground">
+                            {variation.settings.enabled ? (
+                              <>
+                                {variation.settings.rotation !== 0 && (
+                                  <span>{variation.settings.rotation}° rotation</span>
+                                )}
+                                {variation.settings.flipHorizontal && (
+                                  <>
+                                    {variation.settings.rotation !== 0 && <span>•</span>}
+                                    <span>H-flip</span>
+                                  </>
+                                )}
+                                {variation.settings.flipVertical && (
+                                  <>
+                                    {(variation.settings.rotation !== 0 || variation.settings.flipHorizontal) && <span>•</span>}
+                                    <span>V-flip</span>
+                                  </>
+                                )}
+                              </>
+                            ) : (
+                              <span>Disabled</span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
                 {typographyVariations.length > 0 && (
                  <div className="bg-card border border-panel-border rounded-lg p-4">
                    <h4 className="text-sm font-medium text-foreground mb-3 flex items-center space-x-2">
@@ -1291,6 +1400,14 @@ const QuickPixl = () => {
                   shapeSettings={shapeSettings}
                   onShapeSettingsChange={setShapeSettings}
                   onAddVariation={handleAddTextShapeVariation}
+                />
+                
+                <RotateFlipPlugin
+                  isExpanded={isRotateFlipExpanded}
+                  onToggleExpanded={() => setIsRotateFlipExpanded(!isRotateFlipExpanded)}
+                  settings={rotateFlipSettings}
+                  onSettingsChange={setRotateFlipSettings}
+                  onAddVariation={handleAddRotateFlipVariation}
                 />
                 
                 {/* Font Variations Cards */}
