@@ -249,10 +249,9 @@ const QuickPixl = () => {
   const [searchQuery, setSearchQuery] = useState('');
   
   // Variation Detail View State
-  const [selectedVariation, setSelectedVariation] = useState<any | null>(null);
+  const [selectedVariation, setSelectedVariation] = useState<any>(null);
   const [selectedVariationType, setSelectedVariationType] = useState<string>('');
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  const [originalVariation, setOriginalVariation] = useState<any | null>(null);
 
   // Enhanced cleanup function for blob URLs
   useEffect(() => {
@@ -677,37 +676,35 @@ const QuickPixl = () => {
   const handleVariationSelect = (variation: any, type: string) => {
     setSelectedVariation(variation);
     setSelectedVariationType(type);
-    setOriginalVariation(JSON.parse(JSON.stringify(variation)));
     setHasUnsavedChanges(false);
   };
 
   const handleVariationSave = (updatedVariation: any) => {
     // Update the appropriate variation array based on type
     switch (selectedVariationType) {
-      case 'Background':
+      case 'background':
         setBackgroundVariations(prev => prev.map(v => v.id === updatedVariation.id ? updatedVariation : v));
         break;
-      case 'Template':
+      case 'template':
         setTemplateVariations(prev => prev.map(v => v.id === updatedVariation.id ? updatedVariation : v));
         break;
-      case 'Font':
+      case 'font':
         setFontVariations(prev => prev.map(v => v.id === updatedVariation.id ? updatedVariation : v));
         break;
-      case 'Typography':
+      case 'typography':
         setTypographyVariations(prev => prev.map(v => v.id === updatedVariation.id ? updatedVariation : v));
         break;
-      case 'Text Shape':
+      case 'textShape':
         setTextShapeVariations(prev => prev.map(v => v.id === updatedVariation.id ? updatedVariation : v));
         break;
-      case 'Rotate & Flip':
+      case 'rotateFlip':
         setRotateFlipVariations(prev => prev.map(v => v.id === updatedVariation.id ? updatedVariation : v));
         break;
-      case 'Color Fill':
+      case 'colorFill':
         setColorFillVariations(prev => prev.map(v => v.id === updatedVariation.id ? updatedVariation : v));
         break;
     }
     setHasUnsavedChanges(false);
-    setOriginalVariation(JSON.parse(JSON.stringify(updatedVariation)));
   };
 
   const handleVariationDelete = (variationId: string) => {
@@ -740,44 +737,44 @@ const QuickPixl = () => {
     setHasUnsavedChanges(false);
   };
 
-  const handleVariationDuplicate = (variation: any) => {
-    const duplicatedVariation = {
-      ...variation,
-      id: `${variation.id}-copy-${Date.now()}`,
-      description: `${variation.description} (Copy)`
-    };
+  const handleVariationDuplicate = () => {
+    if (selectedVariation && selectedVariationType) {
+      const duplicatedVariation = {
+        ...selectedVariation,
+        id: `${selectedVariationType}-variation-${Date.now()}`,
+        description: `${selectedVariation.description} (Copy)`
+      };
 
-    // Add to appropriate array
-    switch (selectedVariationType) {
-      case 'Background':
-        setBackgroundVariations(prev => [...prev, duplicatedVariation]);
-        break;
-      case 'Template':
-        setTemplateVariations(prev => [...prev, duplicatedVariation]);
-        break;
-      case 'Font':
-        setFontVariations(prev => [...prev, duplicatedVariation]);
-        break;
-      case 'Typography':
-        setTypographyVariations(prev => [...prev, duplicatedVariation]);
-        break;
-      case 'Text Shape':
-        setTextShapeVariations(prev => [...prev, duplicatedVariation]);
-        break;
-      case 'Rotate & Flip':
-        setRotateFlipVariations(prev => [...prev, duplicatedVariation]);
-        break;
-      case 'Color Fill':
-        setColorFillVariations(prev => [...prev, duplicatedVariation]);
-        break;
+      switch (selectedVariationType) {
+        case 'background':
+          setBackgroundVariations(prev => [...prev, duplicatedVariation]);
+          break;
+        case 'template':
+          setTemplateVariations(prev => [...prev, duplicatedVariation]);
+          break;
+        case 'font':
+          setFontVariations(prev => [...prev, duplicatedVariation]);
+          break;
+        case 'typography':
+          setTypographyVariations(prev => [...prev, duplicatedVariation]);
+          break;
+        case 'textShape':
+          setTextShapeVariations(prev => [...prev, duplicatedVariation]);
+          break;
+        case 'rotateFlip':
+          setRotateFlipVariations(prev => [...prev, duplicatedVariation]);
+          break;
+        case 'colorFill':
+          setColorFillVariations(prev => [...prev, duplicatedVariation]);
+          break;
+      }
+      toast.success('Variation duplicated successfully!');
     }
   };
 
   const handleDiscardChanges = () => {
-    if (originalVariation) {
-      setSelectedVariation(JSON.parse(JSON.stringify(originalVariation)));
-      setHasUnsavedChanges(false);
-    }
+    setHasUnsavedChanges(false);
+    toast.success('Changes discarded');
   };
 
   // Available fonts list
@@ -1457,30 +1454,41 @@ const QuickPixl = () => {
                       </span>
                     </h4>
                     <div className="space-y-2">
-                      {textShapeVariations.map((variation) => (
-                        <div key={variation.id} className="bg-secondary/30 rounded-lg p-3">
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-xs font-medium text-foreground">{variation.description}</span>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleRemoveTextShapeVariation(variation.id)}
-                              className="p-1 text-muted-foreground hover:text-destructive"
-                            >
-                              <Trash2 className="w-3 h-3" />
-                            </Button>
-                          </div>
-                          <div className="flex items-center space-x-2 text-xs text-muted-foreground">
-                            <span className="capitalize">{variation.shape}</span>
-                            {variation.shape !== 'none' && variation.settings && (
-                              <>
-                                <span>•</span>
-                                <span>Custom settings</span>
-                              </>
-                            )}
-                          </div>
-                        </div>
-                      ))}
+                       {textShapeVariations.map((variation) => (
+                         <div 
+                           key={variation.id} 
+                           className={`bg-secondary/30 rounded-lg p-3 cursor-pointer hover:bg-secondary/50 transition-colors ${
+                             selectedVariation?.id === variation.id && selectedVariationType === 'textShape' 
+                               ? 'ring-2 ring-primary bg-secondary/60' 
+                               : ''
+                           }`}
+                           onClick={() => handleVariationSelect(variation, 'textShape')}
+                         >
+                           <div className="flex items-center justify-between mb-2">
+                             <span className="text-xs font-medium text-foreground">{variation.description}</span>
+                             <Button
+                               variant="ghost"
+                               size="sm"
+                               onClick={(e) => {
+                                 e.stopPropagation();
+                                 handleRemoveTextShapeVariation(variation.id);
+                               }}
+                               className="p-1 text-muted-foreground hover:text-destructive"
+                             >
+                               <Trash2 className="w-3 h-3" />
+                             </Button>
+                           </div>
+                           <div className="flex items-center space-x-2 text-xs text-muted-foreground">
+                             <span className="capitalize">{variation.shape}</span>
+                             {variation.shape !== 'none' && variation.settings && (
+                               <>
+                                 <span>•</span>
+                                 <span>Custom settings</span>
+                               </>
+                             )}
+                           </div>
+                         </div>
+                       ))}
                     </div>
                   </div>
                 )}
@@ -1495,19 +1503,30 @@ const QuickPixl = () => {
                       </span>
                     </h4>
                     <div className="space-y-2">
-                      {rotateFlipVariations.map((variation) => (
-                        <div key={variation.id} className="bg-secondary/30 rounded-lg p-3">
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-xs font-medium text-foreground">{variation.description}</span>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleRemoveRotateFlipVariation(variation.id)}
-                              className="p-1 text-muted-foreground hover:text-destructive"
-                            >
-                              <Trash2 className="w-3 h-3" />
-                            </Button>
-                          </div>
+                       {rotateFlipVariations.map((variation) => (
+                         <div 
+                           key={variation.id} 
+                           className={`bg-secondary/30 rounded-lg p-3 cursor-pointer hover:bg-secondary/50 transition-colors ${
+                             selectedVariation?.id === variation.id && selectedVariationType === 'rotateFlip' 
+                               ? 'ring-2 ring-primary bg-secondary/60' 
+                               : ''
+                           }`}
+                           onClick={() => handleVariationSelect(variation, 'rotateFlip')}
+                         >
+                           <div className="flex items-center justify-between mb-2">
+                             <span className="text-xs font-medium text-foreground">{variation.description}</span>
+                             <Button
+                               variant="ghost"
+                               size="sm"
+                               onClick={(e) => {
+                                 e.stopPropagation();
+                                 handleRemoveRotateFlipVariation(variation.id);
+                               }}
+                               className="p-1 text-muted-foreground hover:text-destructive"
+                             >
+                               <Trash2 className="w-3 h-3" />
+                             </Button>
+                           </div>
                           <div className="flex items-center space-x-2 text-xs text-muted-foreground">
                             {variation.settings.rotation !== 0 && (
                               <span>{variation.settings.rotation}° rotation</span>
@@ -1687,33 +1706,44 @@ const QuickPixl = () => {
                         {fontVariations.length}
                       </span>
                     </h4>
-                    <div className="space-y-2">
-                      {fontVariations.map((variation) => (
-                        <div key={variation.id} className="bg-secondary/30 rounded-lg p-3">
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-xs font-medium text-foreground">{variation.description}</span>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleRemoveFontVariation(variation.id)}
-                              className="p-1 text-muted-foreground hover:text-destructive"
-                            >
-                              <Trash2 className="w-3 h-3" />
-                            </Button>
-                          </div>
-                          <div className="flex flex-wrap gap-1">
-                            {variation.fonts.map((font, index) => (
-                              <span 
-                                key={index}
-                                className="bg-secondary px-2 py-1 rounded text-xs text-foreground"
-                                style={{ fontFamily: font }}
-                              >
-                                {availableFonts.find(f => f.family === font)?.name || font}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      ))}
+                     <div className="space-y-2">
+                       {fontVariations.map((variation) => (
+                         <div 
+                           key={variation.id} 
+                           className={`bg-secondary/30 rounded-lg p-3 cursor-pointer hover:bg-secondary/50 transition-colors ${
+                             selectedVariation?.id === variation.id && selectedVariationType === 'font' 
+                               ? 'ring-2 ring-primary bg-secondary/60' 
+                               : ''
+                           }`}
+                           onClick={() => handleVariationSelect(variation, 'font')}
+                         >
+                           <div className="flex items-center justify-between mb-2">
+                             <span className="text-xs font-medium text-foreground">{variation.description}</span>
+                             <Button
+                               variant="ghost"
+                               size="sm"
+                               onClick={(e) => {
+                                 e.stopPropagation();
+                                 handleRemoveFontVariation(variation.id);
+                               }}
+                               className="p-1 text-muted-foreground hover:text-destructive"
+                             >
+                               <Trash2 className="w-3 h-3" />
+                             </Button>
+                           </div>
+                           <div className="flex flex-wrap gap-1">
+                             {variation.fonts.map((font, index) => (
+                               <span 
+                                 key={index}
+                                 className="bg-secondary px-2 py-1 rounded text-xs text-foreground"
+                                 style={{ fontFamily: font }}
+                               >
+                                 {availableFonts.find(f => f.family === font)?.name || font}
+                               </span>
+                             ))}
+                           </div>
+                         </div>
+                       ))}
                     </div>
                   </div>
                 )}
@@ -1728,52 +1758,63 @@ const QuickPixl = () => {
                         {colorFillVariations.length}
                       </span>
                     </h4>
-                    <div className="space-y-2">
-                      {colorFillVariations.map((variation) => (
-                        <div key={variation.id} className="bg-secondary/30 rounded-lg p-3">
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-xs font-medium text-foreground">{variation.description}</span>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleRemoveColorFillVariation(variation.id)}
-                              className="p-1 text-muted-foreground hover:text-destructive"
-                            >
-                              <Trash2 className="w-3 h-3" />
-                            </Button>
-                          </div>
-                          <div className="flex items-center space-x-2 text-xs text-muted-foreground">
-                            <span className="capitalize">{variation.settings.mode}</span>
-                            {variation.settings.mode === 'solid' && (
-                              <div 
-                                className="w-3 h-3 rounded border border-border"
-                                style={{ backgroundColor: variation.settings.solid.color }}
-                              />
-                            )}
-                            {variation.settings.mode === 'gradient' && (
-                              <>
-                                <span>•</span>
-                                <span className="capitalize">{variation.settings.gradient.type}</span>
-                                <span>({variation.settings.gradient.stops.length} stops)</span>
-                              </>
-                            )}
-                            {variation.settings.mode === 'palette' && (
-                              <>
-                                <span>•</span>
-                                <span className="capitalize">{variation.settings.palette.source}</span>
-                                <span>({variation.settings.palette.colors.length} colors)</span>
-                              </>
-                            )}
-                            {variation.settings.mode === 'image' && (
-                              <>
-                                <span>•</span>
-                                <span className="capitalize">{variation.settings.image.mode}</span>
-                                <span>({variation.settings.image.images.length} images)</span>
-                              </>
-                            )}
-                          </div>
-                        </div>
-                      ))}
+                     <div className="space-y-2">
+                       {colorFillVariations.map((variation) => (
+                         <div 
+                           key={variation.id} 
+                           className={`bg-secondary/30 rounded-lg p-3 cursor-pointer hover:bg-secondary/50 transition-colors ${
+                             selectedVariation?.id === variation.id && selectedVariationType === 'colorFill' 
+                               ? 'ring-2 ring-primary bg-secondary/60' 
+                               : ''
+                           }`}
+                           onClick={() => handleVariationSelect(variation, 'colorFill')}
+                         >
+                           <div className="flex items-center justify-between mb-2">
+                             <span className="text-xs font-medium text-foreground">{variation.description}</span>
+                             <Button
+                               variant="ghost"
+                               size="sm"
+                               onClick={(e) => {
+                                 e.stopPropagation();
+                                 handleRemoveColorFillVariation(variation.id);
+                               }}
+                               className="p-1 text-muted-foreground hover:text-destructive"
+                             >
+                               <Trash2 className="w-3 h-3" />
+                             </Button>
+                           </div>
+                           <div className="flex items-center space-x-2 text-xs text-muted-foreground">
+                             <span className="capitalize">{variation.settings.mode}</span>
+                             {variation.settings.mode === 'solid' && (
+                               <div 
+                                 className="w-3 h-3 rounded border border-border"
+                                 style={{ backgroundColor: variation.settings.solid.color }}
+                               />
+                             )}
+                             {variation.settings.mode === 'gradient' && (
+                               <>
+                                 <span>•</span>
+                                 <span className="capitalize">{variation.settings.gradient.type}</span>
+                                 <span>({variation.settings.gradient.stops.length} stops)</span>
+                               </>
+                             )}
+                             {variation.settings.mode === 'palette' && (
+                               <>
+                                 <span>•</span>
+                                 <span className="capitalize">{variation.settings.palette.source}</span>
+                                 <span>({variation.settings.palette.colors.length} colors)</span>
+                               </>
+                             )}
+                             {variation.settings.mode === 'image' && (
+                               <>
+                                 <span>•</span>
+                                 <span className="capitalize">{variation.settings.image.mode}</span>
+                                 <span>({variation.settings.image.images.length} images)</span>
+                               </>
+                             )}
+                           </div>
+                         </div>
+                       ))}
                     </div>
                   </div>
                 )}
@@ -1788,40 +1829,45 @@ const QuickPixl = () => {
                         {typographyVariations.length}
                       </span>
                     </h4>
-                    <div className="space-y-2">
-                      {typographyVariations.map((variation) => (
-                        <div 
-                          key={variation.id} 
-                          className="bg-secondary/30 rounded-lg p-3 cursor-pointer hover:bg-secondary/50 transition-colors"
-                        >
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-xs font-medium text-foreground">{variation.description}</span>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleRemoveTypographyVariation(variation.id);
-                              }}
-                              className="p-1 text-muted-foreground hover:text-destructive"
-                            >
-                              <Trash2 className="w-3 h-3" />
-                            </Button>
-                          </div>
-                          {/* Visual preview of key settings */}
-                          <div className="flex items-center space-x-2 text-xs text-muted-foreground">
-                            {variation.settings.bold && <span className="font-bold">B</span>}
-                            {variation.settings.italic && <span className="italic">I</span>}
-                            {variation.settings.underline && <span className="underline">U</span>}
-                            {variation.settings.textCase !== 'normal' && (
-                              <span>{variation.settings.textCase === 'uppercase' ? 'ABC' : 'abc'}</span>
-                            )}
-                            {variation.settings.textStroke && <span>STR</span>}
-                            <span>•</span>
-                            <span>{variation.settings.textAlign}</span>
-                          </div>
-                        </div>
-                      ))}
+                     <div className="space-y-2">
+                       {typographyVariations.map((variation) => (
+                         <div 
+                           key={variation.id} 
+                           className={`bg-secondary/30 rounded-lg p-3 cursor-pointer hover:bg-secondary/50 transition-colors ${
+                             selectedVariation?.id === variation.id && selectedVariationType === 'typography' 
+                               ? 'ring-2 ring-primary bg-secondary/60' 
+                               : ''
+                           }`}
+                           onClick={() => handleVariationSelect(variation, 'typography')}
+                         >
+                           <div className="flex items-center justify-between mb-2">
+                             <span className="text-xs font-medium text-foreground">{variation.description}</span>
+                             <Button
+                               variant="ghost"
+                               size="sm"
+                               onClick={(e) => {
+                                 e.stopPropagation();
+                                 handleRemoveTypographyVariation(variation.id);
+                               }}
+                               className="p-1 text-muted-foreground hover:text-destructive"
+                             >
+                               <Trash2 className="w-3 h-3" />
+                             </Button>
+                           </div>
+                           {/* Visual preview of key settings */}
+                           <div className="flex items-center space-x-2 text-xs text-muted-foreground">
+                             {variation.settings.bold && <span className="font-bold">B</span>}
+                             {variation.settings.italic && <span className="italic">I</span>}
+                             {variation.settings.underline && <span className="underline">U</span>}
+                             {variation.settings.textCase !== 'normal' && (
+                               <span>{variation.settings.textCase === 'uppercase' ? 'ABC' : 'abc'}</span>
+                             )}
+                             {variation.settings.textStroke && <span>STR</span>}
+                             <span>•</span>
+                             <span>{variation.settings.textAlign}</span>
+                           </div>
+                         </div>
+                       ))}
                     </div>
                   </div>
                 )}
@@ -1837,7 +1883,12 @@ const QuickPixl = () => {
           {activeSection === 'variations' && (backgroundVariations.length > 0 || templateVariations.length > 0 || fontVariations.length > 0 || typographyVariations.length > 0 || textShapeVariations.length > 0 || rotateFlipVariations.length > 0 || colorFillVariations.length > 0) && (
             <div className="flex-shrink-0 mt-6">
               <Button
-                className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-medium py-3"
+                className={`w-full font-medium py-3 ${
+                  hasUnsavedChanges 
+                    ? 'bg-muted text-muted-foreground cursor-not-allowed' 
+                    : 'bg-primary text-primary-foreground hover:bg-primary/90'
+                }`}
+                disabled={hasUnsavedChanges}
                 onClick={() => {
                   // TODO: Implement send to render queue functionality
                 }}
@@ -1846,6 +1897,7 @@ const QuickPixl = () => {
               </Button>
               <p className="text-center text-xs text-muted-foreground mt-2">
                 Total: {backgroundVariations.length + templateVariations.length + fontVariations.length + typographyVariations.length + textShapeVariations.length + rotateFlipVariations.length + colorFillVariations.length} variations
+                {hasUnsavedChanges && <span className="text-destructive"> • Save changes first</span>}
               </p>
             </div>
           )}
