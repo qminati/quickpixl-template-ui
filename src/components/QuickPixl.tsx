@@ -44,6 +44,7 @@ import TypographyPlugin from './TypographyPlugin';
 import TextShapePlugin from './TextShapePlugin';
 import RotateFlipPlugin from './RotateFlipPlugin';
 import ColorFillPlugin from './ColorFillPlugin';
+import VariationDetailView from './VariationDetailView';
 
 // Import merchandise-style template images
 import merchFocusGood from '@/assets/merch-focus-good.jpg';
@@ -246,6 +247,12 @@ const QuickPixl = () => {
   // Search State
   const [isSearchVisible, setIsSearchVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  
+  // Variation Detail View State
+  const [selectedVariation, setSelectedVariation] = useState<any | null>(null);
+  const [selectedVariationType, setSelectedVariationType] = useState<string>('');
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [originalVariation, setOriginalVariation] = useState<any | null>(null);
 
   // Enhanced cleanup function for blob URLs
   useEffect(() => {
@@ -664,6 +671,113 @@ const QuickPixl = () => {
   const handleRemoveColorFillVariation = (variationId: string) => {
     setColorFillVariations(prev => prev.filter(v => v.id !== variationId));
     toast.success('Color & fill variation removed');
+  };
+
+  // Variation Detail View Handlers
+  const handleVariationSelect = (variation: any, type: string) => {
+    setSelectedVariation(variation);
+    setSelectedVariationType(type);
+    setOriginalVariation(JSON.parse(JSON.stringify(variation)));
+    setHasUnsavedChanges(false);
+  };
+
+  const handleVariationSave = (updatedVariation: any) => {
+    // Update the appropriate variation array based on type
+    switch (selectedVariationType) {
+      case 'Background':
+        setBackgroundVariations(prev => prev.map(v => v.id === updatedVariation.id ? updatedVariation : v));
+        break;
+      case 'Template':
+        setTemplateVariations(prev => prev.map(v => v.id === updatedVariation.id ? updatedVariation : v));
+        break;
+      case 'Font':
+        setFontVariations(prev => prev.map(v => v.id === updatedVariation.id ? updatedVariation : v));
+        break;
+      case 'Typography':
+        setTypographyVariations(prev => prev.map(v => v.id === updatedVariation.id ? updatedVariation : v));
+        break;
+      case 'Text Shape':
+        setTextShapeVariations(prev => prev.map(v => v.id === updatedVariation.id ? updatedVariation : v));
+        break;
+      case 'Rotate & Flip':
+        setRotateFlipVariations(prev => prev.map(v => v.id === updatedVariation.id ? updatedVariation : v));
+        break;
+      case 'Color Fill':
+        setColorFillVariations(prev => prev.map(v => v.id === updatedVariation.id ? updatedVariation : v));
+        break;
+    }
+    setHasUnsavedChanges(false);
+    setOriginalVariation(JSON.parse(JSON.stringify(updatedVariation)));
+  };
+
+  const handleVariationDelete = (variationId: string) => {
+    // Remove from appropriate array and clear selection
+    switch (selectedVariationType) {
+      case 'Background':
+        setBackgroundVariations(prev => prev.filter(v => v.id !== variationId));
+        break;
+      case 'Template':
+        setTemplateVariations(prev => prev.filter(v => v.id !== variationId));
+        break;
+      case 'Font':
+        setFontVariations(prev => prev.filter(v => v.id !== variationId));
+        break;
+      case 'Typography':
+        setTypographyVariations(prev => prev.filter(v => v.id !== variationId));
+        break;
+      case 'Text Shape':
+        setTextShapeVariations(prev => prev.filter(v => v.id !== variationId));
+        break;
+      case 'Rotate & Flip':
+        setRotateFlipVariations(prev => prev.filter(v => v.id !== variationId));
+        break;
+      case 'Color Fill':
+        setColorFillVariations(prev => prev.filter(v => v.id !== variationId));
+        break;
+    }
+    setSelectedVariation(null);
+    setSelectedVariationType('');
+    setHasUnsavedChanges(false);
+  };
+
+  const handleVariationDuplicate = (variation: any) => {
+    const duplicatedVariation = {
+      ...variation,
+      id: `${variation.id}-copy-${Date.now()}`,
+      description: `${variation.description} (Copy)`
+    };
+
+    // Add to appropriate array
+    switch (selectedVariationType) {
+      case 'Background':
+        setBackgroundVariations(prev => [...prev, duplicatedVariation]);
+        break;
+      case 'Template':
+        setTemplateVariations(prev => [...prev, duplicatedVariation]);
+        break;
+      case 'Font':
+        setFontVariations(prev => [...prev, duplicatedVariation]);
+        break;
+      case 'Typography':
+        setTypographyVariations(prev => [...prev, duplicatedVariation]);
+        break;
+      case 'Text Shape':
+        setTextShapeVariations(prev => [...prev, duplicatedVariation]);
+        break;
+      case 'Rotate & Flip':
+        setRotateFlipVariations(prev => [...prev, duplicatedVariation]);
+        break;
+      case 'Color Fill':
+        setColorFillVariations(prev => [...prev, duplicatedVariation]);
+        break;
+    }
+  };
+
+  const handleDiscardChanges = () => {
+    if (originalVariation) {
+      setSelectedVariation(JSON.parse(JSON.stringify(originalVariation)));
+      setHasUnsavedChanges(false);
+    }
   };
 
   // Available fonts list
@@ -1172,7 +1286,13 @@ const QuickPixl = () => {
                   </h4>
                   <div className="space-y-3">
                     {backgroundVariations.map((variation) => (
-                      <div key={variation.id} className="bg-secondary rounded-lg p-3 flex items-center justify-between">
+                      <div 
+                        key={variation.id} 
+                        className={`bg-secondary rounded-lg p-3 flex items-center justify-between cursor-pointer transition-all
+                          ${selectedVariation?.id === variation.id ? 'ring-2 ring-primary bg-primary/10' : 'hover:bg-secondary/80'}
+                        `}
+                        onClick={() => handleVariationSelect(variation, 'Background')}
+                      >
                         <div className="flex items-center space-x-3">
                           <div className="flex space-x-1">
                             {variation.colors.slice(0, 3).map((color, index) => (
@@ -1201,11 +1321,17 @@ const QuickPixl = () => {
                             )}
                           </div>
                           <span className="text-sm text-foreground">{variation.description}</span>
+                          {hasUnsavedChanges && selectedVariation?.id === variation.id && (
+                            <div className="w-2 h-2 bg-amber-500 rounded-full" title="Unsaved changes" />
+                          )}
                         </div>
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleRemoveVariation(variation.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleRemoveVariation(variation.id);
+                          }}
                           className="text-muted-foreground hover:text-foreground p-1"
                         >
                           <X className="w-4 h-4" />
@@ -1229,12 +1355,18 @@ const QuickPixl = () => {
                     {templateVariations.map((variation) => (
                       <div 
                         key={variation.id} 
-                        className="bg-secondary/30 rounded-lg p-3 cursor-pointer hover:bg-secondary/50 transition-colors"
+                        className={`bg-secondary/30 rounded-lg p-3 cursor-pointer transition-all
+                          ${selectedVariation?.id === variation.id ? 'ring-2 ring-primary bg-primary/10' : 'hover:bg-secondary/50'}
+                        `}
+                        onClick={() => handleVariationSelect(variation, 'Template')}
                         onDoubleClick={() => handleDoubleClickTemplateVariation(variation)}
-                        title="Double-click to add templates back to panel"
+                        title="Click to view details, double-click to add templates back to panel"
                       >
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-xs font-medium text-foreground">{variation.description}</span>
+                          {hasUnsavedChanges && selectedVariation?.id === variation.id && (
+                            <div className="w-2 h-2 bg-amber-500 rounded-full" title="Unsaved changes" />
+                          )}
                           <Button
                             variant="ghost"
                             size="sm"
@@ -1277,9 +1409,18 @@ const QuickPixl = () => {
                   </h4>
                   <div className="space-y-2">
                     {fontVariations.map((variation) => (
-                      <div key={variation.id} className="bg-secondary/30 rounded-lg p-3">
+                      <div 
+                        key={variation.id} 
+                        className={`bg-secondary/30 rounded-lg p-3 cursor-pointer transition-all
+                          ${selectedVariation?.id === variation.id ? 'ring-2 ring-primary bg-primary/10' : 'hover:bg-secondary/50'}
+                        `}
+                        onClick={() => handleVariationSelect(variation, 'Font')}
+                      >
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-xs font-medium text-foreground">{variation.description}</span>
+                          {hasUnsavedChanges && selectedVariation?.id === variation.id && (
+                            <div className="w-2 h-2 bg-amber-500 rounded-full" title="Unsaved changes" />
+                          )}
                           <Button
                             variant="ghost"
                             size="sm"
@@ -1791,6 +1932,16 @@ const QuickPixl = () => {
               onSubmitVariation={handleSubmitVariation} 
               lastSelectedFont={lastSelectedFont}
               typographySettings={typographySettings}
+            />
+          ) : activeSection === 'variations' ? (
+            <VariationDetailView
+              variation={selectedVariation}
+              variationType={selectedVariationType}
+              onSave={handleVariationSave}
+              onDelete={handleVariationDelete}
+              onDuplicate={handleVariationDuplicate}
+              hasUnsavedChanges={hasUnsavedChanges}
+              onDiscardChanges={handleDiscardChanges}
             />
           ) : (
             <div className="p-6 overflow-auto h-full">
