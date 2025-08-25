@@ -464,9 +464,9 @@ const QuickPixl = () => {
 
         {/* Content */}
         {isFontsExpanded && (
-          <div className="p-3 pt-0 space-y-3">
+          <div className="flex flex-col">
             {/* Font Search */}
-            <div>
+            <div className="p-3 pb-2">
               <div className="relative">
                 <Search className="w-3 h-3 absolute left-2 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
                 <input
@@ -474,49 +474,55 @@ const QuickPixl = () => {
                   placeholder="Search fonts..."
                   value={fontSearchQuery}
                   onChange={(e) => setFontSearchQuery(e.target.value)}
-                  className="w-full h-7 pl-7 pr-3 text-xs bg-secondary border border-panel-border rounded focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
+                  className="w-full h-6 pl-7 pr-3 text-xs bg-secondary border border-panel-border rounded focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
                 />
               </div>
             </div>
 
-            {/* Font List */}
-            <div className="space-y-1">
-              {filteredFonts.map((font) => (
-                <div
-                  key={font.name}
-                  className={`flex items-center space-x-2 p-2 rounded cursor-pointer transition-colors ${
-                    selectedFonts.includes(font.family)
-                      ? 'bg-primary/10 border border-primary/20'
-                      : 'hover:bg-secondary/50'
-                  }`}
-                  onClick={() => handleFontSelect(font.family)}
-                >
-                  <div className="flex-1">
-                    <span 
-                      className="text-sm text-foreground"
-                      style={{ fontFamily: font.family }}
-                    >
-                      {font.name}
-                    </span>
+            {/* Scrollable Font List */}
+            <div className="max-h-40 overflow-y-auto px-3">
+              <div className="space-y-0.5">
+                {filteredFonts.map((font) => (
+                  <div
+                    key={font.name}
+                    className={`flex items-center space-x-2 px-2 py-1.5 rounded cursor-pointer transition-colors ${
+                      selectedFonts.includes(font.family)
+                        ? 'bg-primary/10 border border-primary/20'
+                        : 'hover:bg-secondary/50'
+                    }`}
+                    onClick={() => handleFontSelect(font.family)}
+                  >
+                    <div className="flex-1 min-w-0">
+                      <span 
+                        className="text-xs text-foreground truncate block"
+                        style={{ fontFamily: font.family }}
+                      >
+                        {font.name}
+                      </span>
+                    </div>
+                    {selectedFonts.includes(font.family) && (
+                      <Check className="w-3 h-3 text-primary flex-shrink-0" />
+                    )}
                   </div>
-                  {selectedFonts.includes(font.family) && (
-                    <Check className="w-3 h-3 text-primary" />
-                  )}
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
 
-            {/* Send to Variations Button */}
-            {selectedFonts.length > 0 && (
+            {/* Add Variation Button - Always visible at bottom */}
+            <div className="p-3 pt-2">
               <Button
                 onClick={handleAddFontsToVariation}
+                disabled={selectedFonts.length === 0}
                 className="w-full h-6 text-xs"
-                variant="default"
+                variant={selectedFonts.length > 0 ? "default" : "secondary"}
               >
                 <Plus className="w-3 h-3 mr-1" />
-                Send to Variations ({selectedFonts.length})
+                {selectedFonts.length > 0 
+                  ? `Add Variation (${selectedFonts.length})` 
+                  : 'Add Variation'
+                }
               </Button>
-            )}
+            </div>
           </div>
         )}
       </div>
