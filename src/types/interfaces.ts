@@ -120,3 +120,42 @@ export interface RotateFlipVariation {
   settings: RotateFlipSettings;
   description: string;
 }
+
+export interface ColorFillSettings {
+  mode: 'solid' | 'gradient' | 'palette' | 'image';
+  solid: {
+    color: string;
+  };
+  gradient: {
+    type: 'linear' | 'radial' | 'conic';
+    angle: number;
+    stops: Array<{
+      id: string;
+      color: string;
+      position: number;
+    }>;
+  };
+  palette: {
+    source: 'rgb' | 'component' | 'image';
+    colors: Array<{
+      id: string;
+      value: string | number;
+      type: 'manual' | 'component' | 'extracted';
+    }>;
+    componentInput: number;
+    extractedImage?: File;
+    randomize: boolean;
+  };
+  image: {
+    mode: 'single' | 'multiple';
+    images: File[];
+    opacity: number;
+    randomize: boolean;
+  };
+}
+
+export interface ColorFillVariation {
+  id: string;
+  settings: ColorFillSettings;
+  description: string;
+}

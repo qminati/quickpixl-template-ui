@@ -39,10 +39,11 @@ import ErrorBoundary from './ErrorBoundary';
 import TextEditor from './TextEditor';
 import { validateImage, handleImageError, createImageFallback } from '@/utils/imageUtils';
 import { toast } from 'sonner';
-import { Container, Variation, Template, TemplateVariation, FontVariation, TypographySettings, TypographyVariation, ShapeSettings, TextShapeVariation, RotateFlipSettings, RotateFlipVariation } from '@/types/interfaces';
+import { Container, Variation, Template, TemplateVariation, FontVariation, TypographySettings, TypographyVariation, ShapeSettings, TextShapeVariation, RotateFlipSettings, RotateFlipVariation, ColorFillSettings, ColorFillVariation } from '@/types/interfaces';
 import TypographyPlugin from './TypographyPlugin';
 import TextShapePlugin from './TextShapePlugin';
 import RotateFlipPlugin from './RotateFlipPlugin';
+import ColorFillPlugin from './ColorFillPlugin';
 
 // Import template images
 import templateFocusGood from '@/assets/template-focus-good.jpg';
@@ -216,6 +217,34 @@ const QuickPixl = () => {
   
   // Rotate & Flip Plugin State
   const [isRotateFlipExpanded, setIsRotateFlipExpanded] = useState(true);
+  
+  // Color & Fill Plugin State
+  const [isColorFillExpanded, setIsColorFillExpanded] = useState(true);
+  const [colorFillSettings, setColorFillSettings] = useState<ColorFillSettings>({
+    mode: 'solid',
+    solid: { color: '#000000' },
+    gradient: {
+      type: 'linear',
+      angle: 0,
+      stops: [
+        { id: '1', color: '#000000', position: 0 },
+        { id: '2', color: '#ffffff', position: 100 }
+      ]
+    },
+    palette: {
+      source: 'rgb',
+      colors: [],
+      componentInput: 1,
+      randomize: false
+    },
+    image: {
+      mode: 'single',
+      images: [],
+      opacity: 100,
+      randomize: false
+    }
+  });
+  const [colorFillVariations, setColorFillVariations] = useState<ColorFillVariation[]>([]);
   
   // Search State
   const [isSearchVisible, setIsSearchVisible] = useState(false);
@@ -601,6 +630,43 @@ const QuickPixl = () => {
   const handleRemoveRotateFlipVariation = (variationId: string) => {
     setRotateFlipVariations(prev => prev.filter(v => v.id !== variationId));
     toast.success('Rotate & flip variation removed');
+  };
+
+  // Color & Fill variation handlers
+  const generateColorFillDescription = (settings: ColorFillSettings): string => {
+    const { mode } = settings;
+    
+    switch (mode) {
+      case 'solid':
+        return `Solid: ${settings.solid.color}`;
+      case 'gradient':
+        return `${settings.gradient.type} gradient (${settings.gradient.stops.length} stops)`;
+      case 'palette':
+        return `${settings.palette.source} palette (${settings.palette.colors.length} colors)`;
+      case 'image':
+        return `${settings.image.mode} image (${settings.image.images.length} images)`;
+      default:
+        return 'Color & Fill';
+    }
+  };
+
+  const handleAddColorFillVariation = () => {
+    const newVariation: ColorFillVariation = {
+      id: `color-fill-variation-${Date.now()}`,
+      settings: { ...colorFillSettings },
+      description: generateColorFillDescription(colorFillSettings)
+    };
+
+    setColorFillVariations(prev => [...prev, newVariation]);
+    toast.success('Color & fill variation added');
+    
+    // Auto-scroll to show the new variation
+    setTimeout(() => scrollNewCardIntoView(), 100);
+  };
+
+  const handleRemoveColorFillVariation = (variationId: string) => {
+    setColorFillVariations(prev => prev.filter(v => v.id !== variationId));
+    toast.success('Color & fill variation removed');
   };
 
   // Available fonts list
