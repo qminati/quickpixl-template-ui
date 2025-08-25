@@ -188,6 +188,7 @@ const QuickPixl = () => {
   const [selectedFonts, setSelectedFonts] = useState<string[]>([]);
   const [fontSearchQuery, setFontSearchQuery] = useState('');
   const [fontVariations, setFontVariations] = useState<{ id: string; fonts: string[]; description: string; }[]>([]);
+  const [lastSelectedFont, setLastSelectedFont] = useState<string>('Inter, sans-serif');
   
   // Search State
   const [isSearchVisible, setIsSearchVisible] = useState(false);
@@ -407,6 +408,7 @@ const QuickPixl = () => {
 
   // Fonts Plugin Handlers
   const handleFontSelect = (fontFamily: string) => {
+    setLastSelectedFont(fontFamily);
     setSelectedFonts(prev => 
       prev.includes(fontFamily) 
         ? prev.filter(font => font !== fontFamily)
@@ -476,6 +478,18 @@ const QuickPixl = () => {
         {/* Content */}
         {isFontsExpanded && (
           <div className="flex flex-col">
+            {/* Sample Text */}
+            <div className="p-3 pb-2">
+              <div className="bg-secondary/30 rounded-lg p-3">
+                <p 
+                  className="text-lg text-foreground text-center"
+                  style={{ fontFamily: lastSelectedFont }}
+                >
+                  The quick brown fox jumps over the lazy dog
+                </p>
+              </div>
+            </div>
+
             {/* Font Search */}
             <div className="p-3 pb-2">
               <div className="relative">
