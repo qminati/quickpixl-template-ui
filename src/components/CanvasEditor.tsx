@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import debounce from 'lodash.debounce';
 import { 
   Move, 
   RotateCw, 
@@ -49,6 +50,12 @@ const CanvasEditor: React.FC<CanvasEditorProps> = ({
       const containerWidth = containerRef.current.clientWidth - 100; // Account for rulers
       const containerHeight = containerRef.current.clientHeight - 100;
       
+      // Prevent division by zero
+      if (canvasHeight === 0) {
+        setDisplaySize({ width: 800, height: 800 });
+        return;
+      }
+      
       const aspectRatio = canvasWidth / canvasHeight;
       let displayWidth = containerWidth;
       let displayHeight = containerHeight;
@@ -65,36 +72,42 @@ const CanvasEditor: React.FC<CanvasEditorProps> = ({
       });
     };
 
+    // Debounce the resize handler to improve performance
+    const debouncedUpdateDisplaySize = debounce(updateDisplaySize, 100);
+
     updateDisplaySize();
-    window.addEventListener('resize', updateDisplaySize);
-    return () => window.removeEventListener('resize', updateDisplaySize);
+    window.addEventListener('resize', debouncedUpdateDisplaySize);
+    return () => {
+      debouncedUpdateDisplaySize.cancel?.();
+      window.removeEventListener('resize', debouncedUpdateDisplaySize);
+    };
   }, [canvasWidth, canvasHeight]);
 
-  // Generate ruler marks
-  const generateRulerMarks = (length: number, isVertical = false) => {
+  // Memoized ruler marks generation for better performance
+  const horizontalRulerMarks = useMemo(() => {
     const marks = [];
     const scale = displaySize.width / canvasWidth; // pixels per unit
     const step = Math.max(10, Math.round(50 / scale)); // Adaptive step based on zoom
     
-    for (let i = 0; i <= length; i += step) {
-      const position = (i / length) * (isVertical ? displaySize.height : displaySize.width);
+    for (let i = 0; i <= canvasWidth; i += step) {
+      const position = (i / canvasWidth) * displaySize.width;
       marks.push(
         <g key={i}>
           <line
-            x1={isVertical ? 0 : position}
-            y1={isVertical ? position : 0}
-            x2={isVertical ? (i % (step * 5) === 0 ? 20 : 10) : position}
-            y2={isVertical ? position : (i % (step * 5) === 0 ? 20 : 10)}
+            x1={position}
+            y1={0}
+            x2={position}
+            y2={i % (step * 5) === 0 ? 20 : 10}
             stroke="hsl(var(--muted-foreground))"
             strokeWidth="1"
           />
           {i % (step * 5) === 0 && (
             <text
-              x={isVertical ? 25 : position}
-              y={isVertical ? position + 4 : 30}
+              x={position}
+              y={30}
               fontSize="10"
               fill="hsl(var(--muted-foreground))"
-              textAnchor={isVertical ? "start" : "middle"}
+              textAnchor="middle"
             >
               {i}
             </text>
@@ -103,11 +116,47 @@ const CanvasEditor: React.FC<CanvasEditorProps> = ({
       );
     }
     return marks;
-  };
+  }, [canvasWidth, displaySize.width]);
 
-  // Improved coordinate calculation with bounds checking
+  const verticalRulerMarks = useMemo(() => {
+    const marks = [];
+    const scale = displaySize.height / canvasHeight; // pixels per unit
+    const step = Math.max(10, Math.round(50 / scale)); // Adaptive step based on zoom
+    
+    for (let i = 0; i <= canvasHeight; i += step) {
+      const position = (i / canvasHeight) * displaySize.height;
+      marks.push(
+        <g key={i}>
+          <line
+            x1={0}
+            y1={position}
+            x2={i % (step * 5) === 0 ? 20 : 10}
+            y2={position}
+            stroke="hsl(var(--muted-foreground))"
+            strokeWidth="1"
+          />
+          {i % (step * 5) === 0 && (
+            <text
+              x={25}
+              y={position + 4}
+              fontSize="10"
+              fill="hsl(var(--muted-foreground))"
+              textAnchor="start"
+            >
+              {i}
+            </text>
+          )}
+        </g>
+      );
+    }
+    return marks;
+  }, [canvasHeight, displaySize.height]);
+
+  // Improved coordinate calculation with bounds checking and division by zero protection
   const getCanvasCoordinates = useCallback((clientX: number, clientY: number) => {
-    if (!svgRef.current) return { x: 0, y: 0 };
+    if (!svgRef.current || displaySize.width === 0 || displaySize.height === 0) {
+      return { x: 0, y: 0 };
+    }
     
     const rect = svgRef.current.getBoundingClientRect();
     const x = Math.max(0, Math.min(canvasWidth, (clientX - rect.left) * (canvasWidth / displaySize.width)));
@@ -247,6 +296,7 @@ const CanvasEditor: React.FC<CanvasEditorProps> = ({
           size="sm"
           onClick={handleZoomOut}
           title="Zoom Out"
+          aria-label="Zoom Out"
         >
           <ZoomOut className="w-4 h-4" />
         </Button>
@@ -258,6 +308,7 @@ const CanvasEditor: React.FC<CanvasEditorProps> = ({
           size="sm"
           onClick={handleZoomIn}
           title="Zoom In"
+          aria-label="Zoom In"
         >
           <ZoomIn className="w-4 h-4" />
         </Button>
@@ -266,6 +317,7 @@ const CanvasEditor: React.FC<CanvasEditorProps> = ({
           size="sm"
           onClick={handleResetZoom}
           title="Reset Zoom"
+          aria-label="Reset Zoom"
         >
           <Maximize2 className="w-4 h-4" />
         </Button>
@@ -285,7 +337,7 @@ const CanvasEditor: React.FC<CanvasEditorProps> = ({
           <div className="w-8"></div> {/* Corner space */}
           <div className="flex-1 relative">
             <svg width="100%" height="32" className="absolute inset-0">
-              {generateRulerMarks(canvasWidth)}
+              {horizontalRulerMarks}
             </svg>
           </div>
         </div>
@@ -294,7 +346,7 @@ const CanvasEditor: React.FC<CanvasEditorProps> = ({
           {/* Left Ruler */}
           <div className="w-8 bg-card border-r border-panel-border">
             <svg width="32" height="100%" className="absolute">
-              {generateRulerMarks(canvasHeight, true)}
+              {verticalRulerMarks}
             </svg>
           </div>
 

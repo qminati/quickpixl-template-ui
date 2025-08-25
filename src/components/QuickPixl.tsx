@@ -164,14 +164,17 @@ const QuickPixl = () => {
   const [isSearchVisible, setIsSearchVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Cleanup function for blob URLs
+  // Enhanced cleanup function for blob URLs
   useEffect(() => {
+    // Create a copy of current URLs to clean up on unmount
+    const urlsToClean = new Map(blobUrls);
+    
     return () => {
-      blobUrls.forEach((url) => {
+      urlsToClean.forEach((url) => {
         URL.revokeObjectURL(url);
       });
     };
-  }, [blobUrls]);
+  }, []); // Empty dependency array, only cleanup on unmount
 
   // Helper to safely get blob URL with cleanup tracking
   const getBlobUrl = (file: File): string => {
@@ -284,36 +287,48 @@ const QuickPixl = () => {
     }
   };
 
+  // Add loading state for image uploads
+  const [isUploading, setIsUploading] = useState(false);
+
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
     if (files.length === 0) return;
 
+    setIsUploading(true);
     const validFiles: File[] = [];
     let hasErrors = false;
 
-    for (const file of files) {
-      try {
-        const validation = await validateImage(file);
-        if (validation.isValid) {
-          validFiles.push(file);
-        } else {
+    try {
+      for (const file of files) {
+        try {
+          const validation = await validateImage(file);
+          if (validation.isValid) {
+            validFiles.push(file);
+          } else {
+            hasErrors = true;
+            toast.error(`${file.name}: ${validation.error}`);
+          }
+        } catch (error) {
           hasErrors = true;
-          toast.error(`${file.name}: ${validation.error}`);
+          console.error('Failed to validate image:', error);
+          toast.error(`Failed to validate ${file.name}`);
         }
-      } catch (error) {
-        hasErrors = true;
-        toast.error(`Failed to validate ${file.name}`);
       }
-    }
 
-    if (validFiles.length > 0) {
-      setUploadedImages(prev => [...prev, ...validFiles]);
-      setSelectedImages(prev => [...prev, ...validFiles]);
-      toast.success(`${validFiles.length} image${validFiles.length > 1 ? 's' : ''} uploaded successfully!`);
-    }
+      if (validFiles.length > 0) {
+        setUploadedImages(prev => [...prev, ...validFiles]);
+        setSelectedImages(prev => [...prev, ...validFiles]);
+        toast.success(`${validFiles.length} image${validFiles.length > 1 ? 's' : ''} uploaded successfully!`);
+      }
 
-    if (hasErrors && validFiles.length === 0) {
-      toast.error('No valid images could be uploaded');
+      if (hasErrors && validFiles.length === 0) {
+        toast.error('No valid images could be uploaded');
+      }
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast.error('Failed to upload images. Please try again.');
+    } finally {
+      setIsUploading(false);
     }
 
     // Clear the input
