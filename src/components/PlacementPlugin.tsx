@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Container } from '@/types/interfaces';
 
 interface PlacementPluginProps {
   canvasWidth: number;
@@ -19,18 +20,6 @@ interface PlacementPluginProps {
   setContainers: React.Dispatch<React.SetStateAction<Container[]>>;
   selectedContainer: string | null;
   setSelectedContainer: React.Dispatch<React.SetStateAction<string | null>>;
-}
-
-interface Container {
-  id: string;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  rotation: number;
-  locked: boolean;
-  visible: boolean;
-  name: string;
 }
 
 const PlacementPlugin: React.FC<PlacementPluginProps> = ({

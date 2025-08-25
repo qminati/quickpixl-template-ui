@@ -9,6 +9,7 @@ import {
   Square
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Container } from '@/types/interfaces';
 
 interface CanvasEditorProps {
   canvasWidth: number;
@@ -17,18 +18,6 @@ interface CanvasEditorProps {
   setContainers: React.Dispatch<React.SetStateAction<Container[]>>;
   selectedContainer: string | null;
   setSelectedContainer: React.Dispatch<React.SetStateAction<string | null>>;
-}
-
-interface Container {
-  id: string;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  rotation: number;
-  locked: boolean;
-  visible: boolean;
-  name: string;
 }
 
 type ResizeHandle = 'nw' | 'ne' | 'sw' | 'se' | null;
@@ -362,7 +351,7 @@ const CanvasEditor: React.FC<CanvasEditorProps> = ({
                       className="cursor-move"
                         onMouseDown={(e) => {
                           e.stopPropagation();
-                          handleMouseDown(e as any, container.id);
+                          handleMouseDown(e, container.id);
                         }}
                       transform={`rotate(${container.rotation} ${container.x + container.width/2} ${container.y + container.height/2})`}
                     />
@@ -394,7 +383,7 @@ const CanvasEditor: React.FC<CanvasEditorProps> = ({
                           className="cursor-nw-resize"
                           onMouseDown={(e) => {
                             e.stopPropagation();
-                            handleMouseDown(e as any, container.id, 'se');
+                            handleMouseDown(e, container.id, 'se');
                           }}
                         />
                         <circle
@@ -407,7 +396,7 @@ const CanvasEditor: React.FC<CanvasEditorProps> = ({
                           className="cursor-nw-resize"
                           onMouseDown={(e) => {
                             e.stopPropagation();
-                            handleMouseDown(e as any, container.id, 'nw');
+                            handleMouseDown(e, container.id, 'nw');
                           }}
                         />
                         <circle
@@ -420,7 +409,7 @@ const CanvasEditor: React.FC<CanvasEditorProps> = ({
                           className="cursor-ne-resize"
                           onMouseDown={(e) => {
                             e.stopPropagation();
-                            handleMouseDown(e as any, container.id, 'ne');
+                            handleMouseDown(e, container.id, 'ne');
                           }}
                         />
                         <circle
@@ -433,7 +422,7 @@ const CanvasEditor: React.FC<CanvasEditorProps> = ({
                           className="cursor-sw-resize"
                           onMouseDown={(e) => {
                             e.stopPropagation();
-                            handleMouseDown(e as any, container.id, 'sw');
+                            handleMouseDown(e, container.id, 'sw');
                           }}
                         />
                       </>

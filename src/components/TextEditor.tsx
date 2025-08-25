@@ -2,11 +2,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Plus, Minus } from 'lucide-react';
-
-interface TextInput {
-  id: string;
-  text: string;
-}
+import { TextInput } from '@/types/interfaces';
 
 interface TextEditorProps {
   onSubmitVariation: (texts: string[]) => void;

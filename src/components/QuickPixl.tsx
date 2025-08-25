@@ -37,6 +37,7 @@ import ErrorBoundary from './ErrorBoundary';
 import TextEditor from './TextEditor';
 import { validateImage, handleImageError, createImageFallback } from '@/utils/imageUtils';
 import { toast } from 'sonner';
+import { Container, Variation, Template, TemplateVariation, FontVariation } from '@/types/interfaces';
 
 // Import template images
 import templateFocusGood from '@/assets/template-focus-good.jpg';
@@ -49,38 +50,7 @@ import templateInspirational from '@/assets/template-inspirational.jpg';
 import templateTouchdown from '@/assets/template-touchdown.jpg';
 
 // Define interfaces
-interface Variation {
-  id: string;
-  colors: string[];
-  images: File[];
-  description: string;
-}
-
-interface Template {
-  id: number;
-  title: string;
-  size: string;
-  image: string;
-  category: string;
-}
-
-interface TemplateVariation {
-  id: string;
-  templates: Template[];
-  description: string;
-}
-
-interface Container {
-  id: string;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  rotation: number;
-  locked: boolean;
-  visible: boolean;
-  name: string;
-}
+// Template interfaces are imported from types/interfaces.ts
 
 const templates = [
   {
@@ -187,7 +157,7 @@ const QuickPixl = () => {
   const [isFontsExpanded, setIsFontsExpanded] = useState(true);
   const [selectedFonts, setSelectedFonts] = useState<string[]>([]);
   const [fontSearchQuery, setFontSearchQuery] = useState('');
-  const [fontVariations, setFontVariations] = useState<{ id: string; fonts: string[]; description: string; }[]>([]);
+  const [fontVariations, setFontVariations] = useState<FontVariation[]>([]);
   const [lastSelectedFont, setLastSelectedFont] = useState<string>('Inter, sans-serif');
   
   // Search State
@@ -398,7 +368,6 @@ const QuickPixl = () => {
   };
 
   const handleSubmitVariation = (texts: string[]) => {
-    console.log('Submitting text variations:', texts);
     // Handle text variation submission logic here
   };
 
@@ -419,7 +388,7 @@ const QuickPixl = () => {
   const handleAddFontsToVariation = () => {
     if (selectedFonts.length === 0) return;
     
-    const newFontVariation = {
+    const newFontVariation: FontVariation = {
       id: `font-variation-${Date.now()}`,
       fonts: [...selectedFonts],
       description: `${selectedFonts.length} font${selectedFonts.length > 1 ? 's' : ''}`
@@ -1135,7 +1104,6 @@ const QuickPixl = () => {
                 className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-medium py-3"
                 onClick={() => {
                   // TODO: Implement send to render queue functionality
-                  console.log('Sending to render queue:', { backgroundVariations, templateVariations, fontVariations });
                 }}
               >
                 Send to Render Queue
@@ -1365,7 +1333,6 @@ const QuickPixl = () => {
                     className="bg-card rounded-lg overflow-hidden border cursor-pointer transition-all hover:border-primary border-panel-border"
                     onClick={() => {
                       // TODO: Handle folder click - could show folder contents
-                      console.log('Folder clicked:', folder.name);
                     }}
                   >
                     <div className="aspect-square flex items-center justify-center bg-muted/30">
@@ -1420,7 +1387,9 @@ const QuickPixl = () => {
                 variant="outline" 
                 size="sm" 
                 className="flex-1"
-                onClick={() => console.log('Clear All')}
+                onClick={() => {
+                  // TODO: Implement clear all functionality  
+                }}
               >
                 Clear All
               </Button>
@@ -1428,7 +1397,9 @@ const QuickPixl = () => {
                 variant="outline" 
                 size="sm" 
                 className="flex-1"
-                onClick={() => console.log('Remove Last')}
+                onClick={() => {
+                  // TODO: Implement remove last functionality
+                }}
               >
                 Remove Last
               </Button>
@@ -1472,7 +1443,9 @@ const QuickPixl = () => {
           <div className="flex-shrink-0 mt-6">
             <Button 
               className="w-full bg-green-600 hover:bg-green-600/90 text-white font-medium py-3"
-              onClick={() => console.log('Start Rendering')}
+              onClick={() => {
+                // TODO: Implement start rendering functionality
+              }}
             >
               ▶ Start Rendering
             </Button>
