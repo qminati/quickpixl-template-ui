@@ -105,7 +105,7 @@ export interface ShapeSettings {
 export interface TextShapeVariation {
   id: string;
   shape: keyof ShapeSettings;
-  settings: any;
+  settings: ShapeSettings[keyof ShapeSettings];
   description: string;
 }
 

@@ -45,15 +45,7 @@ import TextShapePlugin from './TextShapePlugin';
 import RotateFlipPlugin from './RotateFlipPlugin';
 import ColorFillPlugin from './ColorFillPlugin';
 
-// Import template images
-import templateFocusGood from '@/assets/template-focus-good.jpg';
-import templateBowlingCharacter from '@/assets/template-bowling-character.jpg';
-import templateSpareShirt from '@/assets/template-spare-shirt.jpg';
-import templateGirlsDiamonds from '@/assets/template-girls-diamonds.jpg';
-import templateBeLight from '@/assets/template-be-light.jpg';
-import templateGiveThanks from '@/assets/template-give-thanks.jpg';
-import templateInspirational from '@/assets/template-inspirational.jpg';
-import templateTouchdown from '@/assets/template-touchdown.jpg';
+// Template images - using placeholder URLs to prevent build failures
 
 // Define interfaces
 // Template interfaces are imported from types/interfaces.ts
@@ -63,56 +55,56 @@ const templates = [
     id: 1,
     title: "Focus on the Good",
     size: "1080×1080",
-    image: templateFocusGood,
+    image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=400&fit=crop&crop=center",
     category: "TX: 1  IM: 0"
   },
   {
     id: 2,
     title: "Bowling Built My Character",
     size: "1200×800",
-    image: templateBowlingCharacter,
+    image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop&crop=center",
     category: "TX: 2  IM: 1"
   },
   {
     id: 3,
     title: "This Is My Spare Shirt",
     size: "1080×1080",
-    image: templateSpareShirt,
+    image: "https://images.unsplash.com/photo-1529926538018-7cf5e924b7c2?w=400&h=400&fit=crop&crop=center",
     category: "TX: 1  IM: 0"
   },
   {
     id: 4,
     title: "Some Girls Love Diamonds",
     size: "1200×1200",
-    image: templateGirlsDiamonds,
+    image: "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=400&h=400&fit=crop&crop=center",
     category: "TX: 3  IM: 1"
   },
   {
     id: 5,
     title: "Be The Light",
     size: "800×1200",
-    image: templateBeLight,
+    image: "https://images.unsplash.com/photo-1470813740244-df37b8c1edcb?w=400&h=600&fit=crop&crop=center",
     category: "TX: 1  IM: 0"
   },
   {
     id: 6,
     title: "Give Thanks to the Lord",
     size: "1080×1350",
-    image: templateGiveThanks,
+    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=500&fit=crop&crop=center",
     category: "TX: 1  IM: 0"
   },
   {
     id: 7,
     title: "Inspirational Quote",
     size: "1080×1080",
-    image: templateInspirational,
+    image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=400&fit=crop&crop=center",
     category: "TX: 1  IM: 0"
   },
   {
     id: 8,
     title: "Touch Down Season",
     size: "1200×900",
-    image: templateTouchdown,
+    image: "https://images.unsplash.com/photo-1560272564-c83b66b1ad12?w=400&h=300&fit=crop&crop=center",
     category: "TX: 1  IM: 0"
   }
 ];
