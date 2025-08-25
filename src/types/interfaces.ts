@@ -110,7 +110,6 @@ export interface TextShapeVariation {
 }
 
 export interface RotateFlipSettings {
-  enabled: boolean;
   rotation: number;
   flipHorizontal: boolean;
   flipVertical: boolean;

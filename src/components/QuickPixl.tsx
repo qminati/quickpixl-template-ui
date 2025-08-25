@@ -208,7 +208,6 @@ const QuickPixl = () => {
   
   // Rotate & Flip Settings State
   const [rotateFlipSettings, setRotateFlipSettings] = useState<RotateFlipSettings>({
-    enabled: false,
     rotation: 0,
     flipHorizontal: false,
     flipVertical: false
@@ -1306,26 +1305,23 @@ const QuickPixl = () => {
                             </Button>
                           </div>
                           <div className="flex items-center space-x-2 text-xs text-muted-foreground">
-                            {variation.settings.enabled ? (
+                            {variation.settings.rotation !== 0 && (
+                              <span>{variation.settings.rotation}° rotation</span>
+                            )}
+                            {variation.settings.flipHorizontal && (
                               <>
-                                {variation.settings.rotation !== 0 && (
-                                  <span>{variation.settings.rotation}° rotation</span>
-                                )}
-                                {variation.settings.flipHorizontal && (
-                                  <>
-                                    {variation.settings.rotation !== 0 && <span>•</span>}
-                                    <span>H-flip</span>
-                                  </>
-                                )}
-                                {variation.settings.flipVertical && (
-                                  <>
-                                    {(variation.settings.rotation !== 0 || variation.settings.flipHorizontal) && <span>•</span>}
-                                    <span>V-flip</span>
-                                  </>
-                                )}
+                                {variation.settings.rotation !== 0 && <span>•</span>}
+                                <span>H-flip</span>
                               </>
-                            ) : (
-                              <span>Disabled</span>
+                            )}
+                            {variation.settings.flipVertical && (
+                              <>
+                                {(variation.settings.rotation !== 0 || variation.settings.flipHorizontal) && <span>•</span>}
+                                <span>V-flip</span>
+                              </>
+                            )}
+                            {variation.settings.rotation === 0 && !variation.settings.flipHorizontal && !variation.settings.flipVertical && (
+                              <span>No transform</span>
                             )}
                           </div>
                         </div>

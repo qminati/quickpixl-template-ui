@@ -9,11 +9,9 @@ import {
   RotateCcw
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';
 
 export interface RotateFlipSettings {
-  enabled: boolean;
   rotation: number;
   flipHorizontal: boolean;
   flipVertical: boolean;
@@ -59,18 +57,11 @@ const RotateFlipPlugin: React.FC<RotateFlipPluginProps> = ({
           <RotateCw className="w-3.5 h-3.5 text-primary" />
           <span className="text-sm font-medium text-foreground">Rotate & Flip</span>
         </div>
-        <div className="flex items-center space-x-2">
-          <Switch
-            checked={settings.enabled}
-            onCheckedChange={(enabled) => updateSettings({ enabled })}
-            onClick={(e) => e.stopPropagation()}
-          />
-          {isExpanded ? (
-            <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
-          ) : (
-            <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
-          )}
-        </div>
+        {isExpanded ? (
+          <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
+        ) : (
+          <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
+        )}
       </div>
 
       {/* Content */}
@@ -91,7 +82,6 @@ const RotateFlipPlugin: React.FC<RotateFlipPluginProps> = ({
                 max={45}
                 step={1}
                 className="w-full"
-                disabled={!settings.enabled}
               />
             </div>
           </div>
@@ -106,7 +96,6 @@ const RotateFlipPlugin: React.FC<RotateFlipPluginProps> = ({
                 size="sm"
                 className="h-6 px-2 text-xs"
                 onClick={() => updateSettings({ flipHorizontal: !settings.flipHorizontal })}
-                disabled={!settings.enabled}
               >
                 <ArrowLeftRight className="w-2.5 h-2.5 mr-1" />
                 H
@@ -116,7 +105,6 @@ const RotateFlipPlugin: React.FC<RotateFlipPluginProps> = ({
                 size="sm"
                 className="h-6 px-2 text-xs"
                 onClick={() => updateSettings({ flipVertical: !settings.flipVertical })}
-                disabled={!settings.enabled}
               >
                 <ArrowUpDown className="w-2.5 h-2.5 mr-1" />
                 V
@@ -131,7 +119,6 @@ const RotateFlipPlugin: React.FC<RotateFlipPluginProps> = ({
                 size="sm"
                 className="h-6 px-2 text-xs"
                 onClick={() => setRotation(45)}
-                disabled={!settings.enabled}
               >
                 <RotateCw className="w-2.5 h-2.5 mr-1" />
                 45°
@@ -141,7 +128,6 @@ const RotateFlipPlugin: React.FC<RotateFlipPluginProps> = ({
                 size="sm"
                 className="h-6 px-2 text-xs"
                 onClick={() => setRotation(-45)}
-                disabled={!settings.enabled}
               >
                 <RotateCcw className="w-2.5 h-2.5 mr-1" />
                 -45°
