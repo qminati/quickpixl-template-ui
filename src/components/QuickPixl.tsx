@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { 
   Type, 
   Image as ImageIcon, 
@@ -148,6 +148,10 @@ const QuickPixl = () => {
   const [isBackgroundExpanded, setIsBackgroundExpanded] = useState(true);
   const [currentColor, setCurrentColor] = useState('#FF6B6B');
   const [isEyedropperActive, setIsEyedropperActive] = useState(false);
+  
+  // Refs for auto-scrolling
+  const leftSettingsRef = useRef<HTMLDivElement | null>(null);
+  const variationsRef = useRef<HTMLDivElement | null>(null);
   
   // Template Settings State
   const [addedTemplates, setAddedTemplates] = useState<Template[]>([]);
@@ -312,7 +316,7 @@ const QuickPixl = () => {
 
     try {
       setIsEyedropperActive(true);
-      const eyeDropper = new window.EyeDropper!();
+      const eyeDropper = new (window as any).EyeDropper();
       const result = await eyeDropper.open();
       setCurrentColor(result.sRGBHex);
       toast.success('Color picked successfully!');
@@ -513,6 +517,14 @@ const QuickPixl = () => {
     return description;
   };
 
+  // Helper to scroll new cards into view
+  const scrollNewCardIntoView = () => {
+    const targets = [leftSettingsRef.current, variationsRef.current];
+    requestAnimationFrame(() => {
+      targets.forEach(el => el?.scrollTo({ top: el.scrollHeight, behavior: "smooth" }));
+    });
+  };
+
   const handleAddTextShapeVariation = () => {
     const newVariation: TextShapeVariation = {
       id: `text-shape-variation-${Date.now()}`,
@@ -524,6 +536,11 @@ const QuickPixl = () => {
     setTextShapeVariations(prev => [...prev, newVariation]);
     toast.success('Text shape variation added');
   };
+
+  // Auto-scroll when text shape variations are added
+  useEffect(() => {
+    if (textShapeVariations.length > 0) scrollNewCardIntoView();
+  }, [textShapeVariations.length]);
 
   const handleRemoveTextShapeVariation = (variationId: string) => {
     setTextShapeVariations(prev => prev.filter(v => v.id !== variationId));
@@ -826,7 +843,10 @@ const QuickPixl = () => {
         <h3 className="text-foreground text-lg font-medium mb-4">
           {settingsMap[activeSection as keyof typeof settingsMap]}
         </h3>
-        <div className="flex-1 space-y-4 overflow-y-auto">
+        <div 
+          ref={leftSettingsRef}
+          className="flex-1 space-y-4 overflow-y-auto"
+        >
           {activeSection === 'templates' ? (
             <div className="space-y-4">
               {/* Added Templates Section */}
@@ -1018,7 +1038,10 @@ const QuickPixl = () => {
               )}
             </div>
           ) : activeSection === 'variations' ? (
-            <div className="space-y-4">
+            <div 
+              ref={variationsRef}
+              className="space-y-4"
+            >
               {backgroundVariations.length > 0 && (
                 <div className="bg-card border border-panel-border rounded-lg p-4">
                   <h4 className="text-sm font-medium text-foreground mb-3 flex items-center space-x-2">
