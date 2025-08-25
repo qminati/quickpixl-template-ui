@@ -10,9 +10,10 @@ interface TextInput {
 
 interface TextEditorProps {
   onSubmitVariation: (texts: string[]) => void;
+  lastSelectedFont?: string;
 }
 
-const TextEditor: React.FC<TextEditorProps> = ({ onSubmitVariation }) => {
+const TextEditor: React.FC<TextEditorProps> = ({ onSubmitVariation, lastSelectedFont = 'Inter, sans-serif' }) => {
   const [activeMode, setActiveMode] = useState<'manual' | 'bulk' | 'list'>('manual');
   const [textInputs, setTextInputs] = useState<TextInput[]>([
     { id: '1', text: '' },
@@ -106,7 +107,10 @@ const TextEditor: React.FC<TextEditorProps> = ({ onSubmitVariation }) => {
           
           {/* Canvas Content */}
           <div className="h-full flex items-center justify-center bg-muted/10">
-            <h1 className="text-4xl font-bold text-foreground">
+            <h1 
+              className="text-4xl font-bold text-foreground"
+              style={{ fontFamily: lastSelectedFont }}
+            >
               {previewText}
             </h1>
           </div>

@@ -478,18 +478,6 @@ const QuickPixl = () => {
         {/* Content */}
         {isFontsExpanded && (
           <div className="flex flex-col">
-            {/* Sample Text */}
-            <div className="p-3 pb-2">
-              <div className="bg-secondary/30 rounded-lg p-3">
-                <p 
-                  className="text-lg text-foreground text-center"
-                  style={{ fontFamily: lastSelectedFont }}
-                >
-                  The quick brown fox jumps over the lazy dog
-                </p>
-              </div>
-            </div>
-
             {/* Font Search */}
             <div className="p-3 pb-2">
               <div className="relative">
@@ -1236,7 +1224,10 @@ const QuickPixl = () => {
               setSelectedContainer={setSelectedContainer}
             />
           ) : activeSection === 'text' ? (
-            <TextEditor onSubmitVariation={handleSubmitVariation} />
+            <TextEditor 
+              onSubmitVariation={handleSubmitVariation} 
+              lastSelectedFont={lastSelectedFont}
+            />
           ) : (
             <div className="p-6 overflow-auto h-full">
               <div className="mb-6">
