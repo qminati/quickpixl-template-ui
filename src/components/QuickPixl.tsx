@@ -1505,6 +1505,14 @@ const QuickPixl = () => {
              </div>
             ) : activeSection === 'text' ? (
               <div className="space-y-4">
+                <ColorFillPlugin
+                  isExpanded={isColorFillExpanded}
+                  onToggleExpanded={() => setIsColorFillExpanded(!isColorFillExpanded)}
+                  settings={colorFillSettings}
+                  onSettingsChange={setColorFillSettings}
+                  onAddVariation={handleAddColorFillVariation}
+                />
+                
                 <FontsPlugin />
                 <TypographyPlugin
                   isExpanded={isTypographyExpanded}
@@ -1529,14 +1537,6 @@ const QuickPixl = () => {
                   settings={rotateFlipSettings}
                   onSettingsChange={setRotateFlipSettings}
                   onAddVariation={handleAddRotateFlipVariation}
-                />
-                
-                <ColorFillPlugin
-                  isExpanded={isColorFillExpanded}
-                  onToggleExpanded={() => setIsColorFillExpanded(!isColorFillExpanded)}
-                  settings={colorFillSettings}
-                  onSettingsChange={setColorFillSettings}
-                  onAddVariation={handleAddColorFillVariation}
                 />
                 
                 {/* Font Variations Cards */}
