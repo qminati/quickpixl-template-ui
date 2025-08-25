@@ -178,6 +178,7 @@ const QuickPixl = () => {
   // Template Settings State
   const [addedTemplates, setAddedTemplates] = useState<Template[]>([]);
   const [templateVariations, setTemplateVariations] = useState<TemplateVariation[]>([]);
+  const [templateBackgroundColor, setTemplateBackgroundColor] = useState('#ffffff');
   const colorInputRef = useRef<HTMLInputElement>(null);
   const [blobUrls, setBlobUrls] = useState<Map<File, string>>(new Map());
   
@@ -1008,7 +1009,37 @@ const QuickPixl = () => {
                       </div>
                       <span className="text-sm text-muted-foreground">L</span>
                     </div>
-                    <span className="text-sm text-muted-foreground ml-4">Background</span>
+                    <div className="flex items-center space-x-2 ml-4">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="h-7 px-2 text-xs"
+                        style={{ backgroundColor: templateBackgroundColor }}
+                        onClick={() => {
+                          // You can implement a color picker modal here later
+                        }}
+                      >
+                        Background
+                      </Button>
+                      <div className="flex items-center space-x-1">
+                        {[
+                          { color: '#000000', name: 'Black' },
+                          { color: '#ffffff', name: 'White' },
+                          { color: '#6b7280', name: 'Grey' },
+                          { color: '#ef4444', name: 'Red' },
+                          { color: '#3b82f6', name: 'Blue' },
+                          { color: '#10b981', name: 'Green' }
+                        ].map((preset) => (
+                          <button
+                            key={preset.color}
+                            onClick={() => setTemplateBackgroundColor(preset.color)}
+                            className="w-5 h-5 rounded-full border border-panel-border hover:scale-110 transition-transform"
+                            style={{ backgroundColor: preset.color }}
+                            title={preset.name}
+                          />
+                        ))}
+                      </div>
+                    </div>
                   </div>
                   <div className="flex items-center space-x-1">
                     <Button variant="secondary" size="sm">
