@@ -71,13 +71,13 @@ const TypographyPlugin: React.FC<TypographyPluginProps> = ({
 
       {/* Content */}
       {isExpanded && (
-        <div className="p-3 pt-0 space-y-4">
+        <div className="p-2.5 pt-0 space-y-2.5">
           {/* Format buttons */}
-          <div className="flex items-center space-x-1">
+          <div className="flex items-center space-x-0.5">
             <Button
               variant={settings.bold ? "default" : "outline"}
-              size="sm"
-              className="h-7 w-7 p-0 font-bold"
+              size="sm"  
+              className="h-6 w-6 p-0 font-bold text-xs"
               onClick={() => updateSettings({ bold: !settings.bold })}
             >
               B
@@ -85,7 +85,7 @@ const TypographyPlugin: React.FC<TypographyPluginProps> = ({
             <Button
               variant={settings.italic ? "default" : "outline"}
               size="sm"
-              className="h-7 w-7 p-0 italic"
+              className="h-6 w-6 p-0 italic text-xs"
               onClick={() => updateSettings({ italic: !settings.italic })}
             >
               I
@@ -93,7 +93,7 @@ const TypographyPlugin: React.FC<TypographyPluginProps> = ({
             <Button
               variant={settings.underline ? "default" : "outline"}
               size="sm"
-              className="h-7 w-7 p-0 underline"
+              className="h-6 w-6 p-0 underline text-xs"
               onClick={() => updateSettings({ underline: !settings.underline })}
             >
               U
@@ -101,42 +101,42 @@ const TypographyPlugin: React.FC<TypographyPluginProps> = ({
           </div>
 
           {/* Text Case */}
-          <div className="space-y-2">
-            <label className="text-xs font-medium text-foreground">Text Case</label>
-            <div className="flex items-center space-x-1">
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-foreground">Case</label>
+            <div className="flex items-center space-x-0.5">
               <Button
                 variant={settings.textCase === 'normal' ? "default" : "outline"}
                 size="sm"
-                className="flex-1 h-7 text-xs"
+                className="flex-1 h-6 text-xs px-1"
                 onClick={() => updateSettings({ textCase: 'normal' })}
               >
-                Normal
+                Aa
               </Button>
               <Button
                 variant={settings.textCase === 'uppercase' ? "default" : "outline"}
                 size="sm"
-                className="flex-1 h-7 text-xs"
+                className="flex-1 h-6 text-xs px-1"
                 onClick={() => updateSettings({ textCase: 'uppercase' })}
               >
-                ALL CAPS
+                AA
               </Button>
               <Button
                 variant={settings.textCase === 'lowercase' ? "default" : "outline"}
                 size="sm"
-                className="flex-1 h-7 text-xs"
+                className="flex-1 h-6 text-xs px-1"
                 onClick={() => updateSettings({ textCase: 'lowercase' })}
               >
-                small
+                aa
               </Button>
             </div>
           </div>
 
           {/* Spacing */}
-          <div className="space-y-3">
+          <div className="space-y-1.5">
             <label className="text-xs font-medium text-foreground">Spacing</label>
             
             {/* Letter Spacing */}
-            <div className="space-y-1">
+            <div className="space-y-0.5">
               <div className="flex items-center justify-between">
                 <span className="text-xs text-muted-foreground">Letter</span>
                 <span className="text-xs text-muted-foreground">{settings.letterSpacing}px</span>
@@ -152,7 +152,7 @@ const TypographyPlugin: React.FC<TypographyPluginProps> = ({
             </div>
 
             {/* Word Spacing */}
-            <div className="space-y-1">
+            <div className="space-y-0.5">
               <div className="flex items-center justify-between">
                 <span className="text-xs text-muted-foreground">Word</span>
                 <span className="text-xs text-muted-foreground">{settings.wordSpacing}px</span>
@@ -169,46 +169,46 @@ const TypographyPlugin: React.FC<TypographyPluginProps> = ({
           </div>
 
           {/* Text Alignment */}
-          <div className="space-y-2">
-            <label className="text-xs font-medium text-foreground">Text Alignment</label>
-            <div className="flex items-center space-x-1">
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-foreground">Alignment</label>
+            <div className="flex items-center space-x-0.5">
               <Button
                 variant={settings.textAlign === 'left' ? "default" : "outline"}
                 size="sm"
-                className="h-7 w-7 p-0"
+                className="h-6 w-6 p-0"
                 onClick={() => updateSettings({ textAlign: 'left' })}
               >
-                <AlignLeft className="w-3 h-3" />
+                <AlignLeft className="w-2.5 h-2.5" />
               </Button>
               <Button
                 variant={settings.textAlign === 'center' ? "default" : "outline"}
                 size="sm"
-                className="h-7 w-7 p-0"
+                className="h-6 w-6 p-0"
                 onClick={() => updateSettings({ textAlign: 'center' })}
               >
-                <AlignCenter className="w-3 h-3" />
+                <AlignCenter className="w-2.5 h-2.5" />
               </Button>
               <Button
                 variant={settings.textAlign === 'right' ? "default" : "outline"}
                 size="sm"
-                className="h-7 w-7 p-0"
+                className="h-6 w-6 p-0"
                 onClick={() => updateSettings({ textAlign: 'right' })}
               >
-                <AlignRight className="w-3 h-3" />
+                <AlignRight className="w-2.5 h-2.5" />
               </Button>
               <Button
                 variant={settings.textAlign === 'justify' ? "default" : "outline"}
                 size="sm"
-                className="h-7 w-7 p-0"
+                className="h-6 w-6 p-0"
                 onClick={() => updateSettings({ textAlign: 'justify' })}
               >
-                <AlignJustify className="w-3 h-3" />
+                <AlignJustify className="w-2.5 h-2.5" />
               </Button>
-              <div className="w-px h-5 bg-border mx-1" /> {/* Divider */}
+              <div className="w-px h-4 bg-border mx-0.5" />
               <Button
                 variant={settings.textStroke ? "default" : "outline"}
                 size="sm"
-                className="h-7 px-2 text-xs"
+                className="h-6 px-1.5 text-xs"
                 onClick={() => updateSettings({ textStroke: !settings.textStroke })}
               >
                 STR
@@ -216,14 +216,14 @@ const TypographyPlugin: React.FC<TypographyPluginProps> = ({
             </div>
           </div>
 
-          {/* Add Variation Button - Always visible at bottom */}
-          <div className="pt-2">
+          {/* Add Variation Button */}
+          <div className="pt-1">
             <Button
               onClick={onAddVariation}
               className="w-full h-6 text-xs"
               variant="default"
             >
-              <Plus className="w-3 h-3 mr-1" />
+              <Plus className="w-2.5 h-2.5 mr-1" />
               Add Variation
             </Button>
           </div>
