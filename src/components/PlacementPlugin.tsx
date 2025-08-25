@@ -75,7 +75,7 @@ const PlacementPlugin: React.FC<PlacementPluginProps> = ({
       rotation: 0,
       locked: false,
       visible: true,
-      name: `Container ${containers.length + 1}`
+      name: `Placement ${containers.length + 1}`
     };
     setContainers(prev => [...prev, newContainer]);
   };
