@@ -435,7 +435,7 @@ const ColorFillPlugin: React.FC<ColorFillPluginProps> = ({
                     <SelectTrigger className="h-6 text-xs">
                       <SelectValue placeholder="Select input" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-background border border-border z-50 shadow-lg">
                       <SelectItem value="1">Image Input 1</SelectItem>
                       <SelectItem value="2">Image Input 2</SelectItem>
                       <SelectItem value="3">Image Input 3</SelectItem>
