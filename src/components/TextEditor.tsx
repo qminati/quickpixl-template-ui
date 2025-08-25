@@ -113,9 +113,9 @@ const TextEditor: React.FC<TextEditorProps> = ({ onSubmitVariation }) => {
         </div>
 
         {/* Text Input Mode Panel */}
-        <div className="bg-card border border-input rounded-lg p-4">
+        <div className="bg-card border border-input rounded-lg p-4 flex-1 flex flex-col">
           {/* Compact Mode Toggle Buttons */}
-          <div className="flex items-center space-x-1 mb-4">
+          <div className="flex items-center space-x-1 mb-4 flex-shrink-0">
             <span className="text-xs text-muted-foreground mr-2">Text Input Mode:</span>
             <Button
               variant={activeMode === 'manual' ? 'default' : 'outline'}
@@ -144,7 +144,7 @@ const TextEditor: React.FC<TextEditorProps> = ({ onSubmitVariation }) => {
           </div>
 
           {activeMode === 'manual' && (
-            <div>
+            <div className="flex-1">
               {/* Manual Inputs Section */}
               <h3 className="text-sm font-medium text-foreground mb-3">Manual Inputs</h3>
               
@@ -189,26 +189,26 @@ const TextEditor: React.FC<TextEditorProps> = ({ onSubmitVariation }) => {
           )}
 
           {activeMode === 'bulk' && (
-            <div>
+            <div className="flex-1">
               <h3 className="text-sm font-medium text-foreground mb-3">Bulk Text Input</h3>
               <textarea
                 placeholder="Enter multiple texts, one per line..."
-                className="w-full h-32 p-3 bg-background border border-input rounded-md resize-none"
+                className="w-full flex-1 p-3 bg-background border border-input rounded-md resize-none"
               />
             </div>
           )}
 
           {activeMode === 'list' && (
-            <div>
-              <h3 className="text-sm font-medium text-foreground mb-3">Input List</h3>
+            <div className="flex-1 flex flex-col">
+              <h3 className="text-sm font-medium text-foreground mb-3 flex-shrink-0">Input List</h3>
               
               {/* Horizontal Scrollable Input Fields */}
-              <div className="overflow-x-auto">
-                <div className="flex space-x-3 pb-2" style={{ minWidth: 'max-content' }}>
+              <div className="overflow-x-auto flex-1">
+                <div className="flex space-x-3 h-full" style={{ minWidth: 'max-content' }}>
                   {listInputs.map((input, index) => (
-                    <div key={input.id} className="flex flex-col space-y-2 min-w-[200px]">
+                    <div key={input.id} className="flex flex-col space-y-2 min-w-[200px] h-full">
                       {/* Input Label */}
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-center justify-between flex-shrink-0">
                         <span className="text-xs text-muted-foreground">
                           Input {index + 1}
                         </span>
@@ -223,23 +223,23 @@ const TextEditor: React.FC<TextEditorProps> = ({ onSubmitVariation }) => {
                         </Button>
                       </div>
                       
-                      {/* Input Field */}
-                      <Input
+                      {/* Tall Input Field */}
+                      <textarea
                         placeholder="Type your text here..."
                         value={input.text}
                         onChange={(e) => updateListInput(input.id, e.target.value)}
-                        className="bg-background"
+                        className="flex-1 w-full p-3 bg-background border border-input rounded-md resize-none text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                       />
                     </div>
                   ))}
                   
                   {/* Add Button Column */}
-                  <div className="flex flex-col justify-end min-w-[50px]">
+                  <div className="flex flex-col justify-start min-w-[50px] pt-8 flex-shrink-0">
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={addListInput}
-                      className="p-2 h-8 w-8 mb-1"
+                      className="p-2 h-8 w-8"
                     >
                       <Plus className="w-4 h-4" />
                     </Button>
