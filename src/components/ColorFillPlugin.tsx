@@ -544,7 +544,7 @@ const ColorFillPlugin: React.FC<ColorFillPluginProps> = ({
                   variant={settings.image.mode === 'single' ? 'default' : 'outline'}
                   onClick={() => updateModeSettings('image', { mode: 'single' })}
                 >
-                  Single
+                  Image
                 </Button>
                 <Button
                   size="sm"
@@ -552,7 +552,7 @@ const ColorFillPlugin: React.FC<ColorFillPluginProps> = ({
                   variant={settings.image.mode === 'multiple' ? 'default' : 'outline'}
                   onClick={() => updateModeSettings('image', { mode: 'multiple' })}
                 >
-                  Multiple
+                  Sequence
                 </Button>
               </div>
 
