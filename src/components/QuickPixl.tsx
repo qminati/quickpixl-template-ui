@@ -183,6 +183,11 @@ const QuickPixl = () => {
   const colorInputRef = useRef<HTMLInputElement>(null);
   const [blobUrls, setBlobUrls] = useState<Map<File, string>>(new Map());
   
+  // Fonts Plugin State
+  const [isFontsExpanded, setIsFontsExpanded] = useState(true);
+  const [selectedFonts, setSelectedFonts] = useState<string[]>([]);
+  const [fontSearchQuery, setFontSearchQuery] = useState('');
+  
   // Search State
   const [isSearchVisible, setIsSearchVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -397,6 +402,125 @@ const QuickPixl = () => {
 
   const handleRemoveVariation = (variationId: string) => {
     setBackgroundVariations(prev => prev.filter(v => v.id !== variationId));
+  };
+
+  // Fonts Plugin Handlers
+  const handleFontSelect = (fontFamily: string) => {
+    setSelectedFonts(prev => 
+      prev.includes(fontFamily) 
+        ? prev.filter(font => font !== fontFamily)
+        : [...prev, fontFamily]
+    );
+  };
+
+  const handleAddFontsToVariation = () => {
+    if (selectedFonts.length === 0) return;
+    
+    console.log('Adding fonts to variation:', selectedFonts);
+    toast.success(`${selectedFonts.length} font${selectedFonts.length > 1 ? 's' : ''} added to variation`);
+    setSelectedFonts([]);
+  };
+
+  // Available fonts list
+  const availableFonts = [
+    { name: 'Inter', family: 'Inter, sans-serif' },
+    { name: 'Roboto', family: 'Roboto, sans-serif' },
+    { name: 'Montserrat', family: 'Montserrat, sans-serif' },  
+    { name: 'Playfair Display', family: 'Playfair Display, serif' },
+    { name: 'Open Sans', family: 'Open Sans, sans-serif' },
+    { name: 'Lato', family: 'Lato, sans-serif' },
+    { name: 'Poppins', family: 'Poppins, sans-serif' },
+    { name: 'Source Sans Pro', family: 'Source Sans Pro, sans-serif' }
+  ];
+
+  // Fonts Plugin Component
+  const FontsPlugin = () => {
+    const filteredFonts = availableFonts.filter(font =>
+      font.name.toLowerCase().includes(fontSearchQuery.toLowerCase())
+    );
+
+    return (
+      <div className="bg-card border border-panel-border rounded-lg shadow-sm">
+        {/* Header */}
+        <div 
+          className="flex items-center justify-between p-2.5 cursor-pointer hover:bg-secondary/50 transition-colors"
+          onClick={() => setIsFontsExpanded(!isFontsExpanded)}
+        >
+          <div className="flex items-center space-x-2">
+            <Type className="w-3.5 h-3.5 text-primary" />
+            <span className="text-sm font-medium text-foreground">Fonts</span>
+            {selectedFonts.length > 0 && (
+              <span className="bg-primary text-primary-foreground text-xs px-1.5 py-0.5 rounded-full">
+                {selectedFonts.length}
+              </span>
+            )}
+          </div>
+          {isFontsExpanded ? (
+            <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
+          ) : (
+            <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
+          )}
+        </div>
+
+        {/* Content */}
+        {isFontsExpanded && (
+          <div className="p-3 pt-0 space-y-3">
+            {/* Font Search */}
+            <div>
+              <div className="relative">
+                <Search className="w-3 h-3 absolute left-2 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
+                <input
+                  type="text"
+                  placeholder="Search fonts..."
+                  value={fontSearchQuery}
+                  onChange={(e) => setFontSearchQuery(e.target.value)}
+                  className="w-full h-7 pl-7 pr-3 text-xs bg-secondary border border-panel-border rounded focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
+                />
+              </div>
+            </div>
+
+            {/* Font List */}
+            <div className="space-y-1">
+              {filteredFonts.map((font) => (
+                <div
+                  key={font.name}
+                  className={`flex items-center space-x-2 p-2 rounded cursor-pointer transition-colors ${
+                    selectedFonts.includes(font.family)
+                      ? 'bg-primary/10 border border-primary/20'
+                      : 'hover:bg-secondary/50'
+                  }`}
+                  onClick={() => handleFontSelect(font.family)}
+                >
+                  <div className="flex-1">
+                    <span 
+                      className="text-sm text-foreground"
+                      style={{ fontFamily: font.family }}
+                    >
+                      {font.name}
+                    </span>
+                  </div>
+                  {selectedFonts.includes(font.family) && (
+                    <Check className="w-3 h-3 text-primary" />
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Send to Variations Button */}
+            {selectedFonts.length > 0 && (
+              <Button
+                onClick={handleAddFontsToVariation}
+                className="w-full h-6 text-xs"
+                variant="default"
+              >
+                <Plus className="w-3 h-3 mr-1" />
+                Send to Variations ({selectedFonts.length})
+              </Button>
+            )}
+          </div>
+        )}
+      </div>
+    );
   };
 
   // Background Plugin Component
@@ -893,11 +1017,15 @@ const QuickPixl = () => {
                  </div>
                )}
              </div>
-           ) : (
-             <div className="text-muted-foreground">
-               <p className="text-sm">Settings panel ready for {activeSection} configuration.</p>
-             </div>
-           )}
+            ) : activeSection === 'text' ? (
+              <div className="space-y-4">
+                <FontsPlugin />
+              </div>
+            ) : (
+              <div className="text-muted-foreground">
+                <p className="text-sm">Settings panel ready for {activeSection} configuration.</p>
+              </div>
+            )}
          </div>
 
          {/* Send to Render Queue Button - Fixed at bottom for variations section */}
