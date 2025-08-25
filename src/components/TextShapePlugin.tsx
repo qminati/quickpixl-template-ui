@@ -8,52 +8,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { toast } from 'sonner';
-
-export interface ShapeSettings {
-  none: null;
-  circle: {
-    radius: number;
-    startAngle: number;
-    direction: 'clockwise' | 'counter-clockwise';
-  };
-  arc: {
-    radius: number;
-    arcAngle: number;
-    flip: boolean;
-  };
-  arch: {
-    height: number;
-    curve: number;
-  };
-  angle: {
-    angle: number;
-    skew: number;
-  };
-  flag: {
-    waveHeight: number;
-    waveLength: number;
-    reverse: boolean;
-  };
-  wave: {
-    amplitude: number;
-    frequency: number;
-    phase: number;
-  };
-  distort: {
-    topLeft: { x: number; y: number };
-    topRight: { x: number; y: number };
-    bottomLeft: { x: number; y: number };
-    bottomRight: { x: number; y: number };
-    intensity: number;
-  };
-}
-
-export interface TextShapeVariation {
-  id: string;
-  shape: keyof ShapeSettings;
-  settings: any;
-  description: string;
-}
+import { ShapeSettings, TextShapeVariation } from '@/types/interfaces';
 
 interface TextShapePluginProps {
   isExpanded: boolean;

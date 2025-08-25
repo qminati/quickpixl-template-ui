@@ -10,18 +10,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
-
-export interface RotateFlipSettings {
-  rotation: number;
-  flipHorizontal: boolean;
-  flipVertical: boolean;
-}
-
-export interface RotateFlipVariation {
-  id: string;
-  settings: RotateFlipSettings;
-  description: string;
-}
+import { RotateFlipSettings, RotateFlipVariation } from '@/types/interfaces';
 
 interface RotateFlipPluginProps {
   isExpanded: boolean;
