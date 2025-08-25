@@ -45,66 +45,71 @@ import TextShapePlugin from './TextShapePlugin';
 import RotateFlipPlugin from './RotateFlipPlugin';
 import ColorFillPlugin from './ColorFillPlugin';
 
-// Template images - using placeholder URLs to prevent build failures
-
-// Define interfaces
-// Template interfaces are imported from types/interfaces.ts
+// Import merchandise-style template images
+import merchFocusGood from '@/assets/merch-focus-good.jpg';
+import merchBeLight from '@/assets/merch-be-light.jpg';
+import merchBowling from '@/assets/merch-bowling.jpg';
+import merchDiamonds from '@/assets/merch-diamonds.jpg';
+import merchGiveThanks from '@/assets/merch-give-thanks.jpg';
+import merchSpareEffort from '@/assets/merch-spare-effort.jpg';
+import merchTouchdown from '@/assets/merch-touchdown.jpg';
+import merchInspirational from '@/assets/merch-inspirational.jpg';
 
 const templates = [
   {
     id: 1,
     title: "Focus on the Good",
     size: "1080×1080",
-    image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=400&fit=crop&crop=center",
+    image: merchFocusGood,
     category: "TX: 1  IM: 0"
   },
   {
     id: 2,
-    title: "Bowling Built My Character",
+    title: "Bowling Strike",
     size: "1200×800",
-    image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop&crop=center",
+    image: merchBowling,
     category: "TX: 2  IM: 1"
   },
   {
     id: 3,
-    title: "This Is My Spare Shirt",
+    title: "No Spare Effort",
     size: "1080×1080",
-    image: "https://images.unsplash.com/photo-1529926538018-7cf5e924b7c2?w=400&h=400&fit=crop&crop=center",
+    image: merchSpareEffort,
     category: "TX: 1  IM: 0"
   },
   {
     id: 4,
-    title: "Some Girls Love Diamonds",
+    title: "Diamonds & Dreams",
     size: "1200×1200",
-    image: "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=400&h=400&fit=crop&crop=center",
+    image: merchDiamonds,
     category: "TX: 3  IM: 1"
   },
   {
     id: 5,
     title: "Be The Light",
     size: "800×1200",
-    image: "https://images.unsplash.com/photo-1470813740244-df37b8c1edcb?w=400&h=600&fit=crop&crop=center",
+    image: merchBeLight,
     category: "TX: 1  IM: 0"
   },
   {
     id: 6,
-    title: "Give Thanks to the Lord",
+    title: "Give Thanks",
     size: "1080×1350",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=500&fit=crop&crop=center",
+    image: merchGiveThanks,
     category: "TX: 1  IM: 0"
   },
   {
     id: 7,
-    title: "Inspirational Quote",
+    title: "Dream Big Work Hard",
     size: "1080×1080",
-    image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=400&fit=crop&crop=center",
+    image: merchInspirational,
     category: "TX: 1  IM: 0"
   },
   {
     id: 8,
-    title: "Touch Down Season",
+    title: "Touchdown",
     size: "1200×900",
-    image: "https://images.unsplash.com/photo-1560272564-c83b66b1ad12?w=400&h=300&fit=crop&crop=center",
+    image: merchTouchdown,
     category: "TX: 1  IM: 0"
   }
 ];
