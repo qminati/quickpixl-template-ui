@@ -72,7 +72,7 @@ const TypographyPlugin: React.FC<TypographyPluginProps> = ({
       {/* Content */}
       {isExpanded && (
         <div className="p-2.5 pt-0 space-y-2.5">
-          {/* Format buttons */}
+          {/* Format and Case buttons combined */}
           <div className="flex items-center space-x-0.5">
             <Button
               variant={settings.bold ? "default" : "outline"}
@@ -98,37 +98,31 @@ const TypographyPlugin: React.FC<TypographyPluginProps> = ({
             >
               U
             </Button>
-          </div>
-
-          {/* Text Case */}
-          <div className="space-y-1">
-            <label className="text-xs font-medium text-foreground">Case</label>
-            <div className="flex items-center space-x-0.5">
-              <Button
-                variant={settings.textCase === 'normal' ? "default" : "outline"}
-                size="sm"
-                className="flex-1 h-6 text-xs px-1"
-                onClick={() => updateSettings({ textCase: 'normal' })}
-              >
-                Aa
-              </Button>
-              <Button
-                variant={settings.textCase === 'uppercase' ? "default" : "outline"}
-                size="sm"
-                className="flex-1 h-6 text-xs px-1"
-                onClick={() => updateSettings({ textCase: 'uppercase' })}
-              >
-                AA
-              </Button>
-              <Button
-                variant={settings.textCase === 'lowercase' ? "default" : "outline"}
-                size="sm"
-                className="flex-1 h-6 text-xs px-1"
-                onClick={() => updateSettings({ textCase: 'lowercase' })}
-              >
-                aa
-              </Button>
-            </div>
+            <div className="w-px h-4 bg-border mx-1" />
+            <Button
+              variant={settings.textCase === 'normal' ? "default" : "outline"}
+              size="sm"
+              className="h-6 w-8 p-0 text-xs"
+              onClick={() => updateSettings({ textCase: 'normal' })}
+            >
+              Aa
+            </Button>
+            <Button
+              variant={settings.textCase === 'uppercase' ? "default" : "outline"}
+              size="sm"
+              className="h-6 w-8 p-0 text-xs"
+              onClick={() => updateSettings({ textCase: 'uppercase' })}
+            >
+              AA
+            </Button>
+            <Button
+              variant={settings.textCase === 'lowercase' ? "default" : "outline"}
+              size="sm"
+              className="h-6 w-8 p-0 text-xs"
+              onClick={() => updateSettings({ textCase: 'lowercase' })}
+            >
+              aa
+            </Button>
           </div>
 
           {/* Spacing */}
