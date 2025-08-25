@@ -33,6 +33,7 @@ import { Button } from '@/components/ui/button';
 import PlacementPlugin from './PlacementPlugin';
 import CanvasEditor from './CanvasEditor';
 import ErrorBoundary from './ErrorBoundary';
+import TextEditor from './TextEditor';
 import { validateImage, handleImageError, createImageFallback } from '@/utils/imageUtils';
 import { toast } from 'sonner';
 
@@ -385,6 +386,11 @@ const QuickPixl = () => {
     setBackgroundVariations(prev => [...prev, newVariation]);
     setSelectedColors([]);
     setSelectedImages([]);
+  };
+
+  const handleSubmitVariation = (texts: string[]) => {
+    console.log('Submitting text variations:', texts);
+    // Handle text variation submission logic here
   };
 
   const handleRemoveVariation = (variationId: string) => {
@@ -987,6 +993,8 @@ const QuickPixl = () => {
               selectedContainer={selectedContainer}
               setSelectedContainer={setSelectedContainer}
             />
+          ) : activeSection === 'text' ? (
+            <TextEditor onSubmitVariation={handleSubmitVariation} />
           ) : (
             <div className="p-6 overflow-auto h-full">
               <div className="mb-6">
