@@ -114,14 +114,26 @@ const ImageEffectsPlugin: React.FC<ImageEffectsPluginProps> = ({
                   <span className="text-xs text-muted-foreground">Hue</span>
                   <span className="text-xs text-muted-foreground">{settings.hue}°</span>
                 </div>
-                <Slider
-                  value={[settings.hue]}
-                  onValueChange={([value]) => updateSettings({ hue: value })}
-                  min={0}
-                  max={360}
-                  step={1}
-                  className="[&>span:first-child]:bg-gradient-to-r [&>span:first-child]:from-red-500 [&>span:first-child]:via-yellow-500 [&>span:first-child]:via-green-500 [&>span:first-child]:via-cyan-500 [&>span:first-child]:via-blue-500 [&>span:first-child]:via-purple-500 [&>span:first-child]:to-red-500 [&>span:first-child>span]:bg-transparent"
-                />
+                <div className="relative">
+                  <Slider
+                    value={[settings.hue]}
+                    onValueChange={([value]) => updateSettings({ hue: value })}
+                    min={0}
+                    max={360}
+                    step={1}
+                    className="[&>span:first-child]:!bg-transparent [&>span:first-child>span]:bg-transparent"
+                    style={{
+                      '--rainbow-gradient': 'linear-gradient(to right, #ff0000 0%, #ffff00 16.66%, #00ff00 33.33%, #00ffff 50%, #0000ff 66.66%, #ff00ff 83.33%, #ff0000 100%)'
+                    } as React.CSSProperties}
+                  />
+                  <div 
+                    className="absolute inset-0 rounded-full pointer-events-none h-2 top-1/2 -translate-y-1/2"
+                    style={{
+                      background: 'linear-gradient(to right, #ff0000 0%, #ffff00 16.66%, #00ff00 33.33%, #00ffff 50%, #0000ff 66.66%, #ff00ff 83.33%, #ff0000 100%)',
+                      zIndex: -1
+                    }}
+                  />
+                </div>
               </div>
               
               {/* Colorize, Greyscale, and Invert options */}
