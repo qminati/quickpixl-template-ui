@@ -26,11 +26,12 @@ import {
   ColorFillVariation,
   StrokesVariation,
   CharacterEffectsVariation,
-  ImageEffectsVariation
+  ImageEffectsVariation,
+  DropShadowVariation
 } from '@/types/interfaces';
 
 type AnyVariation = Variation | TemplateVariation | FontVariation | TypographyVariation | 
-  TextShapeVariation | RotateFlipVariation | ColorFillVariation | StrokesVariation | CharacterEffectsVariation | ImageEffectsVariation;
+  TextShapeVariation | RotateFlipVariation | ColorFillVariation | StrokesVariation | CharacterEffectsVariation | ImageEffectsVariation | DropShadowVariation;
 
 interface VariationDetailViewProps {
   variation: AnyVariation | null;
@@ -277,6 +278,8 @@ const renderVariationContent = (
       return renderColorFillVariation(variation as ColorFillVariation, isEditing);
     case 'Strokes':
       return renderStrokesVariation(variation as StrokesVariation, isEditing);
+    case 'Drop Shadow':
+      return renderDropShadowVariation(variation as DropShadowVariation, isEditing);
     case 'Character Effects':
       return renderCharacterEffectsVariation(variation as CharacterEffectsVariation, isEditing);
     case 'Visual Effects':
@@ -660,6 +663,43 @@ const renderImageEffectsVariation = (variation: ImageEffectsVariation, isEditing
         <div><strong>Colorize:</strong> {variation.settings.colorize ? 'Yes' : 'No'}</div>
         <div><strong>Grayscale:</strong> {variation.settings.grayscale ? 'Yes' : 'No'}</div>
         <div><strong>Invert:</strong> {variation.settings.invert ? 'Yes' : 'No'}</div>
+      </div>
+    </div>
+  </Card>
+);
+
+const renderDropShadowVariation = (variation: DropShadowVariation, isEditing: boolean) => (
+  <Card className="p-6">
+    <h3 className="text-lg font-semibold mb-4">Drop Shadow: {variation.settings.mode}</h3>
+    <div className="space-y-4">
+      <div className="p-8 border rounded-lg bg-muted/50 text-center">
+        <div 
+          className="text-4xl font-bold mb-2"
+          style={{
+            textShadow: variation.settings.mode === 'regular' && variation.settings.regular.shadows.length > 0
+              ? variation.settings.regular.shadows.map(shadow => 
+                  `${shadow.offsetX}px ${shadow.offsetY}px ${shadow.blur}px rgba(0,0,0,${shadow.opacity/100})`
+                ).join(', ')
+              : '2px 2px 4px rgba(0,0,0,0.3)'
+          }}
+        >
+          SAMPLE
+        </div>
+        <p className="text-sm text-muted-foreground">
+          Preview with drop shadows applied
+        </p>
+      </div>
+      
+      <div className="grid grid-cols-2 gap-4 text-sm">
+        <div><strong>Mode:</strong> {variation.settings.mode}</div>
+        {variation.settings.mode === 'regular' ? (
+          <div><strong>Shadows:</strong> {variation.settings.regular.shadows.length}</div>
+        ) : (
+          <>
+            <div><strong>Characters:</strong> {variation.settings.character.characters.length}</div>
+            <div><strong>Total Shadows:</strong> {variation.settings.character.characters.reduce((sum, char) => sum + char.shadows.length, 0)}</div>
+          </>
+        )}
       </div>
     </div>
   </Card>

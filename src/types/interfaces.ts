@@ -278,6 +278,41 @@ export interface ImageEffectsVariation {
   description: string;
 }
 
+export interface DropShadow {
+  id: string;
+  offsetX: number;
+  offsetY: number;
+  blur: number;
+  opacity: number;
+  fillType: 'solid' | 'gradient' | 'image';
+  color: string;
+  gradient: {
+    type: 'linear' | 'radial' | 'conic';
+    angle: number;
+    stops: Array<{ id: string; color: string; position: number }>;
+  };
+  images: File[];
+}
+
+export interface DropShadowSettings {
+  mode: 'regular' | 'character';
+  regular: {
+    shadows: DropShadow[];
+  };
+  character: {
+    characters: Array<{
+      id: string;
+      shadows: DropShadow[];
+    }>;
+  };
+}
+
+export interface DropShadowVariation {
+  id: string;
+  settings: DropShadowSettings;
+  description: string;
+}
+
 // Union type for all variation types to improve type safety
 export type AnyVariation = 
   | Variation 
@@ -289,4 +324,5 @@ export type AnyVariation =
   | ColorFillVariation
   | StrokesVariation
   | CharacterEffectsVariation
-  | ImageEffectsVariation;
+  | ImageEffectsVariation
+  | DropShadowVariation;

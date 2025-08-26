@@ -45,12 +45,13 @@ import ErrorBoundary from './ErrorBoundary';
 import TextEditor from './TextEditor';
 import { validateImage, handleImageError, createImageFallback } from '@/utils/imageUtils';
 import { toast } from 'sonner';
-import { Container, Variation, Template, TemplateVariation, FontVariation, TypographySettings, TypographyVariation, ShapeSettings, TextShapeVariation, RotateFlipSettings, RotateFlipVariation, ColorFillSettings, ColorFillVariation, StrokeSettings, StrokesVariation, CharacterEffectsSettings, CharacterEffectsVariation, ImageEffectsSettings, ImageEffectsVariation, AnyVariation } from '@/types/interfaces';
+import { Container, Variation, Template, TemplateVariation, FontVariation, TypographySettings, TypographyVariation, ShapeSettings, TextShapeVariation, RotateFlipSettings, RotateFlipVariation, ColorFillSettings, ColorFillVariation, StrokeSettings, StrokesVariation, CharacterEffectsSettings, CharacterEffectsVariation, ImageEffectsSettings, ImageEffectsVariation, DropShadowSettings, DropShadowVariation, AnyVariation } from '@/types/interfaces';
 import TypographyPlugin from './TypographyPlugin';
 import TextShapePlugin from './TextShapePlugin';
 import RotateFlipPlugin from './RotateFlipPlugin';
 import ColorFillPlugin from './ColorFillPlugin';
 import StrokesPlugin from './StrokesPlugin';
+import DropShadowPlugin from './DropShadowPlugin';
 import TextBackgroundPlugin from './TextBackgroundPlugin';
 import CharacterEffectsPlugin from './CharacterEffectsPlugin';
 import ImageEffectsPlugin from './ImageEffectsPlugin';
@@ -292,6 +293,15 @@ const QuickPixl = () => {
     alignment: 'none'
   });
   const [characterEffectsVariations, setCharacterEffectsVariations] = useState<CharacterEffectsVariation[]>([]);
+
+  // Drop Shadow Plugin State
+  const [isDropShadowExpanded, setIsDropShadowExpanded] = useState(true);
+  const [dropShadowSettings, setDropShadowSettings] = useState<DropShadowSettings>({
+    mode: 'regular',
+    regular: { shadows: [] },
+    character: { characters: [] }
+  });
+  const [dropShadowVariations, setDropShadowVariations] = useState<DropShadowVariation[]>([]);
 
   // Image Effects Plugin State
   const [isImageEffectsExpanded, setIsImageEffectsExpanded] = useState(true);
@@ -818,6 +828,31 @@ const QuickPixl = () => {
     toast.success('Strokes variation added');
   }, [strokesSettings, generateStrokesDescription]);
 
+  // Drop Shadow variation handlers
+  const generateDropShadowDescription = useCallback((settings: DropShadowSettings): string => {
+    const { mode } = settings;
+    
+    if (mode === 'regular') {
+      const shadowCount = settings.regular.shadows.length;
+      return shadowCount > 0 ? `Regular: ${shadowCount} shadow${shadowCount > 1 ? 's' : ''}` : 'No shadows';
+    } else {
+      const charCount = settings.character.characters.length;
+      const totalShadows = settings.character.characters.reduce((sum, char) => sum + char.shadows.length, 0);
+      return charCount > 0 ? `Character: ${charCount} char${charCount > 1 ? 's' : ''}, ${totalShadows} shadow${totalShadows !== 1 ? 's' : ''}` : 'No character shadows';
+    }
+  }, []);
+
+  const handleAddDropShadowVariation = useCallback(() => {
+    const newVariation: DropShadowVariation = {
+      id: `drop-shadow-variation-${Date.now()}`,
+      settings: { ...dropShadowSettings },
+      description: generateDropShadowDescription(dropShadowSettings)
+    };
+
+    setDropShadowVariations(prev => [...prev, newVariation]);
+    toast.success('Drop shadow variation added');
+  }, [dropShadowSettings, generateDropShadowDescription]);
+
   // Generate description for character effects variation
   const generateCharacterEffectsDescription = useCallback((settings: CharacterEffectsSettings) => {
     const parts: string[] = [];
@@ -851,6 +886,11 @@ const QuickPixl = () => {
   const handleRemoveCharacterEffectsVariation = useCallback((variationId: string) => {
     setCharacterEffectsVariations(prev => prev.filter(v => v.id !== variationId));
     toast.success('Character effects variation removed');
+  }, []);
+
+  const handleRemoveDropShadowVariation = useCallback((variationId: string) => {
+    setDropShadowVariations(prev => prev.filter(v => v.id !== variationId));
+    toast.success('Drop shadow variation removed');
   }, []);
 
   // Image Effects Plugin Handlers
@@ -962,6 +1002,9 @@ const QuickPixl = () => {
       case 'strokes':
         setStrokesVariations(prev => prev.map(v => v.id === updatedVariation.id ? updatedVariation as StrokesVariation : v));
         break;
+      case 'dropShadow':
+        setDropShadowVariations(prev => prev.map(v => v.id === updatedVariation.id ? updatedVariation as DropShadowVariation : v));
+        break;
       case 'character-effects':
         setCharacterEffectsVariations(prev => prev.map(v => v.id === updatedVariation.id ? updatedVariation as CharacterEffectsVariation : v));
         break;
@@ -998,6 +1041,9 @@ const QuickPixl = () => {
         break;
       case 'strokes':
         setStrokesVariations(prev => prev.filter(v => v.id !== variationId));
+        break;
+      case 'dropShadow':
+        setDropShadowVariations(prev => prev.filter(v => v.id !== variationId));
         break;
       case 'character-effects':
         setCharacterEffectsVariations(prev => prev.filter(v => v.id !== variationId));
@@ -1043,6 +1089,9 @@ const QuickPixl = () => {
           break;
         case 'strokes':
           setStrokesVariations(prev => [...prev, duplicatedVariation as StrokesVariation]);
+          break;
+        case 'dropShadow':
+          setDropShadowVariations(prev => [...prev, duplicatedVariation as DropShadowVariation]);
           break;
         case 'character-effects':
           setCharacterEffectsVariations(prev => [...prev, duplicatedVariation as CharacterEffectsVariation]);
@@ -2183,6 +2232,14 @@ const QuickPixl = () => {
                   settings={strokesSettings}
                   onSettingsChange={setStrokesSettings}
                   onAddVariation={handleAddStrokesVariation}
+                />
+                
+                <DropShadowPlugin
+                  isExpanded={isDropShadowExpanded}
+                  onToggleExpanded={() => setIsDropShadowExpanded(!isDropShadowExpanded)}
+                  settings={dropShadowSettings}
+                  onSettingsChange={setDropShadowSettings}
+                  onAddVariation={handleAddDropShadowVariation}
                 />
                 
                 <CharacterEffectsPlugin
