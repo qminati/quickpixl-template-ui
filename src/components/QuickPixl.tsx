@@ -161,6 +161,7 @@ const QuickPixl = () => {
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const [backgroundVariations, setBackgroundVariations] = useState<Variation[]>([]);
   const [isBackgroundExpanded, setIsBackgroundExpanded] = useState(true);
+  const [isImageInputExpanded, setIsImageInputExpanded] = useState(true);
   const [currentColor, setCurrentColor] = useState('#FF6B6B');
   const [isEyedropperActive, setIsEyedropperActive] = useState(false);
   
@@ -2386,8 +2387,8 @@ const QuickPixl = () => {
 
                 {/* Image Input Plugin - appears in all tabs */}
                 <ImageInputPlugin
-                  isExpanded={true}
-                  onToggleExpanded={() => {/* Image input is always expanded */}}
+                  isExpanded={isImageInputExpanded}
+                  onToggleExpanded={() => setIsImageInputExpanded(!isImageInputExpanded)}
                   settings={{
                     selectedImages: [],
                     selectionMode: 'multiple'
