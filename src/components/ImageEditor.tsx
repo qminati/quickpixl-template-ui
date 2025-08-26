@@ -1,7 +1,8 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ChevronLeft, ChevronRight, Settings as SettingsIcon, Copy, Plus, Minus, Trash2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Settings as SettingsIcon, Copy, Plus, Minus, Trash2, Target, ImageIcon } from 'lucide-react';
 import { ImageInput, ImageInputSettings } from '@/types/interfaces';
 import { getBlobUrl } from '@/utils/imageUtils';
 import ImageInputPlugin from './ImageInputPlugin';
@@ -269,113 +270,142 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
             />
           </div>
           
-          {/* Manage Image Inputs - Scrollable */}
+          {/* Manage Image Inputs - 3-Column Grid */}
           <div className="p-4">
             <div className="mb-4">
               <h3 className="text-base font-medium text-foreground">Manage Image Inputs</h3>
             </div>
             
-            <div className="space-y-3 max-h-96">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 max-h-96 overflow-y-auto">
               {imageInputs.map((input, index) => (
-                <div 
+                <Card 
                   key={input.id} 
-                  className={`p-3 rounded-lg border transition-colors cursor-pointer ${
+                  className={`group transition-all hover:shadow-sm ${
                     index === currentInputIndex 
-                      ? 'border-primary bg-primary/5' 
-                      : 'border-input hover:border-primary/50'
+                      ? 'ring-2 ring-primary' 
+                      : ''
                   }`}
-                  onClick={() => setCurrentInputIndex(index)}
                 >
-                  <div className="flex items-start justify-between mb-2">
+                  <CardHeader className="p-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium truncate">Image Input {index + 1}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          onClick={() => {
+                            setCurrentInputIndex(index);
+                            onFocusInputTab?.(input.id);
+                          }} 
+                          className="h-6 w-6"
+                          aria-label="Focus"
+                        >
+                          <Target className="h-3 w-3" />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          onClick={() => duplicateImageInput(input.id)} 
+                          className="h-6 w-6"
+                          aria-label="Duplicate"
+                        >
+                          <Copy className="h-3 w-3" />
+                        </Button>
+                        {imageInputs.length > 1 && (
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            onClick={() => removeImageInput(input.id)} 
+                            className="h-6 w-6 text-destructive hover:text-destructive"
+                            aria-label="Delete"
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </CardHeader>
+
+                  <CardContent className="p-3 space-y-3">
+                    {/* Primary preview area */}
+                    <div className="aspect-[4/3] bg-muted/40 rounded-lg overflow-hidden flex items-center justify-center">
+                      {input.selectedImages?.length ? (
+                        <img 
+                          src={getBlobUrlSafe(input.selectedImages[0])} 
+                          className="h-full w-full object-cover" 
+                          alt="Primary preview" 
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                          }}
+                        />
+                      ) : (
+                        <div className="text-xs text-muted-foreground">No images yet</div>
+                      )}
+                    </div>
+
+                    {/* Thumbnails (first 6) */}
+                    {input.selectedImages?.length > 0 && (
+                      <div className="grid grid-cols-3 gap-2">
+                        {input.selectedImages.slice(0, 6).map((img, i) => (
+                          <button 
+                            key={i} 
+                            onClick={() => {
+                              setCurrentInputIndex(index);
+                              setCurrentPreviewIndex(i);
+                            }}
+                            className="relative rounded-md overflow-hidden border hover:border-primary"
+                            aria-label={`Select image ${i + 1}`}
+                          >
+                            <img 
+                              src={getBlobUrlSafe(img)} 
+                              className="h-16 w-full object-cover" 
+                              alt=""
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.style.display = 'none';
+                              }}
+                            />
+                          </button>
+                        ))}
+                        {input.selectedImages.length > 6 && (
+                          <div className="h-16 rounded-md border bg-muted/40 flex items-center justify-center">
+                            <span className="text-xs text-muted-foreground">
+                              +{input.selectedImages.length - 6}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Actions */}
                     <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-primary mt-1"></div>
-                      <span className="text-sm font-medium">Input {index + 1}</span>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => setCurrentInputIndex(index)}
+                        className="text-xs"
+                      >
+                        Add images
+                      </Button>
                       <span className="text-xs text-muted-foreground">
-                        ({input.selectedImages.length} image{input.selectedImages.length !== 1 ? 's' : ''})
+                        {input.selectedImages?.length ?? 0} image{(input.selectedImages?.length ?? 0) === 1 ? '' : 's'}
                       </span>
                     </div>
-                    
-                    <div className="flex items-center gap-1">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setCurrentInputIndex(index);
-                        }}
-                        className="h-7 w-7 p-0"
-                        title="Settings"
-                      >
-                        <SettingsIcon className="h-3 w-3" />
-                      </Button>
-                      
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          duplicateImageInput(input.id);
-                        }}
-                        className="h-7 w-7 p-0"
-                        title="Duplicate"
-                      >
-                        <Copy className="h-3 w-3" />
-                      </Button>
-                      
-                      {imageInputs.length > 1 && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            removeImageInput(input.id);
-                          }}
-                          className="h-7 w-7 p-0 text-destructive hover:text-destructive"
-                          title="Delete"
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
-                      )}
-                      
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          addImageInput();
-                        }}
-                        className="h-7 w-7 p-0 ml-1"
-                        title="Add Input"
-                      >
-                        <Plus className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  </div>
-                  
-                  {/* Image Thumbnails */}
-                  {input.selectedImages.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      {input.selectedImages.slice(0, 4).map((image, imgIndex) => (
-                        <div key={imgIndex} className="relative">
-                          <img
-                            src={getBlobUrlSafe(image)}
-                            alt={`Thumbnail ${imgIndex + 1}`}
-                            className="w-12 h-12 rounded border object-cover"
-                            onClick={(e) => e.stopPropagation()}
-                          />
-                        </div>
-                      ))}
-                      {input.selectedImages.length > 4 && (
-                        <div className="w-12 h-12 rounded border bg-muted flex items-center justify-center">
-                          <span className="text-xs text-muted-foreground">
-                            +{input.selectedImages.length - 4}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
+                  </CardContent>
+                </Card>
               ))}
+              
+              {/* Add Image Input Tile */}
+              <button 
+                onClick={addImageInput}
+                className="h-full min-h-[220px] border-2 border-dashed rounded-xl flex flex-col items-center justify-center hover:bg-muted/30 transition-colors group"
+              >
+                <div className="text-3xl mb-2 group-hover:scale-110 transition-transform">＋</div>
+                <div className="text-sm font-medium">Add Image Input</div>
+              </button>
             </div>
           </div>
         </div>
