@@ -355,7 +355,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
               ))}
             </div>
 
-            <div className="flex justify-end">
+            <div className="flex justify-end mb-4">
               <Button
                 variant="outline"
                 size="sm"
@@ -365,19 +365,17 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
                 <Plus className="w-4 h-4" />
               </Button>
             </div>
+
+            {/* Submit Button */}
+            <Button 
+              onClick={handleSubmit}
+              className="w-full py-3 font-medium"
+              disabled={imageInputs.every(input => input.selectedImages.length === 0)}
+            >
+              Submit Variation
+            </Button>
           </div>
         </div>
-      </div>
-
-      {/* Submit Button Container - Fixed at Bottom */}
-      <div className="border-t border-input bg-card p-4">
-        <Button 
-          onClick={handleSubmit}
-          className="w-full py-3 font-medium"
-          disabled={imageInputs.every(input => input.selectedImages.length === 0)}
-        >
-          Submit Variation
-        </Button>
       </div>
     </div>
   );
