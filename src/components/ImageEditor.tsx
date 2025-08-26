@@ -149,7 +149,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
       {/* Main Content */}
       <div className="flex-1 p-6 overflow-auto">
         {/* Preview Canvas */}
-        <div className="bg-background border border-input rounded-lg mb-4" style={{ height: '300px' }}>
+        <div className="bg-background border border-input rounded-lg mb-4 overflow-hidden" style={{ height: '300px' }}>
           {/* Top Toolbar with Image Controls */}
           <div className="bg-muted/30 border-b border-input px-4 py-2 rounded-t-lg flex items-center justify-between">
             <div className="flex items-center space-x-4">
@@ -229,26 +229,26 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
           </div>
           
           {/* Canvas Content */}
-          <div className="flex items-center justify-center bg-muted/10" style={{ height: 'calc(100% - 40px)' }}>
+          <div className="relative bg-muted/10 overflow-hidden" style={{ height: 'calc(100% - 40px)' }}>
             {currentPreviewImage ? (
-              <div className="max-w-full max-h-full p-4">
-                <img
-                  src={getBlobUrlSafe(currentPreviewImage)}
-                  alt="Preview"
-                  className="max-w-full max-h-full object-contain rounded"
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.style.display = 'none';
-                  }}
-                />
-              </div>
+              <img
+                src={getBlobUrlSafe(currentPreviewImage)}
+                alt="Preview"
+                className="absolute inset-0 w-full h-full object-contain"
+                draggable={false}
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'none';
+                }}
+              />
             ) : (
-              <div className="text-center text-muted-foreground">
-                <div className="w-16 h-16 mx-auto mb-2 rounded-lg bg-muted flex items-center justify-center">
-                  <span className="text-2xl">🖼️</span>
+              <div className="absolute inset-0 flex items-center justify-center text-center text-muted-foreground">
+                <div>
+                  <div className="w-16 h-16 mx-auto mb-2 rounded-lg bg-muted flex items-center justify-center">
+                    <span className="text-2xl">🖼️</span>
+                  </div>
+                  <p className="text-sm">No images selected</p>
                 </div>
-                <p className="text-sm">No images selected</p>
-                <p className="text-xs">Upload images using the inputs below</p>
               </div>
             )}
           </div>
