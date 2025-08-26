@@ -33,7 +33,8 @@ import {
   ALargeSmall,
   Sliders,
   Settings as SettingsIcon,
-  Copy as CopyIcon
+  Copy as CopyIcon,
+  X as XIcon
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -323,6 +324,22 @@ const QuickPixl = () => {
   // simple util: does a tab exist?
   const ensureTab = (id: TextTabId) => {
     setTextTabs(prev => (prev.includes(id) ? prev : [...prev, id]));
+  };
+
+  // delete tab handler
+  const deleteTab = (id: TextTabId) => {
+    if (id === 'GLOBAL') return; // Cannot delete GLOBAL tab
+    
+    setTextTabs(prev => {
+      const filtered = prev.filter(tabId => tabId !== id);
+      
+      // If we're deleting the active tab, switch to GLOBAL or previous tab
+      if (activeTextTab === id) {
+        setActiveTextTab('GLOBAL');
+      }
+      
+      return filtered;
+    });
   };
 
   // Enhanced cleanup function for blob URLs with better error handling
@@ -2090,10 +2107,24 @@ const QuickPixl = () => {
                 <Tabs value={activeTextTab} onValueChange={(v) => setActiveTextTab(v as TextTabId)}>
                   <TabsList className="w-full justify-start gap-1">
                     {textTabs.map(id => (
-                      <TabsTrigger key={id} value={id} className="px-3 py-1 h-8 text-xs">
+                      <TabsTrigger key={id} value={id} className="px-3 py-1 h-8 text-xs relative group">
                         {id}
                         {/* indicator dot placeholder; logic added in Step 2 */}
                         <span className="ml-1 inline-block w-1.5 h-1.5 rounded-full bg-transparent" />
+                        {/* Delete button - only show for non-GLOBAL tabs */}
+                        {id !== 'GLOBAL' && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              deleteTab(id);
+                            }}
+                            className="ml-1 opacity-0 group-hover:opacity-100 hover:bg-destructive hover:text-destructive-foreground rounded-full p-0.5 transition-all"
+                            title={`Delete ${id}`}
+                          >
+                            <XIcon className="w-3 h-3" />
+                          </button>
+                        )}
                       </TabsTrigger>
                     ))}
                     {/* read-only [+] placeholder; adding logic in Step 4 when we sync with inputs */}
