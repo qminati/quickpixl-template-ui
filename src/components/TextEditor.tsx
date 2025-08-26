@@ -339,28 +339,30 @@ const TextEditor: React.FC<TextEditorProps> = ({
                   {listInputs.map((input, index) => (
                     <div key={input.id} className="flex flex-col space-y-2 min-w-[200px] h-full">
                       {/* Input Label */}
-                      <div className="flex items-center space-x-2 flex-shrink-0">
-                        <span className="text-xs text-muted-foreground">
-                          Input {index + 1}
-                        </span>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => onFocusInputTab(index)}
-                          className="p-1 h-6 w-6"
-                          title="Input settings"
-                        >
-                          <SettingsIcon className="w-3 h-3" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => duplicateListInput(input.id)}
-                          className="p-1 h-6 w-6"
-                          title="Duplicate input"
-                        >
-                          <CopyIcon className="w-3 h-3" />
-                        </Button>
+                      <div className="flex items-center justify-between flex-shrink-0">
+                        <div className="flex items-center space-x-2">
+                          <span className="text-xs text-muted-foreground">
+                            Input {index + 1}
+                          </span>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => onFocusInputTab(index)}
+                            className="p-1 h-6 w-6"
+                            title="Input settings"
+                          >
+                            <SettingsIcon className="w-3 h-3" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => duplicateListInput(input.id)}
+                            className="p-1 h-6 w-6"
+                            title="Duplicate input"
+                          >
+                            <CopyIcon className="w-3 h-3" />
+                          </Button>
+                        </div>
                         <Button
                           variant="ghost"
                           size="sm"
