@@ -2,19 +2,21 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Plus, Minus } from 'lucide-react';
+import { Plus, Minus, Settings as SettingsIcon } from 'lucide-react';
 import { TextInput, TypographySettings } from '@/types/interfaces';
 
 interface TextEditorProps {
   onSubmitVariation: (texts: string[]) => void;
   lastSelectedFont?: string;
   typographySettings?: TypographySettings;
+  onFocusInputTab?: (index: number) => void; // NEW
 }
 
 const TextEditor: React.FC<TextEditorProps> = ({ 
   onSubmitVariation, 
   lastSelectedFont = 'Inter, sans-serif',
-  typographySettings
+  typographySettings,
+  onFocusInputTab = () => {} // NEW
 }) => {
   const [activeMode, setActiveMode] = useState<'manual' | 'bulk' | 'list'>('manual');
   const [textInputs, setTextInputs] = useState<TextInput[]>([
@@ -234,6 +236,15 @@ const TextEditor: React.FC<TextEditorProps> = ({
                     <span className="text-sm text-muted-foreground min-w-[20px]">
                       {index + 1}.
                     </span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onFocusInputTab(index)}
+                      className="p-2 h-8 w-8"
+                      title="Input settings"
+                    >
+                      <SettingsIcon className="w-4 h-4" />
+                    </Button>
                     <Input
                       placeholder="Type your text here..."
                       value={input.text}

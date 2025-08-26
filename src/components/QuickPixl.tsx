@@ -31,10 +31,13 @@ import {
   Shapes,
   RotateCw,
   ALargeSmall,
-  Sliders
+  Sliders,
+  Settings as SettingsIcon,
+  Copy as CopyIcon
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import PlacementPlugin from './PlacementPlugin';
 import CanvasEditor from './CanvasEditor';
 import ErrorBoundary from './ErrorBoundary';
@@ -311,6 +314,16 @@ const QuickPixl = () => {
   const [selectedVariation, setSelectedVariation] = useState<AnyVariation | null>(null);
   const [selectedVariationType, setSelectedVariationType] = useState<string>('');
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+
+  // --- Text Settings Tabs (safe scaffolding) ---
+  type TextTabId = 'GLOBAL' | `TI${number}`;
+  const [textTabs, setTextTabs] = React.useState<TextTabId[]>(['GLOBAL', 'TI1']);
+  const [activeTextTab, setActiveTextTab] = React.useState<TextTabId>('GLOBAL');
+
+  // simple util: does a tab exist?
+  const ensureTab = (id: TextTabId) => {
+    setTextTabs(prev => (prev.includes(id) ? prev : [...prev, id]));
+  };
 
   // Enhanced cleanup function for blob URLs with better error handling
   useEffect(() => {
@@ -2073,6 +2086,26 @@ const QuickPixl = () => {
              </div>
             ) : activeSection === 'text' ? (
               <div className="space-y-4">
+                {/* Text Settings Tabs */}
+                <Tabs value={activeTextTab} onValueChange={(v) => setActiveTextTab(v as TextTabId)}>
+                  <TabsList className="w-full justify-start gap-1">
+                    {textTabs.map(id => (
+                      <TabsTrigger key={id} value={id} className="px-3 py-1 h-8 text-xs">
+                        {id}
+                        {/* indicator dot placeholder; logic added in Step 2 */}
+                        <span className="ml-1 inline-block w-1.5 h-1.5 rounded-full bg-transparent" />
+                      </TabsTrigger>
+                    ))}
+                    {/* read-only [+] placeholder; adding logic in Step 4 when we sync with inputs */}
+                    <button
+                      type="button"
+                      className="ml-2 text-xs px-2 py-1 rounded bg-muted hover:bg-muted/80"
+                      onClick={() => {/* no-op for now */}}
+                    >
+                      +
+                    </button>
+                  </TabsList>
+                </Tabs>
                 <ColorFillPlugin
                   isExpanded={isColorFillExpanded}
                   onToggleExpanded={() => setIsColorFillExpanded(!isColorFillExpanded)}
@@ -2252,6 +2285,11 @@ const QuickPixl = () => {
                 onSubmitVariation={handleSubmitVariation}
                 lastSelectedFont={lastSelectedFont}
                 typographySettings={typographySettings}
+                onFocusInputTab={(i) => {
+                  const id = (`TI${i+1}`) as TextTabId;
+                  ensureTab(id);
+                  setActiveTextTab(id);
+                }}
               />
             </ErrorBoundary>
           ) : activeSection === 'variations' ? (
