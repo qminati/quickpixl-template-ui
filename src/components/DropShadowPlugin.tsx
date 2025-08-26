@@ -48,7 +48,9 @@ const DropShadowPlugin: React.FC<DropShadowPluginProps> = ({
       offsetX: 5,
       offsetY: 5,
       blur: 10,
+      spread: 0,
       opacity: 80,
+      inset: false,
       fillType: 'solid' as const,
       color: '#000000',
       gradient: {
@@ -91,12 +93,15 @@ const DropShadowPlugin: React.FC<DropShadowPluginProps> = ({
   const addCharacterConfiguration = useCallback(() => {
     const newCharacter = {
       id: Date.now().toString(),
+      characterIndex: 0, // Will be calculated based on position in array
       shadows: [{
         id: `${Date.now()}-shadow`,
         offsetX: 5,
         offsetY: 5,
         blur: 10,
+        spread: 0,
         opacity: 80,
+        inset: false,
         fillType: 'solid' as const,
         color: '#000000',
         gradient: {
@@ -132,7 +137,9 @@ const DropShadowPlugin: React.FC<DropShadowPluginProps> = ({
       offsetX: 5,
       offsetY: 5,
       blur: 10,
+      spread: 0,
       opacity: 80,
+      inset: false,
       fillType: 'solid' as const,
       color: '#000000',
       gradient: {

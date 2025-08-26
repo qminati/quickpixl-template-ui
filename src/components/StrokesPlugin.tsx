@@ -48,6 +48,10 @@ const StrokesPlugin: React.FC<StrokesPluginProps> = ({
   const addRegularStroke = useCallback(() => {
     const newStroke = {
       id: Date.now().toString(),
+      width: 2,
+      offset: 0,
+      blur: 0,
+      opacity: 100,
       size: 2,
       fillType: 'solid' as const,
       color: '#000000',
@@ -59,8 +63,7 @@ const StrokesPlugin: React.FC<StrokesPluginProps> = ({
           { id: '2', color: '#ffffff', position: 100 }
         ]
       },
-      images: [],
-      opacity: 100
+      images: []
     };
     
     updateSettings({
@@ -92,6 +95,10 @@ const StrokesPlugin: React.FC<StrokesPluginProps> = ({
   const addCharacterStroke = useCallback(() => {
     const newStroke = {
       id: Date.now().toString(),
+      width: 2,
+      offset: 0,
+      blur: 0,
+      opacity: 100,
       size: 2,
       fillType: 'solid' as const,
       color: '#000000',
@@ -103,8 +110,7 @@ const StrokesPlugin: React.FC<StrokesPluginProps> = ({
           { id: '2', color: '#ffffff', position: 100 }
         ]
       },
-      images: [],
-      opacity: 100
+      images: []
     };
     
     updateSettings({
@@ -139,6 +145,10 @@ const StrokesPlugin: React.FC<StrokesPluginProps> = ({
   const addContainerStroke = useCallback(() => {
     const newStroke = {
       id: Date.now().toString(),
+      width: 2,
+      offset: 0,
+      blur: 0,
+      opacity: 100,
       size: 2,
       fillType: 'solid' as const,
       color: '#000000',
@@ -150,8 +160,7 @@ const StrokesPlugin: React.FC<StrokesPluginProps> = ({
           { id: '2', color: '#ffffff', position: 100 }
         ]
       },
-      images: [],
-      opacity: 100
+      images: []
     };
     
     updateSettings({

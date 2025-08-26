@@ -142,10 +142,15 @@ export interface ColorFillSettings {
     }[];
   };
   palette: {
-    source: 'rgb' | 'cmyk' | 'hsl';
-    colors: string[];
+    source: 'rgb' | 'cmyk' | 'hsl' | 'component' | 'image';
+    colors: {
+      id: string;
+      value: string | number;
+      type: 'manual' | 'component' | 'extracted';
+    }[];
     componentInput: number;
     randomize: boolean;
+    extractedImage?: File;
   };
   image: {
     mode: 'single' | 'multiple';
@@ -168,6 +173,18 @@ export interface SingleStroke {
   opacity: number;
   offset: number;
   blur: number;
+  size?: number;
+  fillType?: 'solid' | 'gradient' | 'image';
+  gradient?: {
+    type: 'linear' | 'radial' | 'conic';
+    angle: number;
+    stops: {
+      id: string;
+      color: string;
+      position: number;
+    }[];
+  };
+  images?: File[];
 }
 
 export interface StrokeSettings {
@@ -210,8 +227,11 @@ export interface CharacterSettings {
 
 export interface CharacterEffectsSettings {
   characters: CharacterSettings[];
-  rotationMode: 'individual' | 'progressive' | 'wave' | 'mirror';
+  rotationMode: 'individual' | 'progressive' | 'wave' | 'mirror' | 'random';
   alignment: 'none' | 'top' | 'center' | 'bottom' | 'baseline';
+  mirrorRotationValue?: number;
+  waveRotationStart?: number;
+  waveRotationEnd?: number;
 }
 
 export interface CharacterEffectsVariation {
@@ -246,6 +266,17 @@ export interface DropShadow {
   color: string;
   opacity: number;
   inset: boolean;
+  fillType?: 'solid' | 'gradient' | 'image';
+  gradient?: {
+    type: 'linear' | 'radial' | 'conic';
+    angle: number;
+    stops: {
+      id: string;
+      color: string;
+      position: number;
+    }[];
+  };
+  images?: File[];
 }
 
 export interface DropShadowSettings {
@@ -255,6 +286,7 @@ export interface DropShadowSettings {
   };
   character: {
     characters: {
+      id: string;
       characterIndex: number;
       shadows: DropShadow[];
     }[];
