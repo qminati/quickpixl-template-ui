@@ -833,7 +833,10 @@ const QuickPixl = () => {
   const scrollNewCardIntoView = useCallback(() => {
     const targets = [leftSettingsRef.current, variationsRef.current];
     requestAnimationFrame(() => {
-      targets.forEach(el => el?.scrollTo({ top: el.scrollHeight, behavior: "smooth" }));
+      targets.forEach((el) => {
+        if (!el) return;
+        el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+      });
     });
   }, []);
 
@@ -1025,7 +1028,10 @@ const QuickPixl = () => {
     // Auto-scroll to bottom of variations
     setTimeout(() => {
       const targets = [leftSettingsRef.current, variationsRef.current];
-      targets.forEach(el => el?.scrollTo({ top: el.scrollHeight, behavior: "smooth" }));
+      targets.forEach((el) => {
+        if (!el) return;
+        el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+      });
     });
   }, [imageInputs]);
 
@@ -1806,7 +1812,7 @@ const QuickPixl = () => {
           ) : activeSection === 'variations' ? (
             <div 
               ref={variationsRef}
-              className="space-y-4"
+              className="space-y-4 overflow-y-auto"
             >
               {backgroundVariations.length > 0 && (
                 <div className="bg-card border border-panel-border rounded-lg p-4">
