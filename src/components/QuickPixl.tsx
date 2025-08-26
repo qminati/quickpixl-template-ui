@@ -2187,8 +2187,8 @@ const QuickPixl = () => {
                     </div>
                   </div>
                   <div className="flex items-center space-x-1">
-                    <Button variant="secondary" size="sm">
-                      <Plus className="w-4 h-4 mr-1" />
+                    <Button variant="secondary" size="sm" className="px-2 py-1 h-7">
+                      <Plus className="w-3 h-3 mr-1" />
                       New
                     </Button>
                     <Button variant="ghost" size="sm" className="text-muted-foreground p-2">
