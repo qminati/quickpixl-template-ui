@@ -1446,6 +1446,19 @@ const QuickPixl = () => {
     setIsImageEffectsExpanded(true);
   };
 
+  // Functions to handle collapse/expand all for image settings
+  const handleImageCollapseAll = () => {
+    setIsImageInputExpanded(false);
+    setIsImageEffectsExpanded(false);
+    // Add other image-related plugin states as needed
+  };
+
+  const handleImageShowAll = () => {
+    setIsImageInputExpanded(true);
+    setIsImageEffectsExpanded(true);
+    // Add other image-related plugin states as needed
+  };
+
   const renderSettingsPanel = () => {
     const settingsMap = {
       text: 'Text Settings',
@@ -1475,6 +1488,26 @@ const QuickPixl = () => {
                 variant="ghost"
                 size="sm"
                 onClick={handleShowAll}
+                className="text-xs px-2 py-1 h-6 text-muted-foreground hover:text-foreground"
+              >
+                Show All
+              </Button>
+            </div>
+          )}
+          {activeSection === 'images' && (
+            <div className="flex space-x-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleImageCollapseAll}
+                className="text-xs px-2 py-1 h-6 text-muted-foreground hover:text-foreground"
+              >
+                Collapse All
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleImageShowAll}
                 className="text-xs px-2 py-1 h-6 text-muted-foreground hover:text-foreground"
               >
                 Show All
