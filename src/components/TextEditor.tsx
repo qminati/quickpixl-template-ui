@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Plus, Minus } from 'lucide-react';
 import { TextInput, TypographySettings } from '@/types/interfaces';
 
@@ -29,6 +30,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
     { id: '5', text: '' }
   ]);
   const [previewText, setPreviewText] = useState('Sample Text');
+  const [previewBackgroundColor, setPreviewBackgroundColor] = useState('#ffffff');
 
   const addTextInput = () => {
     const newInput: TextInput = {
@@ -100,18 +102,76 @@ const TextEditor: React.FC<TextEditorProps> = ({
       <div className="flex-1 p-6 overflow-auto">
         {/* Preview Canvas */}
         <div className="bg-background border border-input rounded-lg mb-4" style={{ height: '300px' }}>
-          {/* Top Toolbar with Text Input */}
-          <div className="bg-muted/30 border-b border-input px-4 py-2 rounded-t-lg">
+          {/* Top Toolbar with Text Input and Background Color Picker */}
+          <div className="bg-muted/30 border-b border-input px-4 py-2 rounded-t-lg flex items-center justify-between">
             <Input
               placeholder="Edit Sample Text"
               value={previewText}
               onChange={(e) => setPreviewText(e.target.value)}
               className="w-64 h-8 bg-background"
             />
+            <div className="flex items-center space-x-2">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="h-7 px-2 text-xs border-panel-border hover:bg-secondary"
+                  >
+                    <div 
+                      className="w-3 h-3 rounded mr-1 border border-panel-border" 
+                      style={{ backgroundColor: previewBackgroundColor }}
+                    />
+                    Background
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-64 p-3" align="start">
+                  <div className="space-y-3">
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="color"
+                        value={previewBackgroundColor}
+                        onChange={(e) => setPreviewBackgroundColor(e.target.value)}
+                        className="w-8 h-8 rounded border border-panel-border cursor-pointer"
+                      />
+                      <input
+                        type="text"
+                        value={previewBackgroundColor}
+                        onChange={(e) => setPreviewBackgroundColor(e.target.value)}
+                        className="flex-1 px-2 py-1 text-xs bg-background border border-panel-border rounded"
+                        placeholder="#ffffff"
+                      />
+                    </div>
+                    <div className="text-xs text-muted-foreground">Preview background color</div>
+                  </div>
+                </PopoverContent>
+              </Popover>
+              <div className="flex items-center space-x-1">
+                {[
+                  { color: '#000000', name: 'Black' },
+                  { color: '#ffffff', name: 'White' },
+                  { color: '#6b7280', name: 'Grey' },
+                  { color: '#ef4444', name: 'Red' },
+                  { color: '#3b82f6', name: 'Blue' },
+                  { color: '#10b981', name: 'Green' }
+                ].map((preset) => (
+                  <button
+                    key={preset.color}
+                    onClick={() => setPreviewBackgroundColor(preset.color)}
+                    className="w-5 h-5 rounded-full border border-panel-border hover:scale-110 transition-transform"
+                    style={{ backgroundColor: preset.color }}
+                    title={preset.name}
+                  />
+                ))}
+              </div>
+            </div>
           </div>
           
           {/* Canvas Content */}
-          <div className="h-full flex items-center justify-center bg-muted/10">
+          <div 
+            className="h-full flex items-center justify-center" 
+            style={{ backgroundColor: previewBackgroundColor }}
+          >
             <h1 
               className="text-4xl font-bold text-foreground"
               style={{ 
