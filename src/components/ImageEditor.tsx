@@ -229,7 +229,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
           </div>
           
           {/* Canvas Content */}
-          <div className="h-full flex items-center justify-center bg-muted/10">
+          <div className="flex items-center justify-center bg-muted/10" style={{ height: 'calc(100% - 40px)' }}>
             {currentPreviewImage ? (
               <div className="max-w-full max-h-full p-4">
                 <img
@@ -277,19 +277,6 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
                 } else {
                   setInternalImageInputs(updated);
                 }
-              }}
-              onAddVariation={() => {
-                const nextId = `II${imageInputs.length + 1}`;
-                const newInput = { id: nextId, selectedImages: [], selectionMode: 'multiple' as const };
-                const updated = [...imageInputs, newInput];
-                if (onImageInputsChange) {
-                  onImageInputsChange(updated);
-                } else {
-                  setInternalImageInputs(updated);
-                }
-                const nextIndex = updated.length - 1;
-                setCurrentInputIndex(nextIndex);
-                onFocusInputTab?.(nextId);
               }}
             />
           </div>

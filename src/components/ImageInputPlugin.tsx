@@ -12,11 +12,10 @@ interface ImageInputPluginProps {
   onToggleExpanded: () => void;
   settings: ImageInputSettings;                  // expects { selectedImages: File[], ... }
   onSettingsChange: (settings: ImageInputSettings) => void;
-  onAddVariation: () => void;
 }
 
 const ImageInputPlugin: React.FC<ImageInputPluginProps> = ({
-  isExpanded, onToggleExpanded, settings, onSettingsChange, onAddVariation
+  isExpanded, onToggleExpanded, settings, onSettingsChange
 }) => {
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
@@ -119,17 +118,6 @@ const ImageInputPlugin: React.FC<ImageInputPluginProps> = ({
               </div>
             )}
 
-            <div className="pt-1">
-              <Button 
-                variant="default" 
-                onClick={onAddVariation} 
-                disabled={(settings.selectedImages?.length || 0) === 0}
-                className="w-full h-6 text-xs"
-              >
-                <Plus className="w-3 h-3 mr-1" />
-                Add Image Input Variation
-              </Button>
-            </div>
           </div>
         </CollapsibleContent>
       </Collapsible>
