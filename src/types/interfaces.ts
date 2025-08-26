@@ -44,17 +44,23 @@ export interface TextInput {
   text: string;
 }
 
+export interface ImageInput {
+  id: string;
+  selectedImages: File[];
+  selectionMode: 'single' | 'multiple';
+}
+
 export interface TypographySettings {
   bold: boolean;
   italic: boolean;
   underline: boolean;
   textCase: 'normal' | 'uppercase' | 'lowercase';
+  textAlign: 'left' | 'center' | 'right' | 'justify';
   letterSpacing: number;
   wordSpacing: number;
-  textAlign: 'left' | 'center' | 'right' | 'justify';
   textStroke: boolean;
-  strokeWidth?: number;
-  strokeColor?: string;
+  strokeWidth: number;
+  strokeColor: string;
 }
 
 export interface TypographyVariation {
@@ -129,21 +135,16 @@ export interface ColorFillSettings {
   gradient: {
     type: 'linear' | 'radial' | 'conic';
     angle: number;
-    stops: Array<{
+    stops: {
       id: string;
       color: string;
       position: number;
-    }>;
+    }[];
   };
   palette: {
-    source: 'rgb' | 'component' | 'image';
-    colors: Array<{
-      id: string;
-      value: string | number;
-      type: 'manual' | 'component' | 'extracted';
-    }>;
+    source: 'rgb' | 'cmyk' | 'hsl';
+    colors: string[];
     componentInput: number;
-    extractedImage?: File;
     randomize: boolean;
   };
   image: {
@@ -160,44 +161,21 @@ export interface ColorFillVariation {
   description: string;
 }
 
+export interface SingleStroke {
+  id: string;
+  width: number;
+  color: string;
+  opacity: number;
+  offset: number;
+  blur: number;
+}
+
 export interface StrokeSettings {
   regular: {
-    strokes: Array<{
-      id: string;
-      size: number;
-      fillType: 'solid' | 'gradient' | 'image';
-      color: string;
-      gradient: {
-        type: 'linear' | 'radial' | 'conic';
-        angle: number;
-        stops: Array<{
-          id: string;
-          color: string;
-          position: number;
-        }>;
-      };
-      images: File[];
-      opacity: number;
-    }>;
+    strokes: SingleStroke[];
   };
   character: {
-    strokes: Array<{
-      id: string;
-      size: number;
-      fillType: 'solid' | 'gradient' | 'image';
-      color: string;
-      gradient: {
-        type: 'linear' | 'radial' | 'conic';
-        angle: number;
-        stops: Array<{
-          id: string;
-          color: string;
-          position: number;
-        }>;
-      };
-      images: File[];
-      opacity: number;
-    }>;
+    strokes: SingleStroke[];
     differentStrokePerCharacter: boolean;
     perCharacterTransforms: {
       widthScale: number;
@@ -209,23 +187,7 @@ export interface StrokeSettings {
     randomizeTransforms: boolean;
   };
   container: {
-    strokes: Array<{
-      id: string;
-      size: number;
-      fillType: 'solid' | 'gradient' | 'image';
-      color: string;
-      gradient: {
-        type: 'linear' | 'radial' | 'conic';
-        angle: number;
-        stops: Array<{
-          id: string;
-          color: string;
-          position: number;
-        }>;
-      };
-      images: File[];
-      opacity: number;
-    }>;
+    strokes: SingleStroke[];
   };
   knockout: {
     enabled: boolean;
@@ -240,19 +202,16 @@ export interface StrokesVariation {
 }
 
 export interface CharacterSettings {
-  width: number;      // percentage: 50-200
-  height: number;     // percentage: 50-200
-  verticalOffset: number; // pixels: -50 to 50
-  rotation: number;   // degrees: -180 to 180
+  width: number;
+  height: number;
+  verticalOffset: number;
+  rotation: number;
 }
 
 export interface CharacterEffectsSettings {
   characters: CharacterSettings[];
-  rotationMode: 'individual' | 'mirror' | 'wave' | 'random';
-  mirrorRotationValue?: number;
-  waveRotationStart?: number;
-  waveRotationEnd?: number;
-  alignment: 'none' | 'top' | 'bottom';
+  rotationMode: 'individual' | 'progressive' | 'wave' | 'mirror';
+  alignment: 'none' | 'top' | 'center' | 'bottom' | 'baseline';
 }
 
 export interface CharacterEffectsVariation {
@@ -262,14 +221,14 @@ export interface CharacterEffectsVariation {
 }
 
 export interface ImageEffectsSettings {
-  brightness: number;      // -100 to 100, default 0
-  contrast: number;        // -100 to 100, default 0
-  saturation: number;      // -100 to 100, default 0
-  vibrance?: number;       // -100 to 100, default 0
-  hue: number;            // 0 to 360, default 0
-  colorize: boolean;      // default false
-  grayscale: boolean;     // default false
-  invert: boolean;        // default false
+  brightness: number;
+  contrast: number;
+  saturation: number;
+  vibrance?: number;
+  hue: number;
+  colorize: boolean;
+  grayscale: boolean;
+  invert: boolean;
 }
 
 export interface ImageEffectsVariation {
@@ -283,15 +242,10 @@ export interface DropShadow {
   offsetX: number;
   offsetY: number;
   blur: number;
-  opacity: number;
-  fillType: 'solid' | 'gradient' | 'image';
+  spread: number;
   color: string;
-  gradient: {
-    type: 'linear' | 'radial' | 'conic';
-    angle: number;
-    stops: Array<{ id: string; color: string; position: number }>;
-  };
-  images: File[];
+  opacity: number;
+  inset: boolean;
 }
 
 export interface DropShadowSettings {
@@ -300,10 +254,10 @@ export interface DropShadowSettings {
     shadows: DropShadow[];
   };
   character: {
-    characters: Array<{
-      id: string;
+    characters: {
+      characterIndex: number;
       shadows: DropShadow[];
-    }>;
+    }[];
   };
 }
 
@@ -313,16 +267,33 @@ export interface DropShadowVariation {
   description: string;
 }
 
-// Union type for all variation types to improve type safety
+export interface ImageInputSettings {
+  selectedImages: File[];
+  selectionMode: 'single' | 'multiple';
+}
+
+export interface ImagePluginSettings {
+  imageInput: ImageInputSettings;
+  imageEffects: ImageEffectsSettings;
+  // Add other image-specific plugin settings here as needed
+}
+
+export interface ImageTabSettings {
+  global: ImagePluginSettings;
+  inputs: {
+    [key: string]: ImagePluginSettings; // II1, II2, etc.
+  };
+}
+
 export type AnyVariation = 
-  | Variation 
+  | Variation
   | TemplateVariation 
   | FontVariation 
   | TypographyVariation 
   | TextShapeVariation 
   | RotateFlipVariation 
-  | ColorFillVariation
-  | StrokesVariation
-  | CharacterEffectsVariation
-  | ImageEffectsVariation
+  | ColorFillVariation 
+  | StrokesVariation 
+  | CharacterEffectsVariation 
+  | ImageEffectsVariation 
   | DropShadowVariation;

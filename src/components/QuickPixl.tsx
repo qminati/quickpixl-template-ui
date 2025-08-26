@@ -44,6 +44,8 @@ import PlacementPlugin from './PlacementPlugin';
 import CanvasEditor from './CanvasEditor';
 import ErrorBoundary from './ErrorBoundary';
 import TextEditor from './TextEditor';
+import ImageEditor from './ImageEditor';
+import ImageInputPlugin from './ImageInputPlugin';
 import { validateImage, handleImageError, createImageFallback } from '@/utils/imageUtils';
 import { toast } from 'sonner';
 import { Container, Variation, Template, TemplateVariation, FontVariation, TypographySettings, TypographyVariation, ShapeSettings, TextShapeVariation, RotateFlipSettings, RotateFlipVariation, ColorFillSettings, ColorFillVariation, StrokeSettings, StrokesVariation, CharacterEffectsSettings, CharacterEffectsVariation, ImageEffectsSettings, ImageEffectsVariation, DropShadowSettings, DropShadowVariation, AnyVariation } from '@/types/interfaces';
@@ -332,9 +334,18 @@ const QuickPixl = () => {
   const [textTabs, setTextTabs] = React.useState<TextTabId[]>(['GLOBAL', 'TI1']);
   const [activeTextTab, setActiveTextTab] = React.useState<TextTabId>('GLOBAL');
 
+  // --- Image Settings Tabs ---
+  type ImageTabId = 'GLOBAL' | `II${number}`;
+  const [imageTabs, setImageTabs] = React.useState<ImageTabId[]>(['GLOBAL', 'II1']);
+  const [activeImageTab, setActiveImageTab] = React.useState<ImageTabId>('GLOBAL');
+
   // simple util: does a tab exist?
   const ensureTab = (id: TextTabId) => {
     setTextTabs(prev => (prev.includes(id) ? prev : [...prev, id]));
+  };
+
+  const ensureImageTab = (id: ImageTabId) => {
+    setImageTabs(prev => (prev.includes(id) ? prev : [...prev, id]));
   };
 
   // delete tab handler
@@ -347,6 +358,21 @@ const QuickPixl = () => {
       // If we're deleting the active tab, switch to GLOBAL or previous tab
       if (activeTextTab === id) {
         setActiveTextTab('GLOBAL');
+      }
+      
+      return filtered;
+    });
+  };
+
+  const deleteImageTab = (id: ImageTabId) => {
+    if (id === 'GLOBAL') return; // Cannot delete GLOBAL tab
+    
+    setImageTabs(prev => {
+      const filtered = prev.filter(tabId => tabId !== id);
+      
+      // If we're deleting the active tab, switch to GLOBAL or previous tab
+      if (activeImageTab === id) {
+        setActiveImageTab('GLOBAL');
       }
       
       return filtered;
@@ -2316,6 +2342,75 @@ const QuickPixl = () => {
                   onAddVariation={handleAddImageEffectsVariation}
                 />
               </div>
+            ) : activeSection === 'images' ? (
+              <div className="space-y-4">
+                {/* Image Settings Tabs */}
+                <Tabs value={activeImageTab} onValueChange={(v) => setActiveImageTab(v as ImageTabId)}>
+                  <TabsList className="w-full justify-start gap-1">
+                    {imageTabs.map(id => (
+                      <TabsTrigger key={id} value={id} className="px-3 py-1 h-8 text-xs relative group">
+                        {id}
+                        {/* indicator dot placeholder; logic can be added later */}
+                        <span className="ml-1 inline-block w-1.5 h-1.5 rounded-full bg-transparent" />
+                        {/* Delete button - only show for non-GLOBAL tabs */}
+                        {id !== 'GLOBAL' && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              deleteImageTab(id);
+                            }}
+                            className="ml-1 opacity-0 group-hover:opacity-100 hover:bg-destructive hover:text-destructive-foreground rounded-full p-0.5 transition-all"
+                            title={`Delete ${id}`}
+                          >
+                            <XIcon className="w-3 h-3" />
+                          </button>
+                        )}
+                      </TabsTrigger>
+                    ))}
+                    {/* Add new image input tab button */}
+                    <button
+                      type="button"
+                      className="ml-2 text-xs px-2 py-1 rounded bg-muted hover:bg-muted/80"
+                      onClick={() => {
+                        const newIndex = imageTabs.length;
+                        const newTabId = `II${newIndex}` as ImageTabId;
+                        setImageTabs(prev => [...prev, newTabId]);
+                        setActiveImageTab(newTabId);
+                      }}
+                    >
+                      +
+                    </button>
+                  </TabsList>
+                </Tabs>
+
+                {/* Image Input Plugin - appears in all tabs */}
+                <ImageInputPlugin
+                  isExpanded={true}
+                  onToggleExpanded={() => {/* Image input is always expanded */}}
+                  settings={{
+                    selectedImages: [],
+                    selectionMode: 'multiple'
+                  }}
+                  onSettingsChange={(settings) => {
+                    // Handle image input settings change based on active tab
+                    console.log('Image input settings changed:', settings);
+                  }}
+                  onAddVariation={() => {
+                    // Handle image input variation creation
+                    console.log('Create image input variation');
+                  }}
+                />
+                
+                {/* Image Effects Plugin */}
+                <ImageEffectsPlugin
+                  isExpanded={isImageEffectsExpanded}
+                  onToggleExpanded={() => setIsImageEffectsExpanded(!isImageEffectsExpanded)}
+                  settings={imageEffectsSettings}
+                  onSettingsChange={setImageEffectsSettings}
+                  onAddVariation={handleAddImageEffectsVariation}
+                />
+              </div>
             ) : (
               <div className="text-muted-foreground">
                 <p className="text-sm">Settings panel ready for {activeSection} configuration.</p>
@@ -2435,6 +2530,20 @@ const QuickPixl = () => {
                   const id = (`TI${i+1}`) as TextTabId;
                   ensureTab(id);
                   setActiveTextTab(id);
+                }}
+              />
+            </ErrorBoundary>
+          ) : activeSection === 'images' ? (
+            <ErrorBoundary>
+              <ImageEditor 
+                onSubmitVariation={(imageArrays) => {
+                  // Handle image variation submission logic here
+                  console.log('Image variations submitted:', imageArrays);
+                }}
+                onFocusInputTab={(i) => {
+                  const id = (`II${i+1}`) as ImageTabId;
+                  ensureImageTab(id);
+                  setActiveImageTab(id);
                 }}
               />
             </ErrorBoundary>

@@ -1,6 +1,9 @@
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
 
+// Global blob URL cache for image handling
+let globalBlobUrlCache = new Map<File, string>();
+
 export interface ImageValidation {
   isValid: boolean;
   error?: string;
@@ -31,6 +34,28 @@ export const handleImageError = (event: React.SyntheticEvent<HTMLImageElement>) 
   
   // Set a fallback src to prevent further error events
   img.src = createImageFallback();
+};
+
+export const getBlobUrl = (file: File): string => {
+  if (!file || !(file instanceof File)) {
+    console.error('Invalid file provided to getBlobUrl');
+    return createImageFallback();
+  }
+
+  // Check if we already have a URL for this file
+  if (globalBlobUrlCache.has(file)) {
+    return globalBlobUrlCache.get(file)!;
+  }
+  
+  try {
+    // Create new URL and cache it
+    const url = URL.createObjectURL(file);
+    globalBlobUrlCache.set(file, url);
+    return url;
+  } catch (error) {
+    console.error('Failed to create blob URL:', error);
+    return createImageFallback();
+  }
 };
 
 export const createImageFallback = (): string => {
