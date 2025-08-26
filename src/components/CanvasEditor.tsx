@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Container } from '@/types/interfaces';
+import { constrainContainer } from '@/utils/canvasUtils';
 
 interface CanvasEditorProps {
   canvasWidth: number;
@@ -67,8 +68,8 @@ const CanvasEditor: React.FC<CanvasEditorProps> = ({
       }
       
       setDisplaySize({ 
-        width: Math.min(displayWidth, 800), 
-        height: Math.min(displayHeight, 800) 
+        width: Math.max(100, Math.min(displayWidth, 800)), 
+        height: Math.max(100, Math.min(displayHeight, 800)) 
       });
     };
 
@@ -154,18 +155,22 @@ const CanvasEditor: React.FC<CanvasEditorProps> = ({
     return marks;
   }, [canvasHeight, displaySize.height]);
 
-  // Improved coordinate calculation with bounds checking and division by zero protection
+  // Improved coordinate calculation with zoom and pan support
   const getCanvasCoordinates = useCallback((clientX: number, clientY: number) => {
     if (!svgRef.current || displaySize.width === 0 || displaySize.height === 0) {
       return { x: 0, y: 0 };
     }
     
     const rect = svgRef.current.getBoundingClientRect();
-    const x = Math.max(0, Math.min(canvasWidth, (clientX - rect.left) * (canvasWidth / displaySize.width)));
-    const y = Math.max(0, Math.min(canvasHeight, (clientY - rect.top) * (canvasHeight / displaySize.height)));
+    // Account for zoom and pan transforms
+    const scaledX = (clientX - rect.left) / zoom;
+    const scaledY = (clientY - rect.top) / zoom;
+    
+    const x = Math.max(0, Math.min(canvasWidth, scaledX * (canvasWidth / displaySize.width)));
+    const y = Math.max(0, Math.min(canvasHeight, scaledY * (canvasHeight / displaySize.height)));
     
     return { x, y };
-  }, [canvasWidth, canvasHeight, displaySize]);
+  }, [canvasWidth, canvasHeight, displaySize, zoom]);
 
   const handleMouseDown = useCallback((e: React.MouseEvent, containerId?: string, resizeHandle?: ResizeHandle) => {
     if (!svgRef.current) return;
@@ -194,8 +199,8 @@ const CanvasEditor: React.FC<CanvasEditorProps> = ({
       // Create new container with bounds checking
       const newContainer: Container = {
         id: `container-${Date.now()}`,
-        x: Math.max(0, Math.min(canvasWidth - 100, coords.x - 50)),
-        y: Math.max(0, Math.min(canvasHeight - 100, coords.y - 50)),
+        x: coords.x - 50,
+        y: coords.y - 50,
         width: 100,
         height: 100,
         rotation: 0,
@@ -203,8 +208,10 @@ const CanvasEditor: React.FC<CanvasEditorProps> = ({
         visible: true,
         name: `Container ${containers.length + 1}`
       };
-      setContainers(prev => [...prev, newContainer]);
-      setSelectedContainer(newContainer.id);
+      const constrainedContainer = constrainContainer(newContainer, canvasWidth, canvasHeight);
+      const finalContainer = { ...newContainer, ...constrainedContainer };
+      setContainers(prev => [...prev, finalContainer]);
+      setSelectedContainer(finalContainer.id);
     }
   }, [canvasWidth, canvasHeight, displaySize, containers, getCanvasCoordinates]);
 
@@ -246,11 +253,13 @@ const CanvasEditor: React.FC<CanvasEditorProps> = ({
           break;
       }
 
-      setContainers(prev => prev.map(c => 
-        c.id === selectedContainer
-          ? { ...c, x: newX, y: newY, width: newWidth, height: newHeight }
-          : c
-      ));
+      setContainers(prev => prev.map(c => {
+        if (c.id === selectedContainer) {
+          const constrainedPosition = constrainContainer({ x: newX, y: newY, width: newWidth, height: newHeight }, canvasWidth, canvasHeight);
+          return { ...c, ...constrainedPosition };
+        }
+        return c;
+      }));
     } else if (isDragging && selectedContainer) {
       // Handle dragging with improved bounds checking
       const deltaX = (e.clientX - dragStart.x) * (canvasWidth / displaySize.width);
@@ -258,9 +267,13 @@ const CanvasEditor: React.FC<CanvasEditorProps> = ({
       
       setContainers(prev => prev.map(container => {
         if (container.id === selectedContainer) {
-          const newX = Math.max(0, Math.min(canvasWidth - container.width, container.x + deltaX));
-          const newY = Math.max(0, Math.min(canvasHeight - container.height, container.y + deltaY));
-          return { ...container, x: newX, y: newY };
+          const constrainedPosition = constrainContainer({ 
+            x: container.x + deltaX, 
+            y: container.y + deltaY,
+            width: container.width,
+            height: container.height
+          }, canvasWidth, canvasHeight);
+          return { ...container, ...constrainedPosition };
         }
         return container;
       }));

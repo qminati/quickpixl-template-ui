@@ -45,13 +45,15 @@ const TextEditor: React.FC<TextEditorProps> = ({
   };
 
   const updateTextInput = (id: string, text: string) => {
-    setTextInputs(textInputs.map(input => 
-      input.id === id ? { ...input, text } : input
-    ));
-    
-    // Update preview with first non-empty text or sample text
-    const firstText = textInputs.find(input => input.text.trim())?.text || 'Sample Text';
-    setPreviewText(firstText);
+    setTextInputs(prev => {
+      const next = prev.map(input => 
+        input.id === id ? { ...input, text } : input
+      );
+      // Update preview with first non-empty text from updated array
+      const firstText = next.find(input => input.text.trim())?.text || 'Sample Text';
+      setPreviewText(firstText);
+      return next;
+    });
   };
 
   const addListInput = () => {
@@ -69,13 +71,15 @@ const TextEditor: React.FC<TextEditorProps> = ({
   };
 
   const updateListInput = (id: string, text: string) => {
-    setListInputs(listInputs.map(input => 
-      input.id === id ? { ...input, text } : input
-    ));
-    
-    // Update preview with first non-empty text or sample text
-    const firstText = listInputs.find(input => input.text.trim())?.text || 'Sample Text';
-    setPreviewText(firstText);
+    setListInputs(prev => {
+      const next = prev.map(input => 
+        input.id === id ? { ...input, text } : input
+      );
+      // Update preview with first non-empty text from updated array
+      const firstText = next.find(input => input.text.trim())?.text || 'Sample Text';
+      setPreviewText(firstText);
+      return next;
+    });
   };
 
   const handleSubmit = () => {

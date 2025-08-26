@@ -33,5 +33,9 @@ export const createImageFallback = (): string => {
       </text>
     </svg>
   `;
-  return `data:image/svg+xml;base64,${btoa(svg)}`;
+  // Guard btoa for SSR compatibility
+  if (typeof window !== 'undefined') {
+    return `data:image/svg+xml;base64,${btoa(svg)}`;
+  }
+  return `data:image/svg+xml,${encodeURIComponent(svg)}`;
 };

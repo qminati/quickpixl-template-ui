@@ -162,12 +162,13 @@ const PlacementPlugin: React.FC<PlacementPluginProps> = ({
                   />
                 </div>
                 <div>
-                  <label className="text-xs text-muted-foreground">DPI</label>
+                  <label className="text-xs text-muted-foreground">DPI (Display)</label>
                   <Input
                     type="number"
                     value={dpi}
                     onChange={(e) => setDpi(Number(e.target.value))}
                     className="h-5 text-xs"
+                    title="For display purposes only - not connected to export"
                   />
                 </div>
               </div>
