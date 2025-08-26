@@ -239,6 +239,28 @@ export interface StrokesVariation {
   description: string;
 }
 
+export interface CharacterSettings {
+  width: number;      // percentage: 50-200
+  height: number;     // percentage: 50-200
+  verticalOffset: number; // pixels: -50 to 50
+  rotation: number;   // degrees: -180 to 180
+}
+
+export interface CharacterEffectsSettings {
+  characters: CharacterSettings[];
+  rotationMode: 'individual' | 'mirror' | 'wave' | 'random';
+  mirrorRotationValue?: number;
+  waveRotationStart?: number;
+  waveRotationEnd?: number;
+  alignment: 'none' | 'top' | 'bottom';
+}
+
+export interface CharacterEffectsVariation {
+  id: string;
+  settings: CharacterEffectsSettings;
+  description: string;
+}
+
 // Union type for all variation types to improve type safety
 export type AnyVariation = 
   | Variation 
@@ -248,4 +270,5 @@ export type AnyVariation =
   | TextShapeVariation 
   | RotateFlipVariation 
   | ColorFillVariation
-  | StrokesVariation;
+  | StrokesVariation
+  | CharacterEffectsVariation;

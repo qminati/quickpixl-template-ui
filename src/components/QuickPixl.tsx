@@ -30,7 +30,8 @@ import {
   Search,
   Shapes,
   RotateCw,
-  Paintbrush
+  Paintbrush,
+  ALargeSmall
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -40,13 +41,14 @@ import ErrorBoundary from './ErrorBoundary';
 import TextEditor from './TextEditor';
 import { validateImage, handleImageError, createImageFallback } from '@/utils/imageUtils';
 import { toast } from 'sonner';
-import { Container, Variation, Template, TemplateVariation, FontVariation, TypographySettings, TypographyVariation, ShapeSettings, TextShapeVariation, RotateFlipSettings, RotateFlipVariation, ColorFillSettings, ColorFillVariation, StrokeSettings, StrokesVariation, AnyVariation } from '@/types/interfaces';
+import { Container, Variation, Template, TemplateVariation, FontVariation, TypographySettings, TypographyVariation, ShapeSettings, TextShapeVariation, RotateFlipSettings, RotateFlipVariation, ColorFillSettings, ColorFillVariation, StrokeSettings, StrokesVariation, CharacterEffectsSettings, CharacterEffectsVariation, AnyVariation } from '@/types/interfaces';
 import TypographyPlugin from './TypographyPlugin';
 import TextShapePlugin from './TextShapePlugin';
 import RotateFlipPlugin from './RotateFlipPlugin';
 import ColorFillPlugin from './ColorFillPlugin';
 import StrokesPlugin from './StrokesPlugin';
 import TextBackgroundPlugin from './TextBackgroundPlugin';
+import CharacterEffectsPlugin from './CharacterEffectsPlugin';
 import VariationDetailView from './VariationDetailView';
 
 // Import merchandise-style template images
@@ -276,6 +278,15 @@ const QuickPixl = () => {
     }
   });
   const [strokesVariations, setStrokesVariations] = useState<StrokesVariation[]>([]);
+
+  // Character Effects Plugin State
+  const [isCharacterEffectsExpanded, setIsCharacterEffectsExpanded] = useState(true);
+  const [characterEffectsSettings, setCharacterEffectsSettings] = useState<CharacterEffectsSettings>({
+    characters: [{ width: 100, height: 100, verticalOffset: 0, rotation: 0 }],
+    rotationMode: 'individual',
+    alignment: 'none'
+  });
+  const [characterEffectsVariations, setCharacterEffectsVariations] = useState<CharacterEffectsVariation[]>([]);
   
   // Search State
   const [isSearchVisible, setIsSearchVisible] = useState(false);
@@ -759,9 +770,39 @@ const QuickPixl = () => {
     toast.success('Strokes variation added');
   }, [strokesSettings, generateStrokesDescription]);
 
+  // Generate description for character effects variation
+  const generateCharacterEffectsDescription = useCallback((settings: CharacterEffectsSettings) => {
+    const parts: string[] = [];
+    
+    parts.push(`${settings.characters.length} character${settings.characters.length > 1 ? 's' : ''}`);
+    parts.push(`${settings.rotationMode} rotation`);
+    
+    if (settings.alignment !== 'none') {
+      parts.push(`${settings.alignment} aligned`);
+    }
+    
+    return parts.join(', ');
+  }, []);
+
+  const handleAddCharacterEffectsVariation = useCallback(() => {
+    const newVariation: CharacterEffectsVariation = {
+      id: `character-effects-variation-${Date.now()}`,
+      settings: { ...characterEffectsSettings },
+      description: generateCharacterEffectsDescription(characterEffectsSettings)
+    };
+
+    setCharacterEffectsVariations(prev => [...prev, newVariation]);
+    toast.success('Character effects variation added');
+  }, [characterEffectsSettings, generateCharacterEffectsDescription]);
+
   const handleRemoveStrokesVariation = useCallback((variationId: string) => {
     setStrokesVariations(prev => prev.filter(v => v.id !== variationId));
     toast.success('Strokes variation removed');
+  }, []);
+
+  const handleRemoveCharacterEffectsVariation = useCallback((variationId: string) => {
+    setCharacterEffectsVariations(prev => prev.filter(v => v.id !== variationId));
+    toast.success('Character effects variation removed');
   }, []);
 
   const handleRemoveRotateFlipVariation = (variationId: string) => {
@@ -1210,6 +1251,7 @@ const QuickPixl = () => {
     setIsTextShapeExpanded(false);
     setIsRotateFlipExpanded(false);
     setIsStrokesExpanded(false);
+    setIsCharacterEffectsExpanded(false);
   };
 
   const handleShowAll = () => {
@@ -1220,6 +1262,7 @@ const QuickPixl = () => {
     setIsTextShapeExpanded(true);
     setIsRotateFlipExpanded(true);
     setIsStrokesExpanded(true);
+    setIsCharacterEffectsExpanded(true);
   };
 
   const renderSettingsPanel = () => {
@@ -1895,45 +1938,93 @@ const QuickPixl = () => {
                   onAddVariation={handleAddStrokesVariation}
                 />
                 
-                {strokesVariations.length > 0 && (
-                   <div className="bg-card border border-panel-border rounded-lg p-4">
-                     <h4 className="text-sm font-medium text-foreground mb-3 flex items-center space-x-2">
-                       <Paintbrush className="w-4 h-4 text-primary" />
-                       <span>Strokes Variations</span>
-                       <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
-                         {strokesVariations.length}
-                       </span>
-                     </h4>
-                      <div className="space-y-2">
-                        {strokesVariations.map((variation) => (
-                          <div 
-                            key={variation.id} 
-                            className={`bg-secondary/30 rounded-lg p-3 cursor-pointer hover:bg-secondary/50 transition-colors ${
-                              selectedVariation?.id === variation.id && selectedVariationType === 'strokes' 
-                                ? 'ring-2 ring-primary bg-secondary/60' 
-                                : ''
-                            }`}
-                            onClick={() => handleVariationSelect(variation, 'strokes')}
-                          >
-                            <div className="flex items-center justify-between mb-2">
-                              <span className="text-xs font-medium text-foreground">{variation.description}</span>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleRemoveStrokesVariation(variation.id);
-                                }}
-                                className="p-1 text-muted-foreground hover:text-destructive"
-                              >
-                                <Trash2 className="w-3 h-3" />
-                              </Button>
-                            </div>
-                          </div>
-                        ))}
-                     </div>
-                   </div>
-                 )}
+                <CharacterEffectsPlugin
+                  isExpanded={isCharacterEffectsExpanded}
+                  onToggleExpanded={() => setIsCharacterEffectsExpanded(!isCharacterEffectsExpanded)}
+                  settings={characterEffectsSettings}
+                  onSettingsChange={setCharacterEffectsSettings}
+                  onAddVariation={handleAddCharacterEffectsVariation}
+                />
+                
+                 {strokesVariations.length > 0 && (
+                    <div className="bg-card border border-panel-border rounded-lg p-4">
+                      <h4 className="text-sm font-medium text-foreground mb-3 flex items-center space-x-2">
+                        <Paintbrush className="w-4 h-4 text-primary" />
+                        <span>Strokes Variations</span>
+                        <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
+                          {strokesVariations.length}
+                        </span>
+                      </h4>
+                       <div className="space-y-2">
+                         {strokesVariations.map((variation) => (
+                           <div 
+                             key={variation.id} 
+                             className={`bg-secondary/30 rounded-lg p-3 cursor-pointer hover:bg-secondary/50 transition-colors ${
+                               selectedVariation?.id === variation.id && selectedVariationType === 'strokes' 
+                                 ? 'ring-2 ring-primary bg-secondary/60' 
+                                 : ''
+                             }`}
+                             onClick={() => handleVariationSelect(variation, 'strokes')}
+                           >
+                             <div className="flex items-center justify-between mb-2">
+                               <span className="text-xs font-medium text-foreground">{variation.description}</span>
+                               <Button
+                                 variant="ghost"
+                                 size="sm"
+                                 onClick={(e) => {
+                                   e.stopPropagation();
+                                   handleRemoveStrokesVariation(variation.id);
+                                 }}
+                                 className="p-1 text-muted-foreground hover:text-destructive"
+                               >
+                                 <Trash2 className="w-3 h-3" />
+                               </Button>
+                             </div>
+                           </div>
+                         ))}
+                      </div>
+                    </div>
+                  )}
+
+                 {characterEffectsVariations.length > 0 && (
+                    <div className="bg-card border border-panel-border rounded-lg p-4">
+                      <h4 className="text-sm font-medium text-foreground mb-3 flex items-center space-x-2">
+                        <ALargeSmall className="w-4 h-4 text-primary" />
+                        <span>Character Effects Variations</span>
+                        <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
+                          {characterEffectsVariations.length}
+                        </span>
+                      </h4>
+                       <div className="space-y-2">
+                         {characterEffectsVariations.map((variation) => (
+                           <div 
+                             key={variation.id} 
+                             className={`bg-secondary/30 rounded-lg p-3 cursor-pointer hover:bg-secondary/50 transition-colors ${
+                               selectedVariation?.id === variation.id && selectedVariationType === 'character-effects' 
+                                 ? 'ring-2 ring-primary bg-secondary/60' 
+                                 : ''
+                             }`}
+                             onClick={() => handleVariationSelect(variation, 'character-effects')}
+                           >
+                             <div className="flex items-center justify-between mb-2">
+                               <span className="text-xs font-medium text-foreground">{variation.description}</span>
+                               <Button
+                                 variant="ghost"
+                                 size="sm"
+                                 onClick={(e) => {
+                                   e.stopPropagation();
+                                   handleRemoveCharacterEffectsVariation(variation.id);
+                                 }}
+                                 className="p-1 text-muted-foreground hover:text-destructive"
+                               >
+                                 <Trash2 className="w-3 h-3" />
+                               </Button>
+                             </div>
+                           </div>
+                         ))}
+                      </div>
+                    </div>
+                  )}
                 {fontVariations.length > 0 && (
                   <div className="bg-card border border-panel-border rounded-lg p-4">
                     <h4 className="text-sm font-medium text-foreground mb-3 flex items-center space-x-2">

@@ -24,11 +24,12 @@ import {
   TextShapeVariation, 
   RotateFlipVariation, 
   ColorFillVariation,
-  StrokesVariation
+  StrokesVariation,
+  CharacterEffectsVariation
 } from '@/types/interfaces';
 
 type AnyVariation = Variation | TemplateVariation | FontVariation | TypographyVariation | 
-  TextShapeVariation | RotateFlipVariation | ColorFillVariation | StrokesVariation;
+  TextShapeVariation | RotateFlipVariation | ColorFillVariation | StrokesVariation | CharacterEffectsVariation;
 
 interface VariationDetailViewProps {
   variation: AnyVariation | null;
