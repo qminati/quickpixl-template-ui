@@ -90,6 +90,22 @@ const TextEditor: React.FC<TextEditorProps> = ({
     }
   };
 
+  const duplicateListInput = (id: string) => {
+    const inputToDuplicate = listInputs.find(input => input.id === id);
+    if (inputToDuplicate) {
+      const newInput: TextInput = {
+        id: String(listInputs.length + 1),
+        text: inputToDuplicate.text // Copy the text content
+      };
+      setListInputs(prev => {
+        const index = prev.findIndex(input => input.id === id);
+        // Insert the duplicate right after the original
+        const newArray = [...prev.slice(0, index + 1), newInput, ...prev.slice(index + 1)];
+        return newArray;
+      });
+    }
+  };
+
   const updateListInput = (id: string, text: string) => {
     setListInputs(prev => {
       const next = prev.map(input => 
@@ -327,15 +343,35 @@ const TextEditor: React.FC<TextEditorProps> = ({
                         <span className="text-xs text-muted-foreground">
                           Input {index + 1}
                         </span>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => removeListInput(input.id)}
-                          disabled={listInputs.length <= 1}
-                          className="p-1 h-6 w-6"
-                        >
-                          <Minus className="w-3 h-3" />
-                        </Button>
+                        <div className="flex items-center space-x-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => onFocusInputTab(index)}
+                            className="p-1 h-6 w-6"
+                            title="Input settings"
+                          >
+                            <SettingsIcon className="w-3 h-3" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => duplicateListInput(input.id)}
+                            className="p-1 h-6 w-6"
+                            title="Duplicate input"
+                          >
+                            <CopyIcon className="w-3 h-3" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeListInput(input.id)}
+                            disabled={listInputs.length <= 1}
+                            className="p-1 h-6 w-6"
+                          >
+                            <Minus className="w-3 h-3" />
+                          </Button>
+                        </div>
                       </div>
                       
                       {/* Tall Input Field */}
