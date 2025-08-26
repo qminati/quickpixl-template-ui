@@ -92,7 +92,7 @@ const ImageInputPlugin: React.FC<ImageInputPluginProps> = ({
                   </span>
                 </div>
 
-                 <div className="grid grid-cols-4 gap-1.5 max-h-32 overflow-y-auto">
+                 <div className="grid grid-cols-6 gap-1 max-h-24 overflow-y-auto">
                   {settings.selectedImages.map((image, i) => (
                     <div key={`${image.name}-${image.size}-${i}`} className="relative group">
                       <div className="aspect-square bg-muted rounded border overflow-hidden">
@@ -107,10 +107,10 @@ const ImageInputPlugin: React.FC<ImageInputPluginProps> = ({
                       <button
                         type="button"
                         onClick={() => handleImageRemove(image)}
-                        className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-background border border-input flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-background border border-input flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                         title="Remove"
                       >
-                        <X className="w-3 h-3" />
+                        <X className="w-2 h-2" />
                       </button>
                     </div>
                   ))}
