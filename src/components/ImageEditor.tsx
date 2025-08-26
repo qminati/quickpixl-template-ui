@@ -145,11 +145,10 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
   };
 
   return (
-    <div className="h-full flex flex-col">
-      {/* Main Content */}
-      <div className="flex-1 p-6">
-        {/* Preview Canvas */}
-        <div className="bg-background border border-input rounded-lg mb-4 overflow-hidden" style={{ height: '320px' }}>
+    <div className="h-screen flex flex-col">
+      {/* Preview Canvas - Fixed Height */}
+      <div className="flex-shrink-0 p-6 pb-0">
+        <div className="bg-background border border-input rounded-lg overflow-hidden" style={{ height: '320px' }}>
           {/* Top Toolbar with Image Controls */}
           <div className="bg-muted/30 border-b border-input px-4 py-2 rounded-t-lg flex items-center justify-between">
             <div className="flex items-center space-x-4">
@@ -253,11 +252,13 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
             )}
           </div>
         </div>
+      </div>
 
-        {/* Image Upload and Management */}
-        <div className="bg-card border border-input rounded-lg flex flex-col">
-          {/* Image Upload Plugin */}
-          <div className="p-4 border-b border-input">
+      {/* Scrollable Content Area - Image Upload and Management */}
+      <div className="flex-1 overflow-hidden p-6 pt-4">
+        <div className="bg-card border border-input rounded-lg flex flex-col h-full">
+          {/* Image Upload Plugin - Fixed */}
+          <div className="flex-shrink-0 p-4 border-b border-input">
             <ImageInputPlugin
               isExpanded={isImageInputExpanded}
               onToggleExpanded={() => setIsImageInputExpanded(v => !v)}
@@ -281,11 +282,11 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
             />
           </div>
 
-          {/* Image Input Management */}
-          <div className="p-4">
+          {/* Image Input Management - Scrollable */}
+          <div className="flex-1 overflow-y-auto p-4">
             <h3 className="text-sm font-medium text-foreground mb-3">Manage Image Inputs</h3>
             
-            <div className="space-y-2 mb-4 max-h-48 overflow-y-auto">
+            <div className="space-y-2 mb-4">
               {imageInputs.map((input, index) => (
                 <div key={input.id} className="flex items-center space-x-3">
                   <span className="text-sm text-muted-foreground min-w-[20px]">
@@ -355,7 +356,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
               ))}
             </div>
 
-            <div className="flex justify-end mb-4">
+            <div className="flex justify-end">
               <Button
                 variant="outline"
                 size="sm"
@@ -365,17 +366,19 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
                 <Plus className="w-4 h-4" />
               </Button>
             </div>
-
-            {/* Submit Button */}
-            <Button 
-              onClick={handleSubmit}
-              className="w-full py-3 font-medium"
-              disabled={imageInputs.every(input => input.selectedImages.length === 0)}
-            >
-              Submit Variation
-            </Button>
           </div>
         </div>
+      </div>
+
+      {/* Fixed Submit Button Container */}
+      <div className="flex-shrink-0 border-t border-input bg-card p-6">
+        <Button 
+          onClick={handleSubmit}
+          className="w-full py-3 font-medium"
+          disabled={imageInputs.every(input => input.selectedImages.length === 0)}
+        >
+          Submit Variation
+        </Button>
       </div>
     </div>
   );
