@@ -23,11 +23,6 @@ const TextBackgroundPlugin: React.FC<TextBackgroundPluginProps> = ({
   const [gradientAngle, setGradientAngle] = useState([45]);
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
 
-  const colorSwatches = [
-    '#3B82F6', '#8B5CF6', '#EF4444', '#10B981', '#F59E0B',
-    '#EC4899', '#6366F1', '#84CC16', '#F97316', '#06B6D4'
-  ];
-
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
     setSelectedImages(prev => [...prev, ...files]);
@@ -121,18 +116,6 @@ const TextBackgroundPlugin: React.FC<TextBackgroundPluginProps> = ({
                   className="flex-1 text-xs"
                   placeholder="#000000"
                 />
-              </div>
-              <div className="grid grid-cols-5 gap-2">
-                {colorSwatches.map((color) => (
-                  <button
-                    key={color}
-                    onClick={() => setSolidColor(color)}
-                    className={`w-8 h-8 rounded-md border-2 transition-colors ${
-                      solidColor === color ? 'border-primary' : 'border-border'
-                    }`}
-                    style={{ backgroundColor: color }}
-                  />
-                ))}
               </div>
             </div>
           )}

@@ -542,6 +542,11 @@ const QuickPixl = () => {
     toast.success('Typography variation removed');
   };
 
+  const handleRemoveBackgroundVariation = (variationId: string) => {
+    setBackgroundVariations(prev => prev.filter(v => v.id !== variationId));
+    toast.success('Text background variation removed');
+  };
+
   // Text Shape Plugin Handlers
   const generateTextShapeDescription = (shape: keyof ShapeSettings, settings: any): string => {
     if (shape === 'none') return 'No shape';
@@ -1728,45 +1733,6 @@ const QuickPixl = () => {
                   onAddVariation={handleAddTextBackgroundVariation}
                 />
                 
-                {backgroundVariations.length > 0 && (
-                  <div className="bg-card border border-panel-border rounded-lg p-4">
-                    <h4 className="text-sm font-medium text-foreground mb-3 flex items-center space-x-2">
-                      <Palette className="w-4 h-4 text-primary" />
-                      <span>Text Background Variations</span>
-                      <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
-                        {backgroundVariations.length}
-                      </span>
-                    </h4>
-                    <div className="space-y-2">
-                      {backgroundVariations.map(variation => (
-                        <div key={variation.id} className="bg-secondary/30 rounded-lg p-3 cursor-pointer hover:bg-secondary/50 transition-colors">
-                          <div className="flex items-center space-x-2">
-                            {variation.colors.length > 0 && (
-                              <div className="flex space-x-1">
-                                {variation.colors.slice(0, 3).map((color, index) => (
-                                  <div
-                                    key={index}
-                                    className="w-4 h-4 rounded border border-border"
-                                    style={{ backgroundColor: color }}
-                                  />
-                                ))}
-                              </div>
-                            )}
-                            {variation.images.length > 0 && (
-                              <span className="text-xs text-muted-foreground">
-                                {variation.images.length} image{variation.images.length !== 1 ? 's' : ''}
-                              </span>
-                            )}
-                            <span className="text-xs text-foreground flex-1 truncate">
-                              {variation.description}
-                            </span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                
                 <FontsPlugin />
                 <TypographyPlugin
                   isExpanded={isTypographyExpanded}
@@ -1912,6 +1878,65 @@ const QuickPixl = () => {
                            </div>
                          </div>
                        ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Text Background Variations Cards */}
+                {backgroundVariations.length > 0 && (
+                  <div className="bg-card border border-panel-border rounded-lg p-4">
+                    <h4 className="text-sm font-medium text-foreground mb-3 flex items-center space-x-2">
+                      <Palette className="w-4 h-4 text-primary" />
+                      <span>Text Background Variations</span>
+                      <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
+                        {backgroundVariations.length}
+                      </span>
+                    </h4>
+                    <div className="space-y-2">
+                      {backgroundVariations.map(variation => (
+                        <div 
+                          key={variation.id} 
+                          className={`bg-secondary/30 rounded-lg p-3 cursor-pointer hover:bg-secondary/50 transition-colors ${
+                            selectedVariation?.id === variation.id && selectedVariationType === 'background' 
+                              ? 'ring-2 ring-primary bg-secondary/60' 
+                              : ''
+                          }`}
+                          onClick={() => handleVariationSelect(variation, 'background')}
+                        >
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-xs font-medium text-foreground">{variation.description}</span>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleRemoveBackgroundVariation(variation.id);
+                              }}
+                              className="p-1 text-muted-foreground hover:text-destructive"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </Button>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            {variation.colors.length > 0 && (
+                              <div className="flex space-x-1">
+                                {variation.colors.slice(0, 3).map((color, index) => (
+                                  <div
+                                    key={index}
+                                    className="w-4 h-4 rounded border border-border"
+                                    style={{ backgroundColor: color }}
+                                  />
+                                ))}
+                              </div>
+                            )}
+                            {variation.images.length > 0 && (
+                              <span className="text-xs text-muted-foreground">
+                                {variation.images.length} image{variation.images.length !== 1 ? 's' : ''}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 )}
