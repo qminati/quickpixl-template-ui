@@ -396,7 +396,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
         <Button 
           onClick={handleSubmit}
           className="w-full h-12 rounded-md bg-primary text-primary-foreground font-medium"
-          disabled={imageInputs.every(input => input.selectedImages.length === 0)}
+          disabled={!imageInputs?.length || imageInputs.every(i => Array.isArray(i.selectedImages) && i.selectedImages.length === 0)}
         >
           Submit Variation
         </Button>
