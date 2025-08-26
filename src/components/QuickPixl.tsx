@@ -988,6 +988,11 @@ const QuickPixl = () => {
     toast.success('Visual effects variation removed');
   }, []);
 
+  const handleRemoveImageInputVariation = useCallback((variationId: string) => {
+    setImageInputVariations(prev => prev.filter(v => v.id !== variationId));
+    toast.success('Image input variation removed');
+  }, []);
+
   const handleRemoveRotateFlipVariation = (variationId: string) => {
     setRotateFlipVariations(prev => prev.filter(v => v.id !== variationId));
     toast.success('Rotate & flip variation removed');
@@ -1075,6 +1080,9 @@ const QuickPixl = () => {
       case 'visual-effects':
         setImageEffectsVariations(prev => prev.map(v => v.id === updatedVariation.id ? updatedVariation as ImageEffectsVariation : v));
         break;
+      case 'image-input':
+        setImageInputVariations(prev => prev.map(v => v.id === updatedVariation.id ? updatedVariation as Variation : v));
+        break;
     }
     setHasUnsavedChanges(false);
   };
@@ -1114,6 +1122,9 @@ const QuickPixl = () => {
         break;
       case 'visual-effects':
         setImageEffectsVariations(prev => prev.filter(v => v.id !== variationId));
+        break;
+      case 'image-input':
+        setImageInputVariations(prev => prev.filter(v => v.id !== variationId));
         break;
     }
     setSelectedVariation(null);
@@ -1162,6 +1173,9 @@ const QuickPixl = () => {
           break;
         case 'visual-effects':
           setImageEffectsVariations(prev => [...prev, duplicatedVariation as ImageEffectsVariation]);
+          break;
+        case 'image-input':
+          setImageInputVariations(prev => [...prev, duplicatedVariation as Variation]);
           break;
       }
       toast.success('Variation duplicated successfully!');
@@ -2241,6 +2255,60 @@ const QuickPixl = () => {
                   </div>
                 )}
                 
+                {imageInputVariations.length > 0 && (
+                  <div className="bg-card border border-panel-border rounded-lg p-4">
+                    <h4 className="text-sm font-medium text-foreground mb-3 flex items-center space-x-2">
+                      <ImageIcon className="w-4 h-4 text-primary" />
+                      <span>Image Input Variations</span>
+                      <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
+                        {imageInputVariations.length}
+                      </span>
+                    </h4>
+                    <div className="space-y-2">
+                      {imageInputVariations.map((variation) => (
+                        <div 
+                          key={variation.id} 
+                          className={`bg-secondary/30 rounded-lg p-3 cursor-pointer hover:bg-secondary/50 transition-colors ${
+                            selectedVariation?.id === variation.id && selectedVariationType === 'image-input'
+                              ? 'ring-2 ring-primary bg-secondary/60' 
+                              : ''
+                          }`}
+                          onClick={() => handleVariationSelect(variation, 'image-input')}
+                        >
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-xs font-medium text-foreground">{variation.description}</span>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleRemoveImageInputVariation(variation.id);
+                              }}
+                              className="p-1 text-muted-foreground hover:text-destructive"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </Button>
+                          </div>
+                          <div className="flex space-x-1">
+                            {variation.images.slice(0, 4).map((image, index) => (
+                              <div key={index} className="w-6 h-6 rounded border border-panel-border overflow-hidden">
+                                <img
+                                  src={getBlobUrl(image)}
+                                  alt=""
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                            ))}
+                            {variation.images.length > 4 && (
+                              <span className="text-xs text-muted-foreground self-center">+{variation.images.length - 4}</span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                 
                 {dropShadowVariations.length > 0 && (
                   <div className="bg-card border border-panel-border rounded-lg p-4">
                     <h4 className="text-sm font-medium text-foreground mb-3 flex items-center space-x-2">
@@ -2296,7 +2364,7 @@ const QuickPixl = () => {
                   </div>
                 )}
                 
-                {backgroundVariations.length === 0 && templateVariations.length === 0 && fontVariations.length === 0 && typographyVariations.length === 0 && textShapeVariations.length === 0 && rotateFlipVariations.length === 0 && colorFillVariations.length === 0 && strokesVariations.length === 0 && dropShadowVariations.length === 0 && characterEffectsVariations.length === 0 && imageEffectsVariations.length === 0 && (
+                {backgroundVariations.length === 0 && templateVariations.length === 0 && fontVariations.length === 0 && typographyVariations.length === 0 && textShapeVariations.length === 0 && rotateFlipVariations.length === 0 && colorFillVariations.length === 0 && strokesVariations.length === 0 && dropShadowVariations.length === 0 && characterEffectsVariations.length === 0 && imageEffectsVariations.length === 0 && imageInputVariations.length === 0 && (
                  <div className="bg-card border border-panel-border rounded-lg p-4 text-center">
                    <Shuffle className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
                    <p className="text-sm text-muted-foreground mb-2">No variations created yet</p>
@@ -2464,13 +2532,63 @@ const QuickPixl = () => {
                 />
                 
                 {/* Image Effects Plugin */}
-                <ImageEffectsPlugin
+                 <ImageEffectsPlugin
                   isExpanded={isImageEffectsExpanded}
                   onToggleExpanded={() => setIsImageEffectsExpanded(!isImageEffectsExpanded)}
                   settings={imageEffectsSettings}
                   onSettingsChange={setImageEffectsSettings}
                   onAddVariation={handleAddImageEffectsVariation}
                 />
+                
+                {/* Image Input Variation Cards */}
+                {imageInputVariations.length > 0 && (
+                  <div className="bg-card border border-panel-border rounded-lg p-4">
+                    <h4 className="text-sm font-medium text-foreground mb-3 flex items-center space-x-2">
+                      <ImageIcon className="w-4 h-4 text-primary" />
+                      <span>Image Input Variations</span>
+                      <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
+                        {imageInputVariations.length}
+                      </span>
+                    </h4>
+                    <div className="space-y-2">
+                      {imageInputVariations.map((variation) => (
+                        <div 
+                          key={variation.id} 
+                          className="bg-secondary/30 rounded-lg p-3 cursor-pointer hover:bg-secondary/50 transition-colors"
+                        >
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-xs font-medium text-foreground">{variation.description}</span>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleRemoveImageInputVariation(variation.id);
+                              }}
+                              className="p-1 text-muted-foreground hover:text-destructive"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </Button>
+                          </div>
+                          <div className="flex space-x-1">
+                            {variation.images.slice(0, 4).map((image, index) => (
+                              <div key={index} className="w-8 h-8 rounded border border-panel-border overflow-hidden">
+                                <img
+                                  src={getBlobUrl(image)}
+                                  alt=""
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                            ))}
+                            {variation.images.length > 4 && (
+                              <span className="text-xs text-muted-foreground self-center">+{variation.images.length - 4}</span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="text-muted-foreground">
@@ -2480,7 +2598,7 @@ const QuickPixl = () => {
          </div>
 
           {/* Send to Render Queue Button - Fixed at bottom for variations section */}
-          {activeSection === 'variations' && (backgroundVariations.length > 0 || templateVariations.length > 0 || fontVariations.length > 0 || typographyVariations.length > 0 || textShapeVariations.length > 0 || rotateFlipVariations.length > 0 || colorFillVariations.length > 0 || strokesVariations.length > 0 || characterEffectsVariations.length > 0 || imageEffectsVariations.length > 0) && (
+          {activeSection === 'variations' && (backgroundVariations.length > 0 || templateVariations.length > 0 || fontVariations.length > 0 || typographyVariations.length > 0 || textShapeVariations.length > 0 || rotateFlipVariations.length > 0 || colorFillVariations.length > 0 || strokesVariations.length > 0 || characterEffectsVariations.length > 0 || imageEffectsVariations.length > 0 || imageInputVariations.length > 0) && (
             <div className="flex-shrink-0 mt-6">
               <Button
                 className={`w-full font-medium py-3 ${
@@ -2496,7 +2614,7 @@ const QuickPixl = () => {
                 Send to Render Queue
               </Button>
               <p className="text-center text-xs text-muted-foreground mt-2">
-                Total: {backgroundVariations.length + templateVariations.length + fontVariations.length + typographyVariations.length + textShapeVariations.length + rotateFlipVariations.length + colorFillVariations.length + strokesVariations.length + characterEffectsVariations.length + imageEffectsVariations.length} variations
+                Total: {backgroundVariations.length + templateVariations.length + fontVariations.length + typographyVariations.length + textShapeVariations.length + rotateFlipVariations.length + colorFillVariations.length + strokesVariations.length + characterEffectsVariations.length + imageEffectsVariations.length + imageInputVariations.length} variations
                 {hasUnsavedChanges && <span className="text-destructive"> • Save changes first</span>}
               </p>
             </div>
