@@ -49,9 +49,7 @@ const ImageInputPlugin: React.FC<ImageInputPluginProps> = ({
       }
 
       if (validFiles.length > 0) {
-        const newImages = settings.selectionMode === 'single' 
-          ? [validFiles[validFiles.length - 1]] // Keep only the last selected image for single mode
-          : [...settings.selectedImages, ...validFiles];
+        const newImages = [...settings.selectedImages, ...validFiles];
         
         onSettingsChange({
           ...settings,
@@ -101,7 +99,7 @@ const ImageInputPlugin: React.FC<ImageInputPluginProps> = ({
 
   const getBlobUrlSafe = (file: File): string => {
     try {
-      return URL.createObjectURL(file);
+      return getBlobUrl(file);
     } catch (error) {
       console.error('Failed to create blob URL:', error);
       return '';
@@ -132,50 +130,28 @@ const ImageInputPlugin: React.FC<ImageInputPluginProps> = ({
             {/* Image Upload Section */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-foreground">Image Selection</span>
-                <div className="flex items-center space-x-2">
-                  <Button
-                    variant={settings.selectionMode === 'single' ? 'default' : 'outline'}
-                    size="sm"
-                    className="h-6 px-2 text-xs"
-                    onClick={() => handleSelectionModeChange('single')}
-                  >
-                    Single
-                  </Button>
-                  <Button
-                    variant={settings.selectionMode === 'multiple' ? 'default' : 'outline'}
-                    size="sm"
-                    className="h-6 px-2 text-xs"
-                    onClick={() => handleSelectionModeChange('multiple')}
-                  >
-                    Multiple
-                  </Button>
-                </div>
+                <span className="text-xs font-medium text-foreground">Upload Images</span>
               </div>
               
               <div className="relative">
                 <input
                   type="file"
                   accept="image/*"
-                  multiple={settings.selectionMode === 'multiple'}
+                  multiple
                   onChange={handleImageUpload}
                   disabled={isUploading}
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
                   id="image-input"
                 />
-                <Button
-                  variant="outline"
-                  className="w-full h-16 border-2 border-dashed border-panel-border hover:border-primary hover:bg-primary/5 transition-colors"
-                  disabled={isUploading}
-                  asChild
+                <label 
+                  htmlFor="image-input" 
+                  className="w-full h-16 border-2 border-dashed border-panel-border hover:border-primary hover:bg-primary/5 transition-colors cursor-pointer flex flex-col items-center justify-center space-y-1 rounded-md bg-background disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  <label htmlFor="image-input" className="cursor-pointer flex flex-col items-center justify-center space-y-1">
-                    <Upload className="w-4 h-4 text-muted-foreground" />
-                    <span className="text-xs text-muted-foreground">
-                      {isUploading ? 'Uploading...' : 'Upload Images'}
-                    </span>
-                  </label>
-                </Button>
+                  <Upload className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-xs text-muted-foreground">
+                    {isUploading ? 'Uploading...' : 'Upload Images'}
+                  </span>
+                </label>
               </div>
             </div>
 

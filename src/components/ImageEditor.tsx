@@ -1,32 +1,56 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ChevronLeft, ChevronRight, Settings as SettingsIcon, Copy as CopyIcon, Plus, Minus } from 'lucide-react';
-import { ImageInput } from '@/types/interfaces';
+import { ImageInput, ImageInputSettings } from '@/types/interfaces';
+import { getBlobUrl } from '@/utils/imageUtils';
 
 interface ImageEditorProps {
   onSubmitVariation: (images: File[][]) => void;
-  onFocusInputTab?: (index: number) => void;
+  onFocusInputTab?: (inputId: string) => void;
+  imageInputs?: ImageInput[];
+  onImageInputsChange?: (inputs: ImageInput[]) => void;
 }
 
 const ImageEditor: React.FC<ImageEditorProps> = ({ 
   onSubmitVariation, 
-  onFocusInputTab = () => {} 
+  onFocusInputTab = () => {},
+  imageInputs: propImageInputs,
+  onImageInputsChange
 }) => {
-  const [imageInputs, setImageInputs] = useState<ImageInput[]>([
-    { id: crypto.randomUUID(), selectedImages: [], selectionMode: 'multiple' },
-    { id: crypto.randomUUID(), selectedImages: [], selectionMode: 'multiple' },
+  const [internalImageInputs, setInternalImageInputs] = useState<ImageInput[]>([
     { id: crypto.randomUUID(), selectedImages: [], selectionMode: 'multiple' }
   ]);
   
   const [currentPreviewIndex, setCurrentPreviewIndex] = useState(0);
+  const [selectedInputId, setSelectedInputId] = useState<string>('');
+
+  // Use prop inputs if provided, otherwise use internal state
+  const imageInputs = propImageInputs || internalImageInputs;
+
+  // Set initial selected input ID
+  useEffect(() => {
+    if (imageInputs.length > 0 && !selectedInputId) {
+      setSelectedInputId(imageInputs[0].id);
+    }
+  }, [imageInputs, selectedInputId]);
+
+  // Get images from selected input or all inputs
+  const getCurrentInputImages = (): File[] => {
+    const selectedInput = imageInputs.find(input => input.id === selectedInputId);
+    return selectedInput ? selectedInput.selectedImages : [];
+  };
 
   // Get all images from all inputs for preview
   const getAllImages = (): File[] => {
     return imageInputs.flatMap(input => input.selectedImages);
   };
 
+  const currentInputImages = getCurrentInputImages();
   const allImages = getAllImages();
-  const currentPreviewImage = allImages[currentPreviewIndex];
+  const currentPreviewImage = selectedInputId 
+    ? currentInputImages[currentPreviewIndex] 
+    : allImages[currentPreviewIndex];
 
   const addImageInput = () => {
     const newInput: ImageInput = {
@@ -34,12 +58,21 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
       selectedImages: [],
       selectionMode: 'multiple'
     };
-    setImageInputs(prev => [...prev, newInput]);
+    if (onImageInputsChange) {
+      onImageInputsChange([...imageInputs, newInput]);
+    } else {
+      setInternalImageInputs(prev => [...prev, newInput]);
+    }
   };
 
   const removeImageInput = (id: string) => {
     if (imageInputs.length > 1) {
-      setImageInputs(prev => prev.filter(input => input.id !== id));
+      const filtered = imageInputs.filter(input => input.id !== id);
+      if (onImageInputsChange) {
+        onImageInputsChange(filtered);
+      } else {
+        setInternalImageInputs(filtered);
+      }
     }
   };
 
@@ -51,23 +84,32 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
         selectedImages: [...inputToDuplicate.selectedImages], // Copy the images
         selectionMode: inputToDuplicate.selectionMode
       };
-      setImageInputs(prev => {
-        const index = prev.findIndex(input => input.id === id);
-        // Insert the duplicate right after the original
-        const newArray = [...prev.slice(0, index + 1), newInput, ...prev.slice(index + 1)];
-        return newArray;
-      });
+      const index = imageInputs.findIndex(input => input.id === id);
+      // Insert the duplicate right after the original
+      const newArray = [...imageInputs.slice(0, index + 1), newInput, ...imageInputs.slice(index + 1)];
+      
+      if (onImageInputsChange) {
+        onImageInputsChange(newArray);
+      } else {
+        setInternalImageInputs(newArray);
+      }
     }
   };
 
   const updateImageInput = (id: string, selectedImages: File[], selectionMode?: 'single' | 'multiple') => {
-    setImageInputs(prev => prev.map(input => 
+    const updated = imageInputs.map(input => 
       input.id === id ? { 
         ...input, 
         selectedImages,
         ...(selectionMode && { selectionMode })
       } : input
-    ));
+    );
+    
+    if (onImageInputsChange) {
+      onImageInputsChange(updated);
+    } else {
+      setInternalImageInputs(updated);
+    }
   };
 
   const handleSubmit = () => {
@@ -79,20 +121,22 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
   };
 
   const handlePreviousImage = () => {
-    if (allImages.length > 0) {
-      setCurrentPreviewIndex(prev => prev > 0 ? prev - 1 : allImages.length - 1);
+    const imagesToUse = selectedInputId ? currentInputImages : allImages;
+    if (imagesToUse.length > 0) {
+      setCurrentPreviewIndex(prev => prev > 0 ? prev - 1 : imagesToUse.length - 1);
     }
   };
 
   const handleNextImage = () => {
-    if (allImages.length > 0) {
-      setCurrentPreviewIndex(prev => prev < allImages.length - 1 ? prev + 1 : 0);
+    const imagesToUse = selectedInputId ? currentInputImages : allImages;
+    if (imagesToUse.length > 0) {
+      setCurrentPreviewIndex(prev => prev < imagesToUse.length - 1 ? prev + 1 : 0);
     }
   };
 
   const getBlobUrlSafe = (file: File): string => {
     try {
-      return URL.createObjectURL(file);
+      return getBlobUrl(file);
     } catch (error) {
       console.error('Failed to create blob URL:', error);
       return '';
@@ -108,25 +152,42 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
           {/* Top Toolbar with Image Controls */}
           <div className="bg-muted/30 border-b border-input px-4 py-2 rounded-t-lg flex items-center justify-between">
             <div className="flex items-center space-x-4">
+              {/* Input Selector Dropdown */}
+              <Select value={selectedInputId} onValueChange={setSelectedInputId}>
+                <SelectTrigger className="w-[150px] h-7">
+                  <SelectValue placeholder="Select input" />
+                </SelectTrigger>
+                <SelectContent>
+                  {imageInputs.map((input, index) => (
+                    <SelectItem key={input.id} value={input.id}>
+                      Image Input {index + 1}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handlePreviousImage}
-                disabled={allImages.length <= 1}
+                disabled={(selectedInputId ? currentInputImages : allImages).length <= 1}
                 className="h-7 px-2"
               >
                 <ChevronLeft className="w-4 h-4" />
               </Button>
               
               <span className="text-sm text-muted-foreground">
-                {allImages.length > 0 ? `${currentPreviewIndex + 1} of ${allImages.length}` : 'No images'}
+                {(selectedInputId ? currentInputImages : allImages).length > 0 
+                  ? `${currentPreviewIndex + 1} of ${(selectedInputId ? currentInputImages : allImages).length}` 
+                  : 'No images'
+                }
               </span>
               
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleNextImage}
-                disabled={allImages.length <= 1}
+                disabled={(selectedInputId ? currentInputImages : allImages).length <= 1}
                 className="h-7 px-2"
               >
                 <ChevronRight className="w-4 h-4" />
@@ -134,9 +195,9 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
             </div>
             
             {/* Thumbnail Navigation */}
-            {allImages.length > 0 && (
+            {(selectedInputId ? currentInputImages : allImages).length > 0 && (
               <div className="flex items-center space-x-1">
-                {allImages.slice(0, 5).map((image, index) => (
+                {(selectedInputId ? currentInputImages : allImages).slice(0, 5).map((image, index) => (
                   <button
                     key={`thumb-${index}`}
                     onClick={() => setCurrentPreviewIndex(index)}
@@ -157,9 +218,9 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
                     />
                   </button>
                 ))}
-                {allImages.length > 5 && (
+                {(selectedInputId ? currentInputImages : allImages).length > 5 && (
                   <span className="text-xs text-muted-foreground px-2">
-                    +{allImages.length - 5} more
+                    +{(selectedInputId ? currentInputImages : allImages).length - 5} more
                   </span>
                 )}
               </div>
@@ -206,7 +267,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => onFocusInputTab(index)}
+                  onClick={() => onFocusInputTab(input.id)}
                   className="p-2 h-8 w-8"
                   title="Input settings"
                 >

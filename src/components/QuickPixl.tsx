@@ -401,7 +401,7 @@ const QuickPixl = () => {
   }, [blobUrls]);
 
   // Helper to safely get blob URL with cleanup tracking and error handling
-  const getBlobUrl = (file: File): string => {
+  const getBlobUrl = useCallback((file: File): string => {
     if (!file || !(file instanceof File)) {
       console.error('Invalid file provided to getBlobUrl');
       return createImageFallback();
@@ -421,7 +421,7 @@ const QuickPixl = () => {
       console.error('Failed to create blob URL:', error);
       return createImageFallback();
     }
-  };
+  }, [blobUrls]);
 
   // Color palette
   const colorPalette = [
