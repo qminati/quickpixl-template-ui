@@ -68,9 +68,9 @@ const ImageInputPlugin: React.FC<ImageInputPluginProps> = ({
 
         <CollapsibleContent>
           <div className="p-3 pt-0 space-y-4">
-            <div className="space-y-2">
-              <span className="text-xs font-medium text-foreground">Upload Images</span>
-              <div className="relative">
+            <div className="flex items-center space-x-3">
+              <span className="text-xs font-medium text-foreground whitespace-nowrap">Upload Images</span>
+              <div className="relative flex-1">
                 <input
                   type="file"
                   accept="image/*"
