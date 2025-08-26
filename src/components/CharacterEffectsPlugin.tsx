@@ -149,31 +149,15 @@ const CharacterEffectsPlugin: React.FC<CharacterEffectsPluginProps> = ({
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <label className="text-xs font-medium text-foreground">Character Settings</label>
-              <div className="flex items-center space-x-1">
-                <Button
-                  onClick={addCharacter}
-                  size="sm"
-                  variant="outline"
-                  className="h-5 w-5 p-0"
-                  disabled={settings.characters.length >= 10}
-                >
-                  <Plus className="w-2.5 h-2.5" />
-                </Button>
-                <Button
-                  onClick={() => {
-                    if (settings.characters.length > 1) {
-                      const lastIndex = settings.characters.length - 1;
-                      removeCharacter(lastIndex);
-                    }
-                  }}
-                  size="sm"
-                  variant="outline"
-                  className="h-5 w-5 p-0"
-                  disabled={settings.characters.length <= 1}
-                >
-                  <Minus className="w-2.5 h-2.5" />
-                </Button>
-              </div>
+              <Button
+                onClick={addCharacter}
+                size="sm"
+                variant="outline"
+                className="h-5 w-5 p-0"
+                disabled={settings.characters.length >= 10}
+              >
+                <Plus className="w-2.5 h-2.5" />
+              </Button>
             </div>
 
             {settings.characters.map((character, index) => (
@@ -191,6 +175,19 @@ const CharacterEffectsPlugin: React.FC<CharacterEffectsPluginProps> = ({
                       <ChevronDown className="w-3 h-3 text-muted-foreground" />
                     ) : (
                       <ChevronRight className="w-3 h-3 text-muted-foreground" />
+                    )}
+                    {settings.characters.length > 1 && (
+                      <Button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeCharacter(index);
+                        }}
+                        size="sm"
+                        variant="ghost"
+                        className="h-4 w-4 p-0 text-muted-foreground hover:text-destructive"
+                      >
+                        <Minus className="w-2.5 h-2.5" />
+                      </Button>
                     )}
                   </div>
                 </div>
