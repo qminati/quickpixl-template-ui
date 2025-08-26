@@ -12,7 +12,7 @@
 
     /* Panel colors */
     --panel-bg: 0 0% 18%;
-    --panel-border: 0 0% 25%;
+    --panel-border: 0 0% 18%;
     
     /* Card colors */
     --card: 0 0% 18%;
@@ -42,7 +42,7 @@
     --destructive: 0 84% 60%;
 
     /* Borders and inputs */
-    --border: 0 0% 25%;
+    --border: 0 0% 18%;
     --input: 0 0% 20%;
     --ring: 25 95% 53%;
 
