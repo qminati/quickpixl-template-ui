@@ -160,6 +160,84 @@ export interface ColorFillVariation {
   description: string;
 }
 
+export interface StrokeSettings {
+  regular: {
+    strokes: Array<{
+      id: string;
+      size: number;
+      fillType: 'solid' | 'gradient' | 'image';
+      color: string;
+      gradient: {
+        type: 'linear' | 'radial' | 'conic';
+        angle: number;
+        stops: Array<{
+          id: string;
+          color: string;
+          position: number;
+        }>;
+      };
+      images: File[];
+      opacity: number;
+    }>;
+  };
+  character: {
+    strokes: Array<{
+      id: string;
+      size: number;
+      fillType: 'solid' | 'gradient' | 'image';
+      color: string;
+      gradient: {
+        type: 'linear' | 'radial' | 'conic';
+        angle: number;
+        stops: Array<{
+          id: string;
+          color: string;
+          position: number;
+        }>;
+      };
+      images: File[];
+      opacity: number;
+    }>;
+    differentStrokePerCharacter: boolean;
+    perCharacterTransforms: {
+      widthScale: number;
+      heightScale: number;
+      rotation: number;
+      xOffset: number;
+      yOffset: number;
+    };
+    randomizeTransforms: boolean;
+  };
+  container: {
+    enabled: boolean;
+    size: number;
+    fillType: 'solid' | 'gradient' | 'image';
+    color: string;
+    gradient: {
+      type: 'linear' | 'radial' | 'conic';
+      angle: number;
+      stops: Array<{
+        id: string;
+        color: string;
+        position: number;
+      }>;
+    };
+    images: File[];
+    opacity: number;
+  };
+  knockout: {
+    enabled: boolean;
+    size: number;
+    opacity: number;
+  };
+}
+
+export interface StrokesVariation {
+  id: string;
+  settings: StrokeSettings;
+  description: string;
+}
+
 // Union type for all variation types to improve type safety
 export type AnyVariation = 
   | Variation 
@@ -168,4 +246,5 @@ export type AnyVariation =
   | TypographyVariation 
   | TextShapeVariation 
   | RotateFlipVariation 
-  | ColorFillVariation;
+  | ColorFillVariation
+  | StrokesVariation;
