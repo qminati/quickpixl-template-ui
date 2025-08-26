@@ -67,7 +67,7 @@ const ImageInputPlugin: React.FC<ImageInputPluginProps> = ({
         </CollapsibleTrigger>
 
         <CollapsibleContent>
-          <div className="p-3 pt-0 space-y-4">
+          <div className="p-3 pt-0 space-y-4 max-h-96 overflow-y-auto">
             <div className="flex items-center space-x-3">
               <span className="text-xs font-medium text-foreground whitespace-nowrap">Upload Images</span>
               <div className="relative flex-1">

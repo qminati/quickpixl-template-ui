@@ -147,7 +147,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
   return (
     <div className="h-full flex flex-col">
       {/* Main Content */}
-      <div className="flex-1 p-6 overflow-auto">
+      <div className="flex-1 p-6">
         {/* Preview Canvas */}
         <div className="bg-background border border-input rounded-lg mb-4 overflow-hidden" style={{ height: '320px' }}>
           {/* Top Toolbar with Image Controls */}
