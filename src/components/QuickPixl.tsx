@@ -296,6 +296,7 @@ const QuickPixl = () => {
     brightness: 0,
     contrast: 0,
     saturation: 0,
+    vibrance: 0,
     hue: 0,
     colorize: false,
     colorizeHue: 0,
@@ -836,6 +837,7 @@ const QuickPixl = () => {
     if (settings.brightness !== 0) effects.push(`Brightness: ${settings.brightness}`);
     if (settings.contrast !== 0) effects.push(`Contrast: ${settings.contrast}`);
     if (settings.saturation !== 0) effects.push(`Saturation: ${settings.saturation}`);
+    if (settings.vibrance && settings.vibrance !== 0) effects.push(`Vibrance: ${settings.vibrance}`);
     if (settings.hue !== 0) effects.push(`Hue: ${settings.hue}°`);
     
     return effects.length > 0 ? effects.join(', ') : 'No effects';

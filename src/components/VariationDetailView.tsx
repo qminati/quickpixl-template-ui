@@ -655,6 +655,7 @@ const renderImageEffectsVariation = (variation: ImageEffectsVariation, isEditing
         <div><strong>Brightness:</strong> {variation.settings.brightness}</div>
         <div><strong>Contrast:</strong> {variation.settings.contrast}</div>
         <div><strong>Saturation:</strong> {variation.settings.saturation}</div>
+        <div><strong>Vibrance:</strong> {variation.settings.vibrance || 0}</div>
         <div><strong>Hue:</strong> {variation.settings.hue}°</div>
         <div><strong>Colorize:</strong> {variation.settings.colorize ? 'Yes' : 'No'}</div>
         <div><strong>Grayscale:</strong> {variation.settings.grayscale ? 'Yes' : 'No'}</div>

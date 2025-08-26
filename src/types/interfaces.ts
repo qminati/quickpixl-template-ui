@@ -265,6 +265,7 @@ export interface ImageEffectsSettings {
   brightness: number;      // -100 to 100, default 0
   contrast: number;        // -100 to 100, default 0
   saturation: number;      // -100 to 100, default 0
+  vibrance?: number;       // -100 to 100, default 0
   hue: number;            // 0 to 360, default 0
   colorize: boolean;      // default false
   colorizeHue: number;    // 0 to 360, default 0
