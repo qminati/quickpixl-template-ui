@@ -115,7 +115,12 @@ const ImageInputPlugin: React.FC<ImageInputPluginProps> = ({
             )}
 
             <div className="pt-1">
-              <Button variant="outline" size="sm" onClick={onAddVariation} disabled={(settings.selectedImages?.length || 0) === 0}>
+              <Button 
+                variant="default" 
+                onClick={onAddVariation} 
+                disabled={(settings.selectedImages?.length || 0) === 0}
+                className="w-full h-6 text-xs"
+              >
                 <Plus className="w-3 h-3 mr-1" />
                 Add Image Input Variation
               </Button>

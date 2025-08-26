@@ -166,7 +166,7 @@ const ImageEffectsPlugin: React.FC<ImageEffectsPluginProps> = ({
               <Button
                 onClick={onAddVariation}
                 className="w-full h-6 text-xs"
-                variant="outline"
+                variant="default"
               >
                 <Plus className="w-3 h-3 mr-1" />
                 Add Visual Effects Variation
