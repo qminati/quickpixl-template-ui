@@ -48,7 +48,7 @@ import ImageEditor from './ImageEditor';
 import ImageInputPlugin from './ImageInputPlugin';
 import { validateImage, handleImageError, createImageFallback } from '@/utils/imageUtils';
 import { toast } from 'sonner';
-import { Container, Variation, Template, TemplateVariation, FontVariation, TypographySettings, TypographyVariation, ShapeSettings, TextShapeVariation, RotateFlipSettings, RotateFlipVariation, ColorFillSettings, ColorFillVariation, StrokeSettings, StrokesVariation, CharacterEffectsSettings, CharacterEffectsVariation, ImageEffectsSettings, ImageEffectsVariation, DropShadowSettings, DropShadowVariation, ImageInputSettings, AnyVariation } from '@/types/interfaces';
+import { Container, Variation, Template, TemplateVariation, FontVariation, TypographySettings, TypographyVariation, ShapeSettings, TextShapeVariation, RotateFlipSettings, RotateFlipVariation, ColorFillSettings, ColorFillVariation, StrokeSettings, StrokesVariation, CharacterEffectsSettings, CharacterEffectsVariation, ImageEffectsSettings, ImageEffectsVariation, DropShadowSettings, DropShadowVariation, ImageInputSettings, ImageInput, AnyVariation } from '@/types/interfaces';
 import TypographyPlugin from './TypographyPlugin';
 import TextShapePlugin from './TextShapePlugin';
 import RotateFlipPlugin from './RotateFlipPlugin';
@@ -308,9 +308,9 @@ const QuickPixl = () => {
 
   // Image Input Plugin State
   const [isImageInputExpanded, setIsImageInputExpanded] = useState(true);
-  const [imageInputSettings, setImageInputSettings] = useState<ImageInputSettings>({
-    selectedImages: [],
-    selectionMode: 'multiple'
+  const [imageInputsByTab, setImageInputsByTab] = useState<Record<ImageTabId, ImageInput>>({
+    GLOBAL: { id: 'GLOBAL', selectedImages: [], selectionMode: 'multiple' },
+    II1: { id: 'II1', selectedImages: [], selectionMode: 'multiple' }
   });
   const [imageInputVariations, setImageInputVariations] = useState<Variation[]>([]);
 
@@ -401,6 +401,14 @@ const QuickPixl = () => {
       setBlobUrls(new Map()); // Clear the map on unmount
     };
   }, []); // Empty dependency array, only cleanup on unmount
+
+  // Auto-focus Images panel on first upload
+  useEffect(() => {
+    const anyImages = Object.values(imageInputsByTab).some(input => input.selectedImages.length > 0);
+    if (anyImages && activeSection !== 'images') {
+      setActiveSection('images');
+    }
+  }, [imageInputsByTab, activeSection]);
 
   // Helper to safely get blob URL with cleanup tracking and error handling
   const getBlobUrl = useCallback((file: File): string => {
@@ -1015,7 +1023,8 @@ const QuickPixl = () => {
   }, []);
 
   const handleAddImageInputVariation = useCallback(() => {
-    if (imageInputSettings.selectedImages.length === 0) {
+    const currentImages = imageInputsByTab[activeImageTab]?.selectedImages || [];
+    if (currentImages.length === 0) {
       toast.info('Please select images before creating a variation');
       return;
     }
@@ -1023,8 +1032,8 @@ const QuickPixl = () => {
     const newVariation: Variation = {
       id: `image-input-variation-${Date.now()}`,
       colors: [],
-      images: [...imageInputSettings.selectedImages],
-      description: generateImageInputDescription(imageInputSettings)
+      images: [...currentImages],
+      description: generateImageInputDescription(imageInputsByTab[activeImageTab] || { selectedImages: [], selectionMode: 'multiple' })
     };
     
     setImageInputVariations(prev => [...prev, newVariation]);
@@ -1035,7 +1044,7 @@ const QuickPixl = () => {
       const targets = [leftSettingsRef.current, variationsRef.current];
       targets.forEach(el => el?.scrollTo({ top: el.scrollHeight, behavior: "smooth" }));
     });
-  }, [imageInputSettings, generateImageInputDescription]);
+  }, [imageInputsByTab, activeImageTab, generateImageInputDescription]);
 
   const handleRemoveImageEffectsVariation = useCallback((variationId: string) => {
     setImageEffectsVariations(prev => prev.filter(v => v.id !== variationId));
@@ -2580,8 +2589,13 @@ const QuickPixl = () => {
                 <ImageInputPlugin
                   isExpanded={isImageInputExpanded}
                   onToggleExpanded={() => setIsImageInputExpanded(!isImageInputExpanded)}
-                  settings={imageInputSettings}
-                  onSettingsChange={setImageInputSettings}
+                  settings={imageInputsByTab[activeImageTab] || { selectedImages: [], selectionMode: 'multiple' }}
+                  onSettingsChange={(newSettings) =>
+                    setImageInputsByTab(prev => ({
+                      ...prev,
+                      [activeImageTab]: { id: activeImageTab, ...prev[activeImageTab], ...newSettings }
+                    }))
+                  }
                   onAddVariation={handleAddImageInputVariation}
                 />
                 
@@ -2769,6 +2783,15 @@ const QuickPixl = () => {
           ) : activeSection === 'images' ? (
             <ErrorBoundary>
               <ImageEditor 
+                imageInputs={Object.values(imageInputsByTab)}
+                onImageInputsChange={(updated) => {
+                  const newInputsByTab = Object.fromEntries(updated.map(i => [i.id as ImageTabId, i]));
+                  // Ensure we maintain all required tabs
+                  setImageInputsByTab(prev => ({
+                    ...prev,
+                    ...newInputsByTab
+                  }));
+                }}
                 onSubmitVariation={(imageArrays) => {
                   // Handle image variation submission logic here
                   console.log('Image variations submitted:', imageArrays);
