@@ -35,12 +35,12 @@ const TextEditor: React.FC<TextEditorProps> = ({
       id: String(textInputs.length + 1),
       text: ''
     };
-    setTextInputs([...textInputs, newInput]);
+    setTextInputs(prev => [...prev, newInput]);
   };
 
   const removeTextInput = (id: string) => {
     if (textInputs.length > 1) {
-      setTextInputs(textInputs.filter(input => input.id !== id));
+      setTextInputs(prev => prev.filter(input => input.id !== id));
     }
   };
 
@@ -61,12 +61,12 @@ const TextEditor: React.FC<TextEditorProps> = ({
       id: String(listInputs.length + 1),
       text: ''
     };
-    setListInputs([...listInputs, newInput]);
+    setListInputs(prev => [...prev, newInput]);
   };
 
   const removeListInput = (id: string) => {
     if (listInputs.length > 1) {
-      setListInputs(listInputs.filter(input => input.id !== id));
+      setListInputs(prev => prev.filter(input => input.id !== id));
     }
   };
 

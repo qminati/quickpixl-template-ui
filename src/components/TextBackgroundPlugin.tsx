@@ -1,8 +1,8 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { ChevronDown, ChevronRight, Palette, Upload, Trash2 } from 'lucide-react';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Slider } from './ui/slider';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Slider } from '@/components/ui/slider';
 import { Variation } from '@/types/interfaces';
 
 interface TextBackgroundPluginProps {
@@ -22,15 +22,23 @@ const TextBackgroundPlugin: React.FC<TextBackgroundPluginProps> = ({
   const [gradientTo, setGradientTo] = useState('#8B5CF6');
   const [gradientAngle, setGradientAngle] = useState([45]);
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
+  const [objectUrls, setObjectUrls] = useState<string[]>([]);
 
   const handleImageUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
+    const newUrls = files.map(file => URL.createObjectURL(file));
     setSelectedImages(prev => [...prev, ...files]);
+    setObjectUrls(prev => [...prev, ...newUrls]);
   }, []);
 
   const removeImage = useCallback((index: number) => {
+    // Revoke the object URL before removing
+    if (objectUrls[index]) {
+      URL.revokeObjectURL(objectUrls[index]);
+    }
     setSelectedImages(prev => prev.filter((_, i) => i !== index));
-  }, []);
+    setObjectUrls(prev => prev.filter((_, i) => i !== index));
+  }, [objectUrls]);
 
   const handleAddVariation = useCallback(() => {
     let colors: string[] = [];
@@ -59,9 +67,19 @@ const TextBackgroundPlugin: React.FC<TextBackgroundPluginProps> = ({
 
     // Reset form
     if (mode === 'image') {
+      // Revoke all object URLs before clearing
+      objectUrls.forEach(url => URL.revokeObjectURL(url));
       setSelectedImages([]);
+      setObjectUrls([]);
     }
-  }, [mode, solidColor, gradientFrom, gradientTo, gradientAngle, selectedImages, onAddVariation]);
+  }, [mode, solidColor, gradientFrom, gradientTo, gradientAngle, selectedImages, onAddVariation, objectUrls]);
+
+  // Cleanup object URLs on unmount
+  useEffect(() => {
+    return () => {
+      objectUrls.forEach(url => URL.revokeObjectURL(url));
+    };
+  }, [objectUrls]);
 
   return (
     <div className="bg-card border border-panel-border rounded-lg shadow-sm">
@@ -210,7 +228,7 @@ const TextBackgroundPlugin: React.FC<TextBackgroundPluginProps> = ({
                     {selectedImages.map((image, index) => (
                       <div key={index} className="relative group">
                         <img
-                          src={URL.createObjectURL(image)}
+                          src={objectUrls[index]}
                           alt={`Background ${index + 1}`}
                           className="w-full h-16 object-cover rounded-md border border-border"
                         />
