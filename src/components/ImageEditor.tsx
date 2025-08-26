@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ChevronLeft, ChevronRight, Settings as SettingsIcon, Copy as CopyIcon, Plus, Minus } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Settings as SettingsIcon, Copy, Plus, Minus, Trash2 } from 'lucide-react';
 import { ImageInput, ImageInputSettings } from '@/types/interfaces';
 import { getBlobUrl } from '@/utils/imageUtils';
 import ImageInputPlugin from './ImageInputPlugin';
@@ -254,131 +254,100 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
         </div>
       </div>
 
-      {/* Content Area with Image Upload and Management */}
-      <div className="flex-1 overflow-hidden p-6 pt-4 flex flex-col">
-        <div className="bg-card border border-input rounded-lg flex flex-col flex-1">
+      {/* Scrollable Content Area - Image Upload and Management */}
+      <div className="flex-1 min-h-0 overflow-y-auto p-6 pt-4">
+        <div className="bg-card border border-input rounded-lg">
           {/* Image Upload Plugin - Fixed */}
           <div className="flex-shrink-0 p-4 border-b border-input">
             <ImageInputPlugin
               isExpanded={isImageInputExpanded}
-              onToggleExpanded={() => setIsImageInputExpanded(v => !v)}
-              settings={{ 
-                selectedImages: imageInputs[currentInputIndex]?.selectedImages || [], 
-                selectionMode: imageInputs[currentInputIndex]?.selectionMode || 'multiple' 
-              }}
-              onSettingsChange={(settings: ImageInputSettings) => {
-                const updated = [...imageInputs];
-                updated[currentInputIndex] = { 
-                  ...updated[currentInputIndex], 
-                  selectedImages: settings.selectedImages,
-                  selectionMode: settings.selectionMode
-                };
-                if (onImageInputsChange) {
-                  onImageInputsChange(updated);
-                } else {
-                  setInternalImageInputs(updated);
-                }
+              onToggleExpanded={() => setIsImageInputExpanded(!isImageInputExpanded)}
+              settings={imageInputs[currentInputIndex]}
+              onSettingsChange={(settings) => {
+                updateImageInput(imageInputs[currentInputIndex].id, settings.selectedImages, settings.selectionMode);
               }}
             />
           </div>
-
-          {/* Image Input Management - Scrollable */}
-          <div className="flex-1 overflow-y-auto p-4">
-            <h3 className="text-sm font-medium text-foreground mb-3">Manage Image Inputs</h3>
-            
-            <div className="space-y-2 mb-4">
-              {imageInputs.map((input, index) => (
-                <div key={input.id} className="flex items-center space-x-3">
-                  <span className="text-sm text-muted-foreground min-w-[20px]">
-                    {index + 1}.
-                  </span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onFocusInputTab(input.id)}
-                    className="p-2 h-8 w-8"
-                    title="Input settings"
-                  >
-                    <SettingsIcon className="w-4 h-4" />
-                  </Button>
-                  
-                  <div className="flex-1 flex items-center space-x-2 min-h-[32px] bg-background border border-input rounded px-3 py-1">
-                    {input.selectedImages.length > 0 ? (
-                      <>
-                        <div className="flex items-center space-x-1 flex-1">
-                          {input.selectedImages.slice(0, 3).map((image, imgIndex) => (
-                            <div key={`img-${imgIndex}`} className="w-6 h-6 rounded border overflow-hidden">
-                              <img
-                                src={getBlobUrlSafe(image)}
-                                alt={`Image ${imgIndex + 1}`}
-                                className="w-full h-full object-cover"
-                                onError={(e) => {
-                                  const target = e.target as HTMLImageElement;
-                                  target.style.display = 'none';
-                                }}
-                              />
-                            </div>
-                          ))}
-                          {input.selectedImages.length > 3 && (
-                            <span className="text-xs text-muted-foreground">
-                              +{input.selectedImages.length - 3}
-                            </span>
-                          )}
-                        </div>
-                        <span className="text-xs text-muted-foreground">
-                          {input.selectedImages.length} image{input.selectedImages.length !== 1 ? 's' : ''}
-                        </span>
-                      </>
-                    ) : (
-                      <span className="text-sm text-muted-foreground">No images selected</span>
-                    )}
-                  </div>
-                  
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => duplicateImageInput(input.id)}
-                    className="p-2 h-8 w-8"
-                    title="Duplicate input"
-                  >
-                    <CopyIcon className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => removeImageInput(input.id)}
-                    disabled={imageInputs.length <= 1}
-                    className="p-2 h-8 w-8"
-                  >
-                    <Minus className="w-4 h-4" />
-                  </Button>
-                </div>
-              ))}
-            </div>
-
-            <div className="flex justify-end">
+          
+          {/* Manage Image Inputs - Scrollable */}
+          <div className="p-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-base font-medium text-foreground">Manage Image Inputs</h3>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={addImageInput}
-                className="p-2 h-8 w-8"
+                className="text-xs"
               >
-                <Plus className="w-4 h-4" />
+                <Plus className="h-3 w-3 mr-1" />
+                Add Input
               </Button>
             </div>
-          </div>
-
-          {/* Submit Button - Positioned to align with Start Rendering button */}
-          <div className="flex-shrink-0 p-6 mt-6">
-            <Button 
-              onClick={handleSubmit}
-              className="w-full py-3 font-medium"
-              disabled={imageInputs.every(input => input.selectedImages.length === 0)}
-            >
-              Submit Variation
-            </Button>
+            
+            <div className="space-y-3 max-h-96">
+              {imageInputs.map((input, index) => (
+                <div 
+                  key={input.id} 
+                  className={`p-3 rounded-lg border transition-colors cursor-pointer ${
+                    index === currentInputIndex 
+                      ? 'border-primary bg-primary/5' 
+                      : 'border-input hover:border-primary/50'
+                  }`}
+                  onClick={() => setCurrentInputIndex(index)}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-primary"></div>
+                      <span className="text-sm font-medium">Input {index + 1}</span>
+                      <span className="text-xs text-muted-foreground">
+                        ({input.selectedImages.length} image{input.selectedImages.length !== 1 ? 's' : ''})
+                      </span>
+                    </div>
+                    
+                    <div className="flex items-center gap-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          duplicateImageInput(input.id);
+                        }}
+                        className="h-7 w-7 p-0"
+                      >
+                        <Copy className="h-3 w-3" />
+                      </Button>
+                      
+                      {imageInputs.length > 1 && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeImageInput(input.id);
+                          }}
+                          className="h-7 w-7 p-0 text-destructive hover:text-destructive"
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
+      </div>
+
+      {/* Fixed Submit Button Footer */}
+      <div className="flex-shrink-0 border-t border-input bg-background p-3">
+        <Button 
+          onClick={handleSubmit}
+          className="w-full h-12 rounded-md bg-primary text-primary-foreground font-medium"
+          disabled={imageInputs.every(input => input.selectedImages.length === 0)}
+        >
+          Submit Variation
+        </Button>
       </div>
     </div>
   );
