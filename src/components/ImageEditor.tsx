@@ -145,7 +145,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
   };
 
   return (
-    <div className="h-screen flex flex-col">
+    <div className="h-full flex flex-col">
       {/* Preview Canvas - Fixed Height */}
       <div className="flex-shrink-0 p-6 pb-0">
         <div className="bg-background border border-input rounded-lg overflow-hidden" style={{ height: '320px' }}>
@@ -254,9 +254,9 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
         </div>
       </div>
 
-      {/* Scrollable Content Area - Image Upload and Management */}
-      <div className="flex-1 overflow-hidden p-6 pt-4">
-        <div className="bg-card border border-input rounded-lg flex flex-col h-full">
+      {/* Content Area with Image Upload and Management */}
+      <div className="flex-1 overflow-hidden p-6 pt-4 flex flex-col">
+        <div className="bg-card border border-input rounded-lg flex flex-col flex-1">
           {/* Image Upload Plugin - Fixed */}
           <div className="flex-shrink-0 p-4 border-b border-input">
             <ImageInputPlugin
@@ -367,18 +367,18 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
               </Button>
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* Fixed Submit Button Container */}
-      <div className="flex-shrink-0 border-t border-input bg-card p-6">
-        <Button 
-          onClick={handleSubmit}
-          className="w-full py-3 font-medium"
-          disabled={imageInputs.every(input => input.selectedImages.length === 0)}
-        >
-          Submit Variation
-        </Button>
+          {/* Submit Button - Positioned to align with Start Rendering button */}
+          <div className="flex-shrink-0 p-6 mt-6">
+            <Button 
+              onClick={handleSubmit}
+              className="w-full py-3 font-medium"
+              disabled={imageInputs.every(input => input.selectedImages.length === 0)}
+            >
+              Submit Variation
+            </Button>
+          </div>
+        </div>
       </div>
     </div>
   );
