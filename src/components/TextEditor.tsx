@@ -20,23 +20,23 @@ const TextEditor: React.FC<TextEditorProps> = ({
 }) => {
   const [activeMode, setActiveMode] = useState<'manual' | 'bulk' | 'list'>('manual');
   const [textInputs, setTextInputs] = useState<TextInput[]>([
-    { id: '1', text: '' },
-    { id: '2', text: '' },
-    { id: '3', text: '' }
+    { id: crypto.randomUUID(), text: '' },
+    { id: crypto.randomUUID(), text: '' },
+    { id: crypto.randomUUID(), text: '' }
   ]);
   const [listInputs, setListInputs] = useState<TextInput[]>([
-    { id: '1', text: '' },
-    { id: '2', text: '' },
-    { id: '3', text: '' },
-    { id: '4', text: '' },
-    { id: '5', text: '' }
+    { id: crypto.randomUUID(), text: '' },
+    { id: crypto.randomUUID(), text: '' },
+    { id: crypto.randomUUID(), text: '' },
+    { id: crypto.randomUUID(), text: '' },
+    { id: crypto.randomUUID(), text: '' }
   ]);
   const [previewText, setPreviewText] = useState('Sample Text');
   const [previewBackgroundColor, setPreviewBackgroundColor] = useState('#ffffff');
 
   const addTextInput = () => {
     const newInput: TextInput = {
-      id: String(textInputs.length + 1),
+      id: crypto.randomUUID(),
       text: ''
     };
     setTextInputs(prev => [...prev, newInput]);
@@ -52,7 +52,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
     const inputToDuplicate = textInputs.find(input => input.id === id);
     if (inputToDuplicate) {
       const newInput: TextInput = {
-        id: String(textInputs.length + 1),
+        id: crypto.randomUUID(),
         text: inputToDuplicate.text // Copy the text content
       };
       setTextInputs(prev => {
@@ -78,7 +78,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
 
   const addListInput = () => {
     const newInput: TextInput = {
-      id: String(listInputs.length + 1),
+      id: crypto.randomUUID(),
       text: ''
     };
     setListInputs(prev => [...prev, newInput]);
@@ -94,7 +94,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
     const inputToDuplicate = listInputs.find(input => input.id === id);
     if (inputToDuplicate) {
       const newInput: TextInput = {
-        id: String(listInputs.length + 1),
+        id: crypto.randomUUID(),
         text: inputToDuplicate.text // Copy the text content
       };
       setListInputs(prev => {
