@@ -2,25 +2,19 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Plus, Minus, Settings, Copy } from 'lucide-react';
+import { Plus, Minus } from 'lucide-react';
 import { TextInput, TypographySettings } from '@/types/interfaces';
 
 interface TextEditorProps {
   onSubmitVariation: (texts: string[]) => void;
   lastSelectedFont?: string;
   typographySettings?: TypographySettings;
-  onInputSettingsClick?: (inputIndex: number) => void;
-  onInputDuplicate?: (inputIndex: number) => void;
-  inputSettingsIndicators?: Record<number, boolean>;
 }
 
 const TextEditor: React.FC<TextEditorProps> = ({ 
   onSubmitVariation, 
   lastSelectedFont = 'Inter, sans-serif',
-  typographySettings,
-  onInputSettingsClick,
-  onInputDuplicate,
-  inputSettingsIndicators = {}
+  typographySettings
 }) => {
   const [activeMode, setActiveMode] = useState<'manual' | 'bulk' | 'list'>('manual');
   const [textInputs, setTextInputs] = useState<TextInput[]>([
@@ -44,18 +38,6 @@ const TextEditor: React.FC<TextEditorProps> = ({
       text: ''
     };
     setTextInputs(prev => [...prev, newInput]);
-  };
-
-  const duplicateTextInput = (index: number) => {
-    const sourceInput = textInputs[index];
-    if (sourceInput) {
-      const newInput: TextInput = {
-        id: String(textInputs.length + 1),
-        text: sourceInput.text
-      };
-      setTextInputs(prev => [...prev, newInput]);
-      onInputDuplicate?.(index);
-    }
   };
 
   const removeTextInput = (id: string) => {
@@ -82,18 +64,6 @@ const TextEditor: React.FC<TextEditorProps> = ({
       text: ''
     };
     setListInputs(prev => [...prev, newInput]);
-  };
-
-  const duplicateListInput = (index: number) => {
-    const sourceInput = listInputs[index];
-    if (sourceInput) {
-      const newInput: TextInput = {
-        id: String(listInputs.length + 1),
-        text: sourceInput.text
-      };
-      setListInputs(prev => [...prev, newInput]);
-      onInputDuplicate?.(index);
-    }
   };
 
   const removeListInput = (id: string) => {
@@ -260,37 +230,16 @@ const TextEditor: React.FC<TextEditorProps> = ({
               {/* Text Input Fields */}
               <div className="space-y-2 mb-4">
                 {textInputs.map((input, index) => (
-                  <div key={input.id} className="flex items-center space-x-2">
+                  <div key={input.id} className="flex items-center space-x-3">
                     <span className="text-sm text-muted-foreground min-w-[20px]">
                       {index + 1}.
                     </span>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => onInputSettingsClick?.(index)}
-                      className={`p-2 h-8 w-8 relative ${inputSettingsIndicators[index] ? 'text-accent' : 'text-muted-foreground'}`}
-                      title="Settings for this input"
-                    >
-                      <Settings className="w-4 h-4" />
-                      {inputSettingsIndicators[index] && (
-                        <div className="absolute -top-1 -right-1 w-2 h-2 bg-accent rounded-full" />
-                      )}
-                    </Button>
                     <Input
                       placeholder="Type your text here..."
                       value={input.text}
                       onChange={(e) => updateTextInput(input.id, e.target.value)}
                       className="flex-1 bg-background"
                     />
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => duplicateTextInput(index)}
-                      className="p-2 h-8 w-8 text-muted-foreground hover:text-foreground"
-                      title="Duplicate this input"
-                    >
-                      <Copy className="w-4 h-4" />
-                    </Button>
                     <Button
                       variant="ghost"
                       size="sm"
@@ -337,43 +286,20 @@ const TextEditor: React.FC<TextEditorProps> = ({
                 <div className="flex space-x-3 h-full min-h-[300px]" style={{ minWidth: 'max-content' }}>
                   {listInputs.map((input, index) => (
                     <div key={input.id} className="flex flex-col space-y-2 min-w-[200px] h-full">
-                      {/* Input Label and Controls */}
+                      {/* Input Label */}
                       <div className="flex items-center justify-between flex-shrink-0">
                         <span className="text-xs text-muted-foreground">
                           Input {index + 1}
                         </span>
-                        <div className="flex items-center space-x-1">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => onInputSettingsClick?.(index)}
-                            className={`p-1 h-6 w-6 relative ${inputSettingsIndicators[index] ? 'text-accent' : 'text-muted-foreground'}`}
-                            title="Settings for this input"
-                          >
-                            <Settings className="w-3 h-3" />
-                            {inputSettingsIndicators[index] && (
-                              <div className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-accent rounded-full" />
-                            )}
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => duplicateListInput(index)}
-                            className="p-1 h-6 w-6 text-muted-foreground hover:text-foreground"
-                            title="Duplicate this input"
-                          >
-                            <Copy className="w-3 h-3" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => removeListInput(input.id)}
-                            disabled={listInputs.length <= 1}
-                            className="p-1 h-6 w-6"
-                          >
-                            <Minus className="w-3 h-3" />
-                          </Button>
-                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeListInput(input.id)}
+                          disabled={listInputs.length <= 1}
+                          className="p-1 h-6 w-6"
+                        >
+                          <Minus className="w-3 h-3" />
+                        </Button>
                       </div>
                       
                       {/* Tall Input Field */}
