@@ -833,12 +833,7 @@ const QuickPixl = () => {
   const scrollNewCardIntoView = useCallback(() => {
     const targets = [leftSettingsRef.current, variationsRef.current];
     requestAnimationFrame(() => {
-      targets.forEach(el => {
-        if (el && typeof el.scrollTo === 'function') {
-          const top = el.scrollHeight ?? 0;
-          el.scrollTo({ top, behavior: 'smooth' });
-        }
-      });
+      targets.forEach(el => el?.scrollTo({ top: el.scrollHeight, behavior: "smooth" }));
     });
   }, []);
 
@@ -1010,35 +1005,27 @@ const QuickPixl = () => {
     toast.success('Visual effects variation added');
   }, [imageEffectsSettings, generateImageEffectsDescription]);
 
-  const handleAddImageInputVariation = useCallback((imageArrays?: File[][]) => {
-    const fromArgs = (Array.isArray(imageArrays) ? imageArrays : []).flat().filter((f): f is File => f instanceof File);
-    const fromState = imageInputs.flatMap(i => i.selectedImages).filter((f): f is File => f instanceof File);
-    const allImages = fromArgs.length ? fromArgs : fromState;
-
-    if (!allImages.length) { 
-      toast.info('No images to submit'); 
-      return; 
+  const handleAddImageInputVariation = useCallback(() => {
+    const allImages = imageInputs.flatMap(input => input.selectedImages);
+    if (allImages.length === 0) {
+      toast.info('Please select images before creating a variation');
+      return;
     }
 
     const newVariation: Variation = {
       id: `image-input-variation-${Date.now()}`,
       colors: [],
       images: [...allImages],
-      description: `${allImages.length} image${allImages.length > 1 ? 's' : ''} • ${imageInputs.length} input${imageInputs.length > 1 ? 's' : ''}`
+      description: `${allImages.length} image${allImages.length > 1 ? 's' : ''} from ${imageInputs.length} input${imageInputs.length > 1 ? 's' : ''}`
     };
-
+    
     setImageInputVariations(prev => [...prev, newVariation]);
     toast.success('Image input variation added');
-
+    
     // Auto-scroll to bottom of variations
     setTimeout(() => {
       const targets = [leftSettingsRef.current, variationsRef.current];
-      targets.forEach(el => {
-        if (el && typeof el.scrollTo === 'function') {
-          const top = el.scrollHeight ?? 0;
-          el.scrollTo({ top, behavior: 'smooth' });
-        }
-      });
+      targets.forEach(el => el?.scrollTo({ top: el.scrollHeight, behavior: "smooth" }));
     });
   }, [imageInputs]);
 
@@ -2347,14 +2334,15 @@ const QuickPixl = () => {
                             </Button>
                           </div>
                           <div className="flex space-x-1">
-                            {variation.images.slice(0, 4).map((image, index) => {
-                              const src = (image instanceof File) ? getBlobUrl(image) : createImageFallback();
-                              return (
-                                <div key={index} className="w-6 h-6 rounded border border-panel-border overflow-hidden">
-                                  <img src={src} alt="" className="w-full h-full object-cover" />
-                                </div>
-                              );
-                            })}
+                            {variation.images.slice(0, 4).map((image, index) => (
+                              <div key={index} className="w-6 h-6 rounded border border-panel-border overflow-hidden">
+                                <img
+                                  src={getBlobUrl(image)}
+                                  alt=""
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                            ))}
                             {variation.images.length > 4 && (
                               <span className="text-xs text-muted-foreground self-center">+{variation.images.length - 4}</span>
                             )}
@@ -2619,14 +2607,15 @@ const QuickPixl = () => {
                             </Button>
                           </div>
                           <div className="flex space-x-1">
-                             {variation.images.slice(0, 4).map((image, index) => {
-                               const src = (image instanceof File) ? getBlobUrl(image) : createImageFallback();
-                               return (
-                                 <div key={`${image instanceof File ? `${image.name}-${image.size}` : 'fallback'}-${index}`} className="w-8 h-8 rounded border border-panel-border overflow-hidden">
-                                   <img src={src} alt="" className="w-full h-full object-cover" />
-                                 </div>
-                               );
-                             })}
+                             {variation.images.slice(0, 4).map((image, index) => (
+                               <div key={`${image.name}-${image.size}-${index}`} className="w-8 h-8 rounded border border-panel-border overflow-hidden">
+                                <img
+                                  src={getBlobUrl(image)}
+                                  alt=""
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                            ))}
                             {variation.images.length > 4 && (
                               <span className="text-xs text-muted-foreground self-center">+{variation.images.length - 4}</span>
                             )}
@@ -2764,7 +2753,10 @@ const QuickPixl = () => {
               <ImageEditor 
                 imageInputs={imageInputs}
                 onImageInputsChange={setImageInputs}
-                onSubmitVariation={handleAddImageInputVariation}
+                onSubmitVariation={(imageArrays) => {
+                  // Handle image variation submission logic here
+                  console.log('Image variations submitted:', imageArrays);
+                }}
                 onFocusInputTab={(inputId) => {
                   const index = imageInputs.findIndex(input => input.id === inputId);
                   const id = (`II${index + 1}`) as ImageTabId;

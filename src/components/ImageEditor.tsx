@@ -114,21 +114,11 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
   };
 
   const handleSubmit = () => {
-    try {
-      const imageArrays = imageInputs
-        .map(input => Array.isArray(input.selectedImages) ? input.selectedImages : [])
-        .filter(arr => arr.length > 0);
-
-      if (!imageArrays.length) {
-        // mirror the parent check to avoid useless callback
-        return;
-      }
-
-      onSubmitVariation(imageArrays);
-    } catch (e) {
-      console.error('Submit variation failed:', e);
-      // optional: toast.error('Failed to submit variation');
-    }
+    const imageArrays = imageInputs
+      .map(input => input.selectedImages)
+      .filter(images => images.length > 0);
+    
+    onSubmitVariation(imageArrays);
   };
 
   const handlePreviousImage = () => {
@@ -396,7 +386,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
         <Button 
           onClick={handleSubmit}
           className="w-full h-12 rounded-md bg-primary text-primary-foreground font-medium"
-          disabled={!imageInputs?.length || imageInputs.every(i => Array.isArray(i.selectedImages) && i.selectedImages.length === 0)}
+          disabled={imageInputs.every(input => input.selectedImages.length === 0)}
         >
           Submit Variation
         </Button>
