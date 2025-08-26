@@ -255,7 +255,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
         </div>
 
         {/* Image Upload and Management */}
-        <div className="bg-card border border-input rounded-lg flex-1 flex flex-col">
+        <div className="bg-card border border-input rounded-lg flex flex-col">
           {/* Image Upload Plugin */}
           <div className="p-4 border-b border-input">
             <ImageInputPlugin
@@ -282,7 +282,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
           </div>
 
           {/* Image Input Management */}
-          <div className="p-4 flex-1">
+          <div className="p-4">
             <h3 className="text-sm font-medium text-foreground mb-3">Manage Image Inputs</h3>
             
             <div className="space-y-2 mb-4 max-h-48 overflow-y-auto">
