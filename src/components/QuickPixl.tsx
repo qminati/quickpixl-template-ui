@@ -45,10 +45,9 @@ import CanvasEditor from './CanvasEditor';
 import ErrorBoundary from './ErrorBoundary';
 import TextEditor from './TextEditor';
 import ImageEditor from './ImageEditor';
-import ImageInputPlugin from './ImageInputPlugin';
 import { validateImage, handleImageError, createImageFallback } from '@/utils/imageUtils';
 import { toast } from 'sonner';
-import { Container, Variation, Template, TemplateVariation, FontVariation, TypographySettings, TypographyVariation, ShapeSettings, TextShapeVariation, RotateFlipSettings, RotateFlipVariation, ColorFillSettings, ColorFillVariation, StrokeSettings, StrokesVariation, CharacterEffectsSettings, CharacterEffectsVariation, ImageEffectsSettings, ImageEffectsVariation, DropShadowSettings, DropShadowVariation, ImageInputSettings, AnyVariation } from '@/types/interfaces';
+import { Container, Variation, Template, TemplateVariation, FontVariation, TypographySettings, TypographyVariation, ShapeSettings, TextShapeVariation, RotateFlipSettings, RotateFlipVariation, ColorFillSettings, ColorFillVariation, StrokeSettings, StrokesVariation, CharacterEffectsSettings, CharacterEffectsVariation, ImageEffectsSettings, ImageEffectsVariation, DropShadowSettings, DropShadowVariation, ImageInput, ImageInputSettings, AnyVariation } from '@/types/interfaces';
 import TypographyPlugin from './TypographyPlugin';
 import TextShapePlugin from './TextShapePlugin';
 import RotateFlipPlugin from './RotateFlipPlugin';
@@ -306,12 +305,10 @@ const QuickPixl = () => {
   });
   const [dropShadowVariations, setDropShadowVariations] = useState<DropShadowVariation[]>([]);
 
-  // Image Input Plugin State
-  const [isImageInputExpanded, setIsImageInputExpanded] = useState(true);
-  const [imageInputSettings, setImageInputSettings] = useState<ImageInputSettings>({
-    selectedImages: [],
-    selectionMode: 'multiple'
-  });
+  // Image Input State (for ImageEditor)
+  const [imageInputs, setImageInputs] = useState<ImageInput[]>([
+    { id: 'II1', selectedImages: [], selectionMode: 'multiple' }
+  ]);
   const [imageInputVariations, setImageInputVariations] = useState<Variation[]>([]);
 
   // Image Effects Plugin State
@@ -1008,14 +1005,9 @@ const QuickPixl = () => {
     toast.success('Visual effects variation added');
   }, [imageEffectsSettings, generateImageEffectsDescription]);
 
-  const generateImageInputDescription = useCallback((settings: ImageInputSettings): string => {
-    const imageCount = settings.selectedImages.length;
-    if (imageCount === 0) return 'No images selected';
-    return `${imageCount} image${imageCount > 1 ? 's' : ''} (${settings.selectionMode})`;
-  }, []);
-
   const handleAddImageInputVariation = useCallback(() => {
-    if (imageInputSettings.selectedImages.length === 0) {
+    const allImages = imageInputs.flatMap(input => input.selectedImages);
+    if (allImages.length === 0) {
       toast.info('Please select images before creating a variation');
       return;
     }
@@ -1023,8 +1015,8 @@ const QuickPixl = () => {
     const newVariation: Variation = {
       id: `image-input-variation-${Date.now()}`,
       colors: [],
-      images: [...imageInputSettings.selectedImages],
-      description: generateImageInputDescription(imageInputSettings)
+      images: [...allImages],
+      description: `${allImages.length} image${allImages.length > 1 ? 's' : ''} from ${imageInputs.length} input${imageInputs.length > 1 ? 's' : ''}`
     };
     
     setImageInputVariations(prev => [...prev, newVariation]);
@@ -1035,7 +1027,7 @@ const QuickPixl = () => {
       const targets = [leftSettingsRef.current, variationsRef.current];
       targets.forEach(el => el?.scrollTo({ top: el.scrollHeight, behavior: "smooth" }));
     });
-  }, [imageInputSettings, generateImageInputDescription]);
+  }, [imageInputs]);
 
   const handleRemoveImageEffectsVariation = useCallback((variationId: string) => {
     setImageEffectsVariations(prev => prev.filter(v => v.id !== variationId));
@@ -1552,13 +1544,11 @@ const QuickPixl = () => {
 
   // Functions to handle collapse/expand all for image settings
   const handleImageCollapseAll = () => {
-    setIsImageInputExpanded(false);
     setIsImageEffectsExpanded(false);
     // Add other image-related plugin states as needed
   };
 
   const handleImageShowAll = () => {
-    setIsImageInputExpanded(true);
     setIsImageEffectsExpanded(true);
     // Add other image-related plugin states as needed
   };
@@ -2576,14 +2566,6 @@ const QuickPixl = () => {
                   </TabsList>
                 </Tabs>
 
-                {/* Image Input Plugin - appears in all tabs */}
-                <ImageInputPlugin
-                  isExpanded={isImageInputExpanded}
-                  onToggleExpanded={() => setIsImageInputExpanded(!isImageInputExpanded)}
-                  settings={imageInputSettings}
-                  onSettingsChange={setImageInputSettings}
-                  onAddVariation={handleAddImageInputVariation}
-                />
                 
                 {/* Image Effects Plugin */}
                  <ImageEffectsPlugin
@@ -2769,12 +2751,15 @@ const QuickPixl = () => {
           ) : activeSection === 'images' ? (
             <ErrorBoundary>
               <ImageEditor 
+                imageInputs={imageInputs}
+                onImageInputsChange={setImageInputs}
                 onSubmitVariation={(imageArrays) => {
                   // Handle image variation submission logic here
                   console.log('Image variations submitted:', imageArrays);
                 }}
-                onFocusInputTab={(i) => {
-                  const id = (`II${i+1}`) as ImageTabId;
+                onFocusInputTab={(inputId) => {
+                  const index = imageInputs.findIndex(input => input.id === inputId);
+                  const id = (`II${index + 1}`) as ImageTabId;
                   ensureImageTab(id);
                   setActiveImageTab(id);
                 }}

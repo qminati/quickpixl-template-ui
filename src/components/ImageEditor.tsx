@@ -4,6 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ChevronLeft, ChevronRight, Settings as SettingsIcon, Copy as CopyIcon, Plus, Minus } from 'lucide-react';
 import { ImageInput, ImageInputSettings } from '@/types/interfaces';
 import { getBlobUrl } from '@/utils/imageUtils';
+import ImageInputPlugin from './ImageInputPlugin';
 
 interface ImageEditorProps {
   onSubmitVariation: (images: File[][]) => void;
@@ -23,22 +24,22 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
   ]);
   
   const [currentPreviewIndex, setCurrentPreviewIndex] = useState(0);
-  const [selectedInputId, setSelectedInputId] = useState<string>('');
+  const [currentInputIndex, setCurrentInputIndex] = useState(0);
+  const [isImageInputExpanded, setIsImageInputExpanded] = useState(true);
 
   // Use prop inputs if provided, otherwise use internal state
   const imageInputs = propImageInputs || internalImageInputs;
 
-  // Set initial selected input ID
+  // Ensure currentInputIndex is within bounds
   useEffect(() => {
-    if (imageInputs.length > 0 && !selectedInputId) {
-      setSelectedInputId(imageInputs[0].id);
+    if (currentInputIndex >= imageInputs.length) {
+      setCurrentInputIndex(Math.max(0, imageInputs.length - 1));
     }
-  }, [imageInputs, selectedInputId]);
+  }, [imageInputs, currentInputIndex]);
 
-  // Get images from selected input or all inputs
+  // Get images from current input index
   const getCurrentInputImages = (): File[] => {
-    const selectedInput = imageInputs.find(input => input.id === selectedInputId);
-    return selectedInput ? selectedInput.selectedImages : [];
+    return imageInputs[currentInputIndex]?.selectedImages || [];
   };
 
   // Get all images from all inputs for preview
@@ -48,7 +49,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
 
   const currentInputImages = getCurrentInputImages();
   const allImages = getAllImages();
-  const currentPreviewImage = selectedInputId 
+  const currentPreviewImage = currentInputIndex < imageInputs.length
     ? currentInputImages[currentPreviewIndex] 
     : allImages[currentPreviewIndex];
 
@@ -121,14 +122,14 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
   };
 
   const handlePreviousImage = () => {
-    const imagesToUse = selectedInputId ? currentInputImages : allImages;
+    const imagesToUse = currentInputImages;
     if (imagesToUse.length > 0) {
       setCurrentPreviewIndex(prev => prev > 0 ? prev - 1 : imagesToUse.length - 1);
     }
   };
 
   const handleNextImage = () => {
-    const imagesToUse = selectedInputId ? currentInputImages : allImages;
+    const imagesToUse = currentInputImages;
     if (imagesToUse.length > 0) {
       setCurrentPreviewIndex(prev => prev < imagesToUse.length - 1 ? prev + 1 : 0);
     }
@@ -153,13 +154,13 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
           <div className="bg-muted/30 border-b border-input px-4 py-2 rounded-t-lg flex items-center justify-between">
             <div className="flex items-center space-x-4">
               {/* Input Selector Dropdown */}
-              <Select value={selectedInputId} onValueChange={setSelectedInputId}>
+              <Select value={currentInputIndex.toString()} onValueChange={(value) => setCurrentInputIndex(parseInt(value))}>
                 <SelectTrigger className="w-[150px] h-7">
                   <SelectValue placeholder="Select input" />
                 </SelectTrigger>
                 <SelectContent>
                   {imageInputs.map((input, index) => (
-                    <SelectItem key={input.id} value={input.id}>
+                    <SelectItem key={input.id} value={index.toString()}>
                       Image Input {index + 1}
                     </SelectItem>
                   ))}
@@ -170,15 +171,15 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
                 variant="outline"
                 size="sm"
                 onClick={handlePreviousImage}
-                disabled={(selectedInputId ? currentInputImages : allImages).length <= 1}
+                disabled={currentInputImages.length <= 1}
                 className="h-7 px-2"
               >
                 <ChevronLeft className="w-4 h-4" />
               </Button>
               
               <span className="text-sm text-muted-foreground">
-                {(selectedInputId ? currentInputImages : allImages).length > 0 
-                  ? `${currentPreviewIndex + 1} of ${(selectedInputId ? currentInputImages : allImages).length}` 
+                {currentInputImages.length > 0 
+                  ? `${currentPreviewIndex + 1} of ${currentInputImages.length}` 
                   : 'No images'
                 }
               </span>
@@ -187,7 +188,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
                 variant="outline"
                 size="sm"
                 onClick={handleNextImage}
-                disabled={(selectedInputId ? currentInputImages : allImages).length <= 1}
+                disabled={currentInputImages.length <= 1}
                 className="h-7 px-2"
               >
                 <ChevronRight className="w-4 h-4" />
@@ -195,9 +196,9 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
             </div>
             
             {/* Thumbnail Navigation */}
-            {(selectedInputId ? currentInputImages : allImages).length > 0 && (
+            {currentInputImages.length > 0 && (
               <div className="flex items-center space-x-1">
-                {(selectedInputId ? currentInputImages : allImages).slice(0, 5).map((image, index) => (
+                {currentInputImages.slice(0, 5).map((image, index) => (
                   <button
                     key={`thumb-${index}`}
                     onClick={() => setCurrentPreviewIndex(index)}
@@ -218,9 +219,9 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
                     />
                   </button>
                 ))}
-                {(selectedInputId ? currentInputImages : allImages).length > 5 && (
+                {currentInputImages.length > 5 && (
                   <span className="text-xs text-muted-foreground px-2">
-                    +{(selectedInputId ? currentInputImages : allImages).length - 5} more
+                    +{currentInputImages.length - 5} more
                   </span>
                 )}
               </div>
@@ -253,92 +254,130 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
           </div>
         </div>
 
-        {/* Image Input Management Panel */}
-        <div className="bg-card border border-input rounded-lg p-4 flex-1 flex flex-col">
-          <h3 className="text-sm font-medium text-foreground mb-3">Image Input Management</h3>
-          
-          {/* Image Input Fields */}
-          <div className="space-y-2 mb-4">
-            {imageInputs.map((input, index) => (
-              <div key={input.id} className="flex items-center space-x-3">
-                <span className="text-sm text-muted-foreground min-w-[20px]">
-                  {index + 1}.
-                </span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onFocusInputTab(input.id)}
-                  className="p-2 h-8 w-8"
-                  title="Input settings"
-                >
-                  <SettingsIcon className="w-4 h-4" />
-                </Button>
-                
-                {/* Thumbnails of selected images */}
-                <div className="flex-1 flex items-center space-x-2 min-h-[32px] bg-background border border-input rounded px-3 py-1">
-                  {input.selectedImages.length > 0 ? (
-                    <>
-                      <div className="flex items-center space-x-1 flex-1">
-                        {input.selectedImages.slice(0, 3).map((image, imgIndex) => (
-                          <div key={`img-${imgIndex}`} className="w-6 h-6 rounded border overflow-hidden">
-                            <img
-                              src={getBlobUrlSafe(image)}
-                              alt={`Image ${imgIndex + 1}`}
-                              className="w-full h-full object-cover"
-                              onError={(e) => {
-                                const target = e.target as HTMLImageElement;
-                                target.style.display = 'none';
-                              }}
-                            />
-                          </div>
-                        ))}
-                        {input.selectedImages.length > 3 && (
-                          <span className="text-xs text-muted-foreground">
-                            +{input.selectedImages.length - 3}
-                          </span>
-                        )}
-                      </div>
-                      <span className="text-xs text-muted-foreground">
-                        {input.selectedImages.length} image{input.selectedImages.length !== 1 ? 's' : ''}
-                      </span>
-                    </>
-                  ) : (
-                    <span className="text-sm text-muted-foreground">No images selected</span>
-                  )}
-                </div>
-                
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => duplicateImageInput(input.id)}
-                  className="p-2 h-8 w-8"
-                  title="Duplicate input"
-                >
-                  <CopyIcon className="w-4 h-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => removeImageInput(input.id)}
-                  disabled={imageInputs.length <= 1}
-                  className="p-2 h-8 w-8"
-                >
-                  <Minus className="w-4 h-4" />
-                </Button>
-              </div>
-            ))}
+        {/* Image Upload and Management */}
+        <div className="bg-card border border-input rounded-lg flex-1 flex flex-col">
+          {/* Image Upload Plugin */}
+          <div className="p-4 border-b border-input">
+            <ImageInputPlugin
+              isExpanded={isImageInputExpanded}
+              onToggleExpanded={() => setIsImageInputExpanded(v => !v)}
+              settings={{ 
+                selectedImages: imageInputs[currentInputIndex]?.selectedImages || [], 
+                selectionMode: imageInputs[currentInputIndex]?.selectionMode || 'multiple' 
+              }}
+              onSettingsChange={(settings: ImageInputSettings) => {
+                const updated = [...imageInputs];
+                updated[currentInputIndex] = { 
+                  ...updated[currentInputIndex], 
+                  selectedImages: settings.selectedImages,
+                  selectionMode: settings.selectionMode
+                };
+                if (onImageInputsChange) {
+                  onImageInputsChange(updated);
+                } else {
+                  setInternalImageInputs(updated);
+                }
+              }}
+              onAddVariation={() => {
+                const nextId = `II${imageInputs.length + 1}`;
+                const newInput = { id: nextId, selectedImages: [], selectionMode: 'multiple' as const };
+                const updated = [...imageInputs, newInput];
+                if (onImageInputsChange) {
+                  onImageInputsChange(updated);
+                } else {
+                  setInternalImageInputs(updated);
+                }
+                const nextIndex = updated.length - 1;
+                setCurrentInputIndex(nextIndex);
+                onFocusInputTab?.(nextId);
+              }}
+            />
           </div>
 
-          {/* Add Button */}
-          <div className="flex justify-end">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={addImageInput}
-              className="p-2 h-8 w-8"
-            >
-              <Plus className="w-4 h-4" />
-            </Button>
+          {/* Image Input Management */}
+          <div className="p-4 flex-1">
+            <h3 className="text-sm font-medium text-foreground mb-3">Manage Image Inputs</h3>
+            
+            <div className="space-y-2 mb-4">
+              {imageInputs.map((input, index) => (
+                <div key={input.id} className="flex items-center space-x-3">
+                  <span className="text-sm text-muted-foreground min-w-[20px]">
+                    {index + 1}.
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onFocusInputTab(input.id)}
+                    className="p-2 h-8 w-8"
+                    title="Input settings"
+                  >
+                    <SettingsIcon className="w-4 h-4" />
+                  </Button>
+                  
+                  <div className="flex-1 flex items-center space-x-2 min-h-[32px] bg-background border border-input rounded px-3 py-1">
+                    {input.selectedImages.length > 0 ? (
+                      <>
+                        <div className="flex items-center space-x-1 flex-1">
+                          {input.selectedImages.slice(0, 3).map((image, imgIndex) => (
+                            <div key={`img-${imgIndex}`} className="w-6 h-6 rounded border overflow-hidden">
+                              <img
+                                src={getBlobUrlSafe(image)}
+                                alt={`Image ${imgIndex + 1}`}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
+                                  target.style.display = 'none';
+                                }}
+                              />
+                            </div>
+                          ))}
+                          {input.selectedImages.length > 3 && (
+                            <span className="text-xs text-muted-foreground">
+                              +{input.selectedImages.length - 3}
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-xs text-muted-foreground">
+                          {input.selectedImages.length} image{input.selectedImages.length !== 1 ? 's' : ''}
+                        </span>
+                      </>
+                    ) : (
+                      <span className="text-sm text-muted-foreground">No images selected</span>
+                    )}
+                  </div>
+                  
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => duplicateImageInput(input.id)}
+                    className="p-2 h-8 w-8"
+                    title="Duplicate input"
+                  >
+                    <CopyIcon className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => removeImageInput(input.id)}
+                    disabled={imageInputs.length <= 1}
+                    className="p-2 h-8 w-8"
+                  >
+                    <Minus className="w-4 h-4" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex justify-end">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={addImageInput}
+                className="p-2 h-8 w-8"
+              >
+                <Plus className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
         </div>
       </div>
