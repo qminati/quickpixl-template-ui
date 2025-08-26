@@ -18,6 +18,10 @@
     --card: 0 0% 18%;
     --card-foreground: 0 0% 98%;
 
+    /* Popover colors */
+    --popover: 0 0% 18%;
+    --popover-foreground: 0 0% 98%;
+
     /* Interactive elements */
     --primary: 25 95% 53%;  /* Orange accent */
     --primary-foreground: 0 0% 98%;
