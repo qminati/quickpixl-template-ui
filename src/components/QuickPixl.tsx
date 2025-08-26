@@ -1059,6 +1059,23 @@ const QuickPixl = () => {
     );
   };
 
+  // Functions to handle collapse/expand all for text settings
+  const handleCollapseAll = () => {
+    setIsColorFillExpanded(false);
+    setIsFontsExpanded(false);
+    setIsTypographyExpanded(false);
+    setIsTextShapeExpanded(false);
+    setIsRotateFlipExpanded(false);
+  };
+
+  const handleShowAll = () => {
+    setIsColorFillExpanded(true);
+    setIsFontsExpanded(true);
+    setIsTypographyExpanded(true);
+    setIsTextShapeExpanded(true);
+    setIsRotateFlipExpanded(true);
+  };
+
   const renderSettingsPanel = () => {
     const settingsMap = {
       text: 'Text Settings',
@@ -1070,9 +1087,31 @@ const QuickPixl = () => {
 
     return (
       <div className="w-80 bg-panel border-r border-panel-border p-4 flex flex-col h-full">
-        <h3 className="text-foreground text-lg font-medium mb-4">
-          {settingsMap[activeSection as keyof typeof settingsMap]}
-        </h3>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-foreground text-lg font-medium">
+            {settingsMap[activeSection as keyof typeof settingsMap]}
+          </h3>
+          {activeSection === 'text' && (
+            <div className="flex space-x-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleCollapseAll}
+                className="text-xs px-2 py-1 h-6 text-muted-foreground hover:text-foreground"
+              >
+                Collapse All
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleShowAll}
+                className="text-xs px-2 py-1 h-6 text-muted-foreground hover:text-foreground"
+              >
+                Show All
+              </Button>
+            </div>
+          )}
+        </div>
         <div 
           ref={leftSettingsRef}
           className="flex-1 space-y-4 overflow-y-auto"
