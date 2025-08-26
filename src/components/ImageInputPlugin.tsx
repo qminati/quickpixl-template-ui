@@ -49,13 +49,12 @@ const ImageInputPlugin: React.FC<ImageInputPluginProps> = ({
       }
 
       if (validFiles.length > 0) {
-        const newImages = settings.selectionMode === 'single' 
-          ? [validFiles[validFiles.length - 1]] // Keep only the last selected image for single mode
-          : [...settings.selectedImages, ...validFiles];
+        const newImages = [...settings.selectedImages, ...validFiles];
         
         onSettingsChange({
           ...settings,
-          selectedImages: newImages
+          selectedImages: newImages,
+          selectionMode: validFiles.length === 1 && settings.selectedImages.length === 0 ? 'single' : 'multiple'
         });
         
         toast.success(`${validFiles.length} image${validFiles.length > 1 ? 's' : ''} uploaded successfully!`);
@@ -84,20 +83,6 @@ const ImageInputPlugin: React.FC<ImageInputPluginProps> = ({
     toast.success('Image removed');
   };
 
-  const handleSelectionModeChange = (mode: 'single' | 'multiple') => {
-    let newImages = settings.selectedImages;
-    
-    // If switching to single mode and multiple images are selected, keep only the first one
-    if (mode === 'single' && settings.selectedImages.length > 1) {
-      newImages = [settings.selectedImages[0]];
-    }
-    
-    onSettingsChange({
-      ...settings,
-      selectionMode: mode,
-      selectedImages: newImages
-    });
-  };
 
   const getBlobUrlSafe = (file: File): string => {
     try {
@@ -131,51 +116,27 @@ const ImageInputPlugin: React.FC<ImageInputPluginProps> = ({
           <div className="p-3 pt-0 space-y-4">
             {/* Image Upload Section */}
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-foreground">Image Selection</span>
-                <div className="flex items-center space-x-2">
-                  <Button
-                    variant={settings.selectionMode === 'single' ? 'default' : 'outline'}
-                    size="sm"
-                    className="h-6 px-2 text-xs"
-                    onClick={() => handleSelectionModeChange('single')}
-                  >
-                    Single
-                  </Button>
-                  <Button
-                    variant={settings.selectionMode === 'multiple' ? 'default' : 'outline'}
-                    size="sm"
-                    className="h-6 px-2 text-xs"
-                    onClick={() => handleSelectionModeChange('multiple')}
-                  >
-                    Multiple
-                  </Button>
-                </div>
-              </div>
+              <span className="text-xs font-medium text-foreground">Upload Images</span>
               
               <div className="relative">
                 <input
                   type="file"
                   accept="image/*"
-                  multiple={settings.selectionMode === 'multiple'}
+                  multiple
                   onChange={handleImageUpload}
                   disabled={isUploading}
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
                   id="image-input"
                 />
-                <Button
-                  variant="outline"
-                  className="w-full h-16 border-2 border-dashed border-panel-border hover:border-primary hover:bg-primary/5 transition-colors"
-                  disabled={isUploading}
-                  asChild
+                <div
+                  className="w-full h-16 border-2 border-dashed border-panel-border hover:border-primary hover:bg-primary/5 transition-colors cursor-pointer flex flex-col items-center justify-center space-y-1 rounded-lg"
+                  onClick={() => document.getElementById('image-input')?.click()}
                 >
-                  <label htmlFor="image-input" className="cursor-pointer flex flex-col items-center justify-center space-y-1">
-                    <Upload className="w-4 h-4 text-muted-foreground" />
-                    <span className="text-xs text-muted-foreground">
-                      {isUploading ? 'Uploading...' : 'Upload Images'}
-                    </span>
-                  </label>
-                </Button>
+                  <Upload className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-xs text-muted-foreground">
+                    {isUploading ? 'Uploading...' : 'Click to upload images'}
+                  </span>
+                </div>
               </div>
             </div>
 

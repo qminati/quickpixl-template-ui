@@ -1,296 +1,391 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, Settings as SettingsIcon, Copy as CopyIcon, Plus, Minus } from 'lucide-react';
-import { ImageInput } from '@/types/interfaces';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Plus, Settings, Copy, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ImageTabSettings, ImagePluginSettings, ImageInputSettings } from '@/types/interfaces';
+import ImageInputPlugin from './ImageInputPlugin';
+import ImageEffectsPlugin from './ImageEffectsPlugin';
+import { getBlobUrl } from '@/utils/imageUtils';
 
 interface ImageEditorProps {
-  onSubmitVariation: (images: File[][]) => void;
-  onFocusInputTab?: (index: number) => void;
+  imageSettings: ImageTabSettings;
+  onImageSettingsChange: (settings: ImageTabSettings) => void;
 }
 
-const ImageEditor: React.FC<ImageEditorProps> = ({ 
-  onSubmitVariation, 
-  onFocusInputTab = () => {} 
+const ImageEditor: React.FC<ImageEditorProps> = ({
+  imageSettings,
+  onImageSettingsChange
 }) => {
-  const [imageInputs, setImageInputs] = useState<ImageInput[]>([
-    { id: crypto.randomUUID(), selectedImages: [], selectionMode: 'multiple' },
-    { id: crypto.randomUUID(), selectedImages: [], selectionMode: 'multiple' },
-    { id: crypto.randomUUID(), selectedImages: [], selectionMode: 'multiple' }
-  ]);
-  
-  const [currentPreviewIndex, setCurrentPreviewIndex] = useState(0);
+  const [activeTab, setActiveTab] = useState('global');
+  const [expandedPlugins, setExpandedPlugins] = useState<Record<string, boolean>>({});
+  const [selectedInputId, setSelectedInputId] = useState('II1');
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  // Get all images from all inputs for preview
-  const getAllImages = (): File[] => {
-    return imageInputs.flatMap(input => input.selectedImages);
-  };
+  // Get current input's images
+  const selectedInputImages = imageSettings.inputs[selectedInputId]?.imageInput?.selectedImages || [];
 
-  const allImages = getAllImages();
-  const currentPreviewImage = allImages[currentPreviewIndex];
+  // Reset image index when switching inputs or when images change
+  useEffect(() => {
+    setCurrentImageIndex(0);
+  }, [selectedInputId, selectedInputImages.length]);
 
-  const addImageInput = () => {
-    const newInput: ImageInput = {
-      id: crypto.randomUUID(),
-      selectedImages: [],
-      selectionMode: 'multiple'
-    };
-    setImageInputs(prev => [...prev, newInput]);
-  };
-
-  const removeImageInput = (id: string) => {
-    if (imageInputs.length > 1) {
-      setImageInputs(prev => prev.filter(input => input.id !== id));
+  // Update selected input when inputs change
+  useEffect(() => {
+    const inputIds = Object.keys(imageSettings.inputs);
+    if (inputIds.length > 0 && !inputIds.includes(selectedInputId)) {
+      setSelectedInputId(inputIds[0]);
     }
-  };
+  }, [imageSettings.inputs, selectedInputId]);
 
-  const duplicateImageInput = (id: string) => {
-    const inputToDuplicate = imageInputs.find(input => input.id === id);
-    if (inputToDuplicate) {
-      const newInput: ImageInput = {
-        id: crypto.randomUUID(),
-        selectedImages: [...inputToDuplicate.selectedImages], // Copy the images
-        selectionMode: inputToDuplicate.selectionMode
+  const addImageInput = useCallback(() => {
+    const inputCount = Object.keys(imageSettings.inputs).length;
+    const newInputId = `II${inputCount + 1}`;
+    
+    const newInput: ImagePluginSettings = {
+      imageInput: {
+        selectedImages: [],
+        selectionMode: 'multiple'
+      },
+      imageEffects: {
+        brightness: 100,
+        contrast: 100,
+        saturation: 100,
+        hue: 0,
+        colorize: false,
+        grayscale: false,
+        invert: false
+      }
+    };
+
+    onImageSettingsChange({
+      ...imageSettings,
+      inputs: {
+        ...imageSettings.inputs,
+        [newInputId]: newInput
+      }
+    });
+
+    setActiveTab(newInputId);
+  }, [imageSettings, onImageSettingsChange]);
+
+  const removeImageInput = useCallback((inputId: string) => {
+    const { [inputId]: removed, ...remaining } = imageSettings.inputs;
+    
+    onImageSettingsChange({
+      ...imageSettings,
+      inputs: remaining
+    });
+
+    // Switch to global tab if we removed the active tab
+    if (activeTab === inputId) {
+      setActiveTab('global');
+    }
+  }, [imageSettings, onImageSettingsChange, activeTab]);
+
+  const duplicateImageInput = useCallback((inputId: string) => {
+    const inputToDuplicate = imageSettings.inputs[inputId];
+    if (!inputToDuplicate) return;
+
+    const inputCount = Object.keys(imageSettings.inputs).length;
+    const newInputId = `II${inputCount + 1}`;
+
+    onImageSettingsChange({
+      ...imageSettings,
+      inputs: {
+        ...imageSettings.inputs,
+        [newInputId]: JSON.parse(JSON.stringify(inputToDuplicate)) // Deep copy
+      }
+    });
+
+    setActiveTab(newInputId);
+  }, [imageSettings, onImageSettingsChange]);
+
+  const updateCurrentTabSettings = useCallback((pluginType: keyof ImagePluginSettings, settings: any) => {
+    if (activeTab === 'global') {
+      onImageSettingsChange({
+        ...imageSettings,
+        global: {
+          ...imageSettings.global,
+          [pluginType]: settings
+        }
+      });
+    } else {
+      const currentInput = imageSettings.inputs[activeTab] || {
+        imageInput: { selectedImages: [], selectionMode: 'multiple' },
+        imageEffects: { brightness: 100, contrast: 100, saturation: 100, hue: 0, colorize: false, grayscale: false, invert: false }
       };
-      setImageInputs(prev => {
-        const index = prev.findIndex(input => input.id === id);
-        // Insert the duplicate right after the original
-        const newArray = [...prev.slice(0, index + 1), newInput, ...prev.slice(index + 1)];
-        return newArray;
+
+      onImageSettingsChange({
+        ...imageSettings,
+        inputs: {
+          ...imageSettings.inputs,
+          [activeTab]: {
+            ...currentInput,
+            [pluginType]: settings
+          }
+        }
       });
     }
-  };
+  }, [activeTab, imageSettings, onImageSettingsChange]);
 
-  const updateImageInput = (id: string, selectedImages: File[], selectionMode?: 'single' | 'multiple') => {
-    setImageInputs(prev => prev.map(input => 
-      input.id === id ? { 
-        ...input, 
-        selectedImages,
-        ...(selectionMode && { selectionMode })
-      } : input
-    ));
-  };
-
-  const handleSubmit = () => {
-    const imageArrays = imageInputs
-      .map(input => input.selectedImages)
-      .filter(images => images.length > 0);
-    
-    onSubmitVariation(imageArrays);
-  };
-
-  const handlePreviousImage = () => {
-    if (allImages.length > 0) {
-      setCurrentPreviewIndex(prev => prev > 0 ? prev - 1 : allImages.length - 1);
+  const getCurrentImageInputSettings = useCallback((): ImageInputSettings => {
+    if (activeTab === 'global') {
+      return imageSettings.global.imageInput;
+    } else {
+      const inputSettings = imageSettings.inputs[activeTab];
+      return inputSettings?.imageInput || imageSettings.global.imageInput;
     }
-  };
+  }, [activeTab, imageSettings]);
 
-  const handleNextImage = () => {
-    if (allImages.length > 0) {
-      setCurrentPreviewIndex(prev => prev < allImages.length - 1 ? prev + 1 : 0);
+  const getCurrentImageEffectsSettings = useCallback(() => {
+    if (activeTab === 'global') {
+      return imageSettings.global.imageEffects;
+    } else {
+      const inputSettings = imageSettings.inputs[activeTab];
+      return inputSettings?.imageEffects || imageSettings.global.imageEffects;
     }
-  };
+  }, [activeTab, imageSettings]);
 
-  const getBlobUrlSafe = (file: File): string => {
-    try {
-      return URL.createObjectURL(file);
-    } catch (error) {
-      console.error('Failed to create blob URL:', error);
-      return '';
-    }
+  const togglePluginExpanded = useCallback((pluginName: string) => {
+    setExpandedPlugins(prev => ({
+      ...prev,
+      [pluginName]: !prev[pluginName]
+    }));
+  }, []);
+
+  const inputIds = Object.keys(imageSettings.inputs);
+  const hasCustomSettings = (inputId: string) => {
+    return inputId in imageSettings.inputs;
   };
 
   return (
     <div className="h-full flex flex-col">
-      {/* Main Content */}
-      <div className="flex-1 p-6 overflow-auto">
-        {/* Preview Canvas */}
-        <div className="bg-background border border-input rounded-lg mb-4" style={{ height: '300px' }}>
-          {/* Top Toolbar with Image Controls */}
-          <div className="bg-muted/30 border-b border-input px-4 py-2 rounded-t-lg flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handlePreviousImage}
-                disabled={allImages.length <= 1}
-                className="h-7 px-2"
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </Button>
-              
-              <span className="text-sm text-muted-foreground">
-                {allImages.length > 0 ? `${currentPreviewIndex + 1} of ${allImages.length}` : 'No images'}
-              </span>
-              
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleNextImage}
-                disabled={allImages.length <= 1}
-                className="h-7 px-2"
-              >
-                <ChevronRight className="w-4 h-4" />
-              </Button>
-            </div>
-            
-            {/* Thumbnail Navigation */}
-            {allImages.length > 0 && (
-              <div className="flex items-center space-x-1">
-                {allImages.slice(0, 5).map((image, index) => (
-                  <button
-                    key={`thumb-${index}`}
-                    onClick={() => setCurrentPreviewIndex(index)}
-                    className={`w-8 h-8 rounded border-2 overflow-hidden transition-all ${
-                      index === currentPreviewIndex 
-                        ? 'border-primary' 
-                        : 'border-panel-border hover:border-primary/50'
-                    }`}
-                  >
-                    <img
-                      src={getBlobUrlSafe(image)}
-                      alt={`Thumbnail ${index + 1}`}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.style.display = 'none';
-                      }}
-                    />
-                  </button>
-                ))}
-                {allImages.length > 5 && (
-                  <span className="text-xs text-muted-foreground px-2">
-                    +{allImages.length - 5} more
-                  </span>
-                )}
+      <div className="flex-1 overflow-hidden">
+        {/* Image Preview Area */}
+        <div className="bg-card border border-panel-border rounded-lg p-4">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-medium text-foreground">Image Preview</h3>
+            {Object.keys(imageSettings.inputs).length > 0 && (
+              <div className="flex items-center space-x-2">
+                <select
+                  value={selectedInputId}
+                  onChange={(e) => setSelectedInputId(e.target.value)}
+                  className="text-xs bg-background border border-panel-border rounded px-2 py-1"
+                >
+                  {Object.keys(imageSettings.inputs).map((inputId) => (
+                    <option key={inputId} value={inputId}>
+                      {inputId}
+                    </option>
+                  ))}
+                </select>
               </div>
             )}
           </div>
           
-          {/* Canvas Content */}
-          <div className="h-full flex items-center justify-center bg-muted/10">
-            {currentPreviewImage ? (
-              <div className="max-w-full max-h-full p-4">
+          <div className="aspect-video bg-muted rounded-lg flex items-center justify-center border-2 border-dashed border-panel-border relative">
+            {selectedInputImages.length > 0 ? (
+              <>
                 <img
-                  src={getBlobUrlSafe(currentPreviewImage)}
-                  alt="Preview"
-                  className="max-w-full max-h-full object-contain rounded"
+                  src={getBlobUrl(selectedInputImages[currentImageIndex])}
+                  alt={`Preview ${currentImageIndex + 1}`}
+                  className="w-full h-full object-contain rounded-lg"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
                     target.style.display = 'none';
                   }}
                 />
-              </div>
+                {selectedInputImages.length > 1 && (
+                  <>
+                    <button
+                      onClick={() => setCurrentImageIndex(currentImageIndex > 0 ? currentImageIndex - 1 : selectedInputImages.length - 1)}
+                      className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-background/80 hover:bg-background border border-panel-border rounded-full p-1"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => setCurrentImageIndex(currentImageIndex < selectedInputImages.length - 1 ? currentImageIndex + 1 : 0)}
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-background/80 hover:bg-background border border-panel-border rounded-full p-1"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                    <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 bg-background/80 border border-panel-border rounded px-2 py-1">
+                      <span className="text-xs text-foreground">
+                        {currentImageIndex + 1} of {selectedInputImages.length}
+                      </span>
+                    </div>
+                  </>
+                )}
+              </>
             ) : (
-              <div className="text-center text-muted-foreground">
-                <div className="w-16 h-16 mx-auto mb-2 rounded-lg bg-muted flex items-center justify-center">
-                  <span className="text-2xl">🖼️</span>
-                </div>
-                <p className="text-sm">No images selected</p>
-                <p className="text-xs">Upload images using the inputs below</p>
+              <div className="text-center">
+                <span className="text-muted-foreground text-sm block">
+                  {Object.keys(imageSettings.inputs).length > 0 ? selectedInputId : 'Image Input 1'}
+                </span>
+                <span className="text-muted-foreground text-xs">No images loaded</span>
               </div>
             )}
           </div>
         </div>
 
-        {/* Image Input Management Panel */}
-        <div className="bg-card border border-input rounded-lg p-4 flex-1 flex flex-col">
+        {/* Image Input Management */}
+        <div className="bg-card border border-panel-border rounded-lg p-4 mt-4">
           <h3 className="text-sm font-medium text-foreground mb-3">Image Input Management</h3>
           
-          {/* Image Input Fields */}
-          <div className="space-y-2 mb-4">
-            {imageInputs.map((input, index) => (
-              <div key={input.id} className="flex items-center space-x-3">
-                <span className="text-sm text-muted-foreground min-w-[20px]">
-                  {index + 1}.
-                </span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onFocusInputTab(index)}
-                  className="p-2 h-8 w-8"
-                  title="Input settings"
-                >
-                  <SettingsIcon className="w-4 h-4" />
-                </Button>
-                
-                {/* Thumbnails of selected images */}
-                <div className="flex-1 flex items-center space-x-2 min-h-[32px] bg-background border border-input rounded px-3 py-1">
-                  {input.selectedImages.length > 0 ? (
-                    <>
-                      <div className="flex items-center space-x-1 flex-1">
-                        {input.selectedImages.slice(0, 3).map((image, imgIndex) => (
-                          <div key={`img-${imgIndex}`} className="w-6 h-6 rounded border overflow-hidden">
-                            <img
-                              src={getBlobUrlSafe(image)}
-                              alt={`Image ${imgIndex + 1}`}
-                              className="w-full h-full object-cover"
-                              onError={(e) => {
-                                const target = e.target as HTMLImageElement;
-                                target.style.display = 'none';
-                              }}
-                            />
-                          </div>
-                        ))}
-                        {input.selectedImages.length > 3 && (
-                          <span className="text-xs text-muted-foreground">
-                            +{input.selectedImages.length - 3}
-                          </span>
-                        )}
+          <div className="space-y-2">
+            {inputIds.map((inputId) => {
+              const input = imageSettings.inputs[inputId];
+              const imageCount = input?.imageInput?.selectedImages?.length || 0;
+              
+              return (
+                <div key={inputId} className="flex items-center space-x-2 p-2 bg-background rounded border">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setActiveTab(inputId)}
+                    className="p-1 h-6 w-6"
+                    title="Jump to settings"
+                  >
+                    <Settings className="w-3 h-3" />
+                  </Button>
+                  
+                  <span className="text-sm font-medium text-foreground min-w-[60px]">
+                    {inputId}
+                  </span>
+                  
+                  <div className="flex-1 flex items-center space-x-1">
+                    {input?.imageInput?.selectedImages?.slice(0, 4).map((image, idx) => (
+                      <div key={idx} className="w-6 h-6 rounded border overflow-hidden">
+                        <img
+                          src={getBlobUrl(image)}
+                          alt={`Thumb ${idx + 1}`}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                          }}
+                        />
                       </div>
-                      <span className="text-xs text-muted-foreground">
-                        {input.selectedImages.length} image{input.selectedImages.length !== 1 ? 's' : ''}
-                      </span>
-                    </>
-                  ) : (
-                    <span className="text-sm text-muted-foreground">No images selected</span>
-                  )}
+                    ))}
+                    {imageCount > 4 && (
+                      <span className="text-xs text-muted-foreground">+{imageCount - 4}</span>
+                    )}
+                    {imageCount === 0 && (
+                      <span className="text-xs text-muted-foreground">No images</span>
+                    )}
+                  </div>
+                  
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => duplicateImageInput(inputId)}
+                    className="p-1 h-6 w-6"
+                    title="Duplicate"
+                  >
+                    <Copy className="w-3 h-3" />
+                  </Button>
+                  
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => removeImageInput(inputId)}
+                    className="p-1 h-6 w-6"
+                    title="Remove"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                  </Button>
                 </div>
-                
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => duplicateImageInput(input.id)}
-                  className="p-2 h-8 w-8"
-                  title="Duplicate input"
-                >
-                  <CopyIcon className="w-4 h-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => removeImageInput(input.id)}
-                  disabled={imageInputs.length <= 1}
-                  className="p-2 h-8 w-8"
-                >
-                  <Minus className="w-4 h-4" />
-                </Button>
-              </div>
-            ))}
-          </div>
-
-          {/* Add Button */}
-          <div className="flex justify-end">
+              );
+            })}
+            
             <Button
               variant="outline"
               size="sm"
               onClick={addImageInput}
-              className="p-2 h-8 w-8"
+              className="w-full h-8 text-xs"
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="w-3 h-3 mr-1" />
+              Add Image Input
             </Button>
           </div>
         </div>
-      </div>
 
-      {/* Submit Button Container - Fixed at Bottom */}
-      <div className="border-t border-input bg-card p-4">
-        <Button 
-          onClick={handleSubmit}
-          className="w-full py-3 font-medium"
-          disabled={imageInputs.every(input => input.selectedImages.length === 0)}
-        >
-          Submit Variation
-        </Button>
+        {/* Tabs for Settings */}
+        <div className="mt-4">
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="grid w-full grid-cols-[auto_1fr] gap-1">
+              <TabsTrigger value="global" className="text-xs px-3">
+                GLOBAL
+              </TabsTrigger>
+              
+              <div className="flex flex-wrap gap-1">
+                {inputIds.map((inputId) => (
+                  <TabsTrigger
+                    key={inputId}
+                    value={inputId}
+                    className={`text-xs px-2 relative ${
+                      hasCustomSettings(inputId) ? 'font-medium' : ''
+                    }`}
+                  >
+                    {inputId}
+                    {hasCustomSettings(inputId) && (
+                      <div className="absolute -top-1 -right-1 w-2 h-2 bg-primary rounded-full"></div>
+                    )}
+                  </TabsTrigger>
+                ))}
+              </div>
+            </TabsList>
+
+            <TabsContent value="global" className="mt-4 space-y-3">
+              <div className="text-xs text-muted-foreground mb-3">
+                Global settings apply to all image inputs unless overridden
+              </div>
+              
+              <div className="space-y-2">
+                <ImageInputPlugin
+                  isExpanded={expandedPlugins['imageInput'] || false}
+                  onToggleExpanded={() => togglePluginExpanded('imageInput')}
+                  settings={getCurrentImageInputSettings()}
+                  onSettingsChange={(settings) => updateCurrentTabSettings('imageInput', settings)}
+                  onAddVariation={() => {}}
+                />
+                
+                <ImageEffectsPlugin
+                  isExpanded={expandedPlugins['imageEffects'] || false}
+                  onToggleExpanded={() => togglePluginExpanded('imageEffects')}
+                  settings={getCurrentImageEffectsSettings()}
+                  onSettingsChange={(settings) => updateCurrentTabSettings('imageEffects', settings)}
+                  onAddVariation={() => {}}
+                />
+              </div>
+            </TabsContent>
+
+            {inputIds.map((inputId) => (
+              <TabsContent key={inputId} value={inputId} className="mt-4 space-y-3">
+                <div className="text-xs text-muted-foreground mb-3">
+                  Settings for {inputId} (overrides global settings)
+                </div>
+                
+                <div className="space-y-2">
+                  <ImageInputPlugin
+                    isExpanded={expandedPlugins[`${inputId}-imageInput`] || false}
+                    onToggleExpanded={() => togglePluginExpanded(`${inputId}-imageInput`)}
+                    settings={getCurrentImageInputSettings()}
+                    onSettingsChange={(settings) => updateCurrentTabSettings('imageInput', settings)}
+                    onAddVariation={() => {}}
+                  />
+                  
+                  <ImageEffectsPlugin
+                    isExpanded={expandedPlugins[`${inputId}-imageEffects`] || false}
+                    onToggleExpanded={() => togglePluginExpanded(`${inputId}-imageEffects`)}
+                    settings={getCurrentImageEffectsSettings()}
+                    onSettingsChange={(settings) => updateCurrentTabSettings('imageEffects', settings)}
+                    onAddVariation={() => {}}
+                  />
+                </div>
+              </TabsContent>
+            ))}
+          </Tabs>
+        </div>
       </div>
     </div>
   );
