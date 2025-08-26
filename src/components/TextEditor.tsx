@@ -32,7 +32,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
     { id: crypto.randomUUID(), text: '' }
   ]);
   const [previewText, setPreviewText] = useState('Sample Text');
-  const [previewBackgroundColor, setPreviewBackgroundColor] = useState('#ffffff');
+  const [previewBackgroundColor, setPreviewBackgroundColor] = useState('#000000');
 
   const addTextInput = () => {
     const newInput: TextInput = {
