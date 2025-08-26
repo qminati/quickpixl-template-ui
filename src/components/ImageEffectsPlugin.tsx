@@ -114,26 +114,14 @@ const ImageEffectsPlugin: React.FC<ImageEffectsPluginProps> = ({
                   <span className="text-xs text-muted-foreground">Hue</span>
                   <span className="text-xs text-muted-foreground">{settings.hue}°</span>
                 </div>
-                <div className="relative">
-                  <Slider
-                    value={[settings.hue]}
-                    onValueChange={([value]) => updateSettings({ hue: value })}
-                    min={0}
-                    max={360}
-                    step={1}
-                    className="[&>span:first-child]:!bg-transparent [&>span:first-child>span]:bg-transparent"
-                    style={{
-                      '--rainbow-gradient': 'linear-gradient(to right, #ff0000 0%, #ffff00 16.66%, #00ff00 33.33%, #00ffff 50%, #0000ff 66.66%, #ff00ff 83.33%, #ff0000 100%)'
-                    } as React.CSSProperties}
-                  />
-                  <div 
-                    className="absolute inset-0 rounded-full pointer-events-none h-2 top-1/2 -translate-y-1/2"
-                    style={{
-                      background: 'linear-gradient(to right, #ff0000 0%, #ffff00 16.66%, #00ff00 33.33%, #00ffff 50%, #0000ff 66.66%, #ff00ff 83.33%, #ff0000 100%)',
-                      zIndex: -1
-                    }}
-                  />
-                </div>
+                <Slider
+                  value={[settings.hue]}
+                  onValueChange={([value]) => updateSettings({ hue: value })}
+                  min={0}
+                  max={360}
+                  step={1}
+                  className="[&_[data-radix-slider-track]]:bg-gradient-to-r [&_[data-radix-slider-track]]:from-red-500 [&_[data-radix-slider-track]]:via-yellow-500 [&_[data-radix-slider-track]]:via-green-500 [&_[data-radix-slider-track]]:via-cyan-500 [&_[data-radix-slider-track]]:via-blue-500 [&_[data-radix-slider-track]]:via-purple-500 [&_[data-radix-slider-track]]:to-red-500"
+                />
               </div>
               
               {/* Colorize, Greyscale, and Invert options */}
