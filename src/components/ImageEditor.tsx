@@ -149,7 +149,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
       {/* Main Content */}
       <div className="flex-1 p-6 overflow-auto">
         {/* Preview Canvas */}
-        <div className="bg-background border border-input rounded-lg mb-4 overflow-hidden" style={{ height: '400px' }}>
+        <div className="bg-background border border-input rounded-lg mb-4 overflow-hidden" style={{ height: '320px' }}>
           {/* Top Toolbar with Image Controls */}
           <div className="bg-muted/30 border-b border-input px-4 py-2 rounded-t-lg flex items-center justify-between">
             <div className="flex items-center space-x-4">
@@ -202,7 +202,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
                   <button
                     key={`thumb-${index}`}
                     onClick={() => setCurrentPreviewIndex(index)}
-                    className={`w-1 h-1 rounded border overflow-hidden transition-all ${
+                    className={`w-px h-px rounded border overflow-hidden transition-all ${
                       index === currentPreviewIndex 
                         ? 'border-primary' 
                         : 'border-panel-border hover:border-primary/50'
@@ -285,7 +285,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
           <div className="p-4 flex-1">
             <h3 className="text-sm font-medium text-foreground mb-3">Manage Image Inputs</h3>
             
-            <div className="space-y-2 mb-4">
+            <div className="space-y-2 mb-4 max-h-48 overflow-y-auto">
               {imageInputs.map((input, index) => (
                 <div key={input.id} className="flex items-center space-x-3">
                   <span className="text-sm text-muted-foreground min-w-[20px]">

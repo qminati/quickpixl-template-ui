@@ -92,7 +92,7 @@ const ImageInputPlugin: React.FC<ImageInputPluginProps> = ({
                   </span>
                 </div>
 
-                 <div className="grid grid-cols-10 gap-0.5 max-h-32 overflow-y-auto">
+                 <div className="grid grid-cols-12 gap-0.5 max-h-20 overflow-y-auto">
                   {settings.selectedImages.map((image, i) => (
                     <div key={`${image.name}-${image.size}-${i}`} className="relative group">
                       <div className="aspect-square bg-muted rounded border overflow-hidden">
