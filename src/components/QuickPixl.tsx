@@ -1840,47 +1840,98 @@ const QuickPixl = () => {
                   </div>
                 )}
                 
-                {typographyVariations.length > 0 && (
-                 <div className="bg-card border border-panel-border rounded-lg p-4">
-                   <h4 className="text-sm font-medium text-foreground mb-3 flex items-center space-x-2">
-                     <Type className="w-4 h-4 text-primary" />
-                     <span>Typography Variations</span>
-                     <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
-                       {typographyVariations.length}
-                     </span>
-                   </h4>
-                   <div className="space-y-2">
-                     {typographyVariations.map((variation) => (
-                       <div key={variation.id} className="bg-secondary/30 rounded-lg p-3">
-                         <div className="flex items-center justify-between mb-2">
-                           <span className="text-xs font-medium text-foreground">{variation.description}</span>
-                           <Button
-                             variant="ghost"
-                             size="sm"
-                             onClick={() => handleRemoveTypographyVariation(variation.id)}
-                             className="p-1 text-muted-foreground hover:text-destructive"
-                           >
-                             <Trash2 className="w-3 h-3" />
-                           </Button>
-                         </div>
-                         <div className="flex items-center space-x-2 text-xs text-muted-foreground">
-                           {variation.settings.bold && <span className="font-bold">B</span>}
-                           {variation.settings.italic && <span className="italic">I</span>}
-                           {variation.settings.underline && <span className="underline">U</span>}
-                           {variation.settings.textCase !== 'normal' && (
-                             <span>{variation.settings.textCase === 'uppercase' ? 'ABC' : 'abc'}</span>
-                           )}
-                           {variation.settings.textStroke && <span>STR</span>}
-                           <span>•</span>
-                           <span>{variation.settings.textAlign}</span>
-                         </div>
-                       </div>
-                     ))}
-                   </div>
-                 </div>
-               )}
+                 {typographyVariations.length > 0 && (
+                  <div className="bg-card border border-panel-border rounded-lg p-4">
+                    <h4 className="text-sm font-medium text-foreground mb-3 flex items-center space-x-2">
+                      <Type className="w-4 h-4 text-primary" />
+                      <span>Typography Variations</span>
+                      <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
+                        {typographyVariations.length}
+                      </span>
+                    </h4>
+                    <div className="space-y-2">
+                      {typographyVariations.map((variation) => (
+                        <div key={variation.id} className="bg-secondary/30 rounded-lg p-3">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-xs font-medium text-foreground">{variation.description}</span>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleRemoveTypographyVariation(variation.id)}
+                              className="p-1 text-muted-foreground hover:text-destructive"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </Button>
+                          </div>
+                          <div className="flex items-center space-x-2 text-xs text-muted-foreground">
+                            {variation.settings.bold && <span className="font-bold">B</span>}
+                            {variation.settings.italic && <span className="italic">I</span>}
+                            {variation.settings.underline && <span className="underline">U</span>}
+                            {variation.settings.textCase !== 'normal' && (
+                              <span>{variation.settings.textCase === 'uppercase' ? 'ABC' : 'abc'}</span>
+                            )}
+                            {variation.settings.textStroke && <span>STR</span>}
+                            <span>•</span>
+                            <span>{variation.settings.textAlign}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {characterEffectsVariations.length > 0 && (
+                  <div className="bg-card border border-panel-border rounded-lg p-4">
+                    <h4 className="text-sm font-medium text-foreground mb-3 flex items-center space-x-2">
+                      <ALargeSmall className="w-4 h-4 text-primary" />
+                      <span>Character Effects Variations</span>
+                      <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
+                        {characterEffectsVariations.length}
+                      </span>
+                    </h4>
+                    <div className="space-y-2">
+                      {characterEffectsVariations.map((variation) => (
+                        <div 
+                          key={variation.id} 
+                          className={`bg-secondary/30 rounded-lg p-3 cursor-pointer hover:bg-secondary/50 transition-colors ${
+                            selectedVariation?.id === variation.id && selectedVariationType === 'character-effects' 
+                              ? 'ring-2 ring-primary bg-secondary/60' 
+                              : ''
+                          }`}
+                          onClick={() => handleVariationSelect(variation, 'character-effects')}
+                        >
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-xs font-medium text-foreground">{variation.description}</span>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleRemoveCharacterEffectsVariation(variation.id);
+                              }}
+                              className="p-1 text-muted-foreground hover:text-destructive"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </Button>
+                          </div>
+                          <div className="flex items-center space-x-2 text-xs text-muted-foreground">
+                            <span>{variation.settings.characters.length} char{variation.settings.characters.length > 1 ? 's' : ''}</span>
+                            <span>•</span>
+                            <span className="capitalize">{variation.settings.rotationMode}</span>
+                            {variation.settings.alignment !== 'none' && (
+                              <>
+                                <span>•</span>
+                                <span className="capitalize">{variation.settings.alignment} aligned</span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
                
-                {backgroundVariations.length === 0 && templateVariations.length === 0 && fontVariations.length === 0 && typographyVariations.length === 0 && (
+                {backgroundVariations.length === 0 && templateVariations.length === 0 && fontVariations.length === 0 && typographyVariations.length === 0 && textShapeVariations.length === 0 && rotateFlipVariations.length === 0 && colorFillVariations.length === 0 && strokesVariations.length === 0 && characterEffectsVariations.length === 0 && (
                  <div className="bg-card border border-panel-border rounded-lg p-4 text-center">
                    <Shuffle className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
                    <p className="text-sm text-muted-foreground mb-2">No variations created yet</p>
@@ -1945,319 +1996,6 @@ const QuickPixl = () => {
                   onSettingsChange={setCharacterEffectsSettings}
                   onAddVariation={handleAddCharacterEffectsVariation}
                 />
-                
-                 {strokesVariations.length > 0 && (
-                    <div className="bg-card border border-panel-border rounded-lg p-4">
-                      <h4 className="text-sm font-medium text-foreground mb-3 flex items-center space-x-2">
-                        <Paintbrush className="w-4 h-4 text-primary" />
-                        <span>Strokes Variations</span>
-                        <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
-                          {strokesVariations.length}
-                        </span>
-                      </h4>
-                       <div className="space-y-2">
-                         {strokesVariations.map((variation) => (
-                           <div 
-                             key={variation.id} 
-                             className={`bg-secondary/30 rounded-lg p-3 cursor-pointer hover:bg-secondary/50 transition-colors ${
-                               selectedVariation?.id === variation.id && selectedVariationType === 'strokes' 
-                                 ? 'ring-2 ring-primary bg-secondary/60' 
-                                 : ''
-                             }`}
-                             onClick={() => handleVariationSelect(variation, 'strokes')}
-                           >
-                             <div className="flex items-center justify-between mb-2">
-                               <span className="text-xs font-medium text-foreground">{variation.description}</span>
-                               <Button
-                                 variant="ghost"
-                                 size="sm"
-                                 onClick={(e) => {
-                                   e.stopPropagation();
-                                   handleRemoveStrokesVariation(variation.id);
-                                 }}
-                                 className="p-1 text-muted-foreground hover:text-destructive"
-                               >
-                                 <Trash2 className="w-3 h-3" />
-                               </Button>
-                             </div>
-                           </div>
-                         ))}
-                      </div>
-                    </div>
-                  )}
-
-                 {characterEffectsVariations.length > 0 && (
-                    <div className="bg-card border border-panel-border rounded-lg p-4">
-                      <h4 className="text-sm font-medium text-foreground mb-3 flex items-center space-x-2">
-                        <ALargeSmall className="w-4 h-4 text-primary" />
-                        <span>Character Effects Variations</span>
-                        <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
-                          {characterEffectsVariations.length}
-                        </span>
-                      </h4>
-                       <div className="space-y-2">
-                         {characterEffectsVariations.map((variation) => (
-                           <div 
-                             key={variation.id} 
-                             className={`bg-secondary/30 rounded-lg p-3 cursor-pointer hover:bg-secondary/50 transition-colors ${
-                               selectedVariation?.id === variation.id && selectedVariationType === 'character-effects' 
-                                 ? 'ring-2 ring-primary bg-secondary/60' 
-                                 : ''
-                             }`}
-                             onClick={() => handleVariationSelect(variation, 'character-effects')}
-                           >
-                             <div className="flex items-center justify-between mb-2">
-                               <span className="text-xs font-medium text-foreground">{variation.description}</span>
-                               <Button
-                                 variant="ghost"
-                                 size="sm"
-                                 onClick={(e) => {
-                                   e.stopPropagation();
-                                   handleRemoveCharacterEffectsVariation(variation.id);
-                                 }}
-                                 className="p-1 text-muted-foreground hover:text-destructive"
-                               >
-                                 <Trash2 className="w-3 h-3" />
-                               </Button>
-                             </div>
-                           </div>
-                         ))}
-                      </div>
-                    </div>
-                  )}
-                {fontVariations.length > 0 && (
-                  <div className="bg-card border border-panel-border rounded-lg p-4">
-                    <h4 className="text-sm font-medium text-foreground mb-3 flex items-center space-x-2">
-                      <Type className="w-4 h-4 text-primary" />
-                      <span>Font Variations</span>
-                      <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
-                        {fontVariations.length}
-                      </span>
-                    </h4>
-                     <div className="space-y-2">
-                       {fontVariations.map((variation) => (
-                         <div 
-                           key={variation.id} 
-                           className={`bg-secondary/30 rounded-lg p-3 cursor-pointer hover:bg-secondary/50 transition-colors ${
-                             selectedVariation?.id === variation.id && selectedVariationType === 'font' 
-                               ? 'ring-2 ring-primary bg-secondary/60' 
-                               : ''
-                           }`}
-                           onClick={() => handleVariationSelect(variation, 'typography')}
-                         >
-                           <div className="flex items-center justify-between mb-2">
-                             <span className="text-xs font-medium text-foreground">{variation.description}</span>
-                             <Button
-                               variant="ghost"
-                               size="sm"
-                               onClick={(e) => {
-                                 e.stopPropagation();
-                                 handleRemoveFontVariation(variation.id);
-                               }}
-                               className="p-1 text-muted-foreground hover:text-destructive"
-                             >
-                               <Trash2 className="w-3 h-3" />
-                             </Button>
-                           </div>
-                           <div className="flex flex-wrap gap-1">
-                             {variation.fonts.map((font, index) => (
-                               <span 
-                                 key={index}
-                                 className="bg-secondary px-2 py-1 rounded text-xs text-foreground"
-                                 style={{ fontFamily: font }}
-                               >
-                                 {availableFonts.find(f => f.family === font)?.name || font}
-                               </span>
-                             ))}
-                           </div>
-                         </div>
-                       ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Color Fill Variations Cards */}
-                {colorFillVariations.length > 0 && (
-                  <div className="bg-card border border-panel-border rounded-lg p-4">
-                    <h4 className="text-sm font-medium text-foreground mb-3 flex items-center space-x-2">
-                      <Palette className="w-4 h-4 text-primary" />
-                      <span>Color Fill Variations</span>
-                      <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
-                        {colorFillVariations.length}
-                      </span>
-                    </h4>
-                     <div className="space-y-2">
-                       {colorFillVariations.map((variation) => (
-                         <div 
-                           key={variation.id} 
-                           className={`bg-secondary/30 rounded-lg p-3 cursor-pointer hover:bg-secondary/50 transition-colors ${
-                             selectedVariation?.id === variation.id && selectedVariationType === 'colorFill' 
-                               ? 'ring-2 ring-primary bg-secondary/60' 
-                               : ''
-                           }`}
-                           onClick={() => handleVariationSelect(variation, 'colorFill')}
-                         >
-                           <div className="flex items-center justify-between mb-2">
-                             <span className="text-xs font-medium text-foreground">{variation.description}</span>
-                             <Button
-                               variant="ghost"
-                               size="sm"
-                               onClick={(e) => {
-                                 e.stopPropagation();
-                                 handleRemoveColorFillVariation(variation.id);
-                               }}
-                               className="p-1 text-muted-foreground hover:text-destructive"
-                             >
-                               <Trash2 className="w-3 h-3" />
-                             </Button>
-                           </div>
-                           <div className="flex items-center space-x-2 text-xs text-muted-foreground">
-                             <span className="capitalize">{variation.settings.mode}</span>
-                             {variation.settings.mode === 'solid' && (
-                               <div 
-                                 className="w-3 h-3 rounded border border-border"
-                                 style={{ backgroundColor: variation.settings.solid.color }}
-                               />
-                             )}
-                             {variation.settings.mode === 'gradient' && (
-                               <>
-                                 <span>•</span>
-                                 <span className="capitalize">{variation.settings.gradient.type}</span>
-                                 <span>({variation.settings.gradient.stops.length} stops)</span>
-                               </>
-                             )}
-                             {variation.settings.mode === 'palette' && (
-                               <>
-                                 <span>•</span>
-                                 <span className="capitalize">{variation.settings.palette.source}</span>
-                                 <span>({variation.settings.palette.colors.length} colors)</span>
-                               </>
-                             )}
-                             {variation.settings.mode === 'image' && (
-                               <>
-                                 <span>•</span>
-                                 <span className="capitalize">{variation.settings.image.mode}</span>
-                                 <span>({variation.settings.image.images.length} images)</span>
-                               </>
-                             )}
-                           </div>
-                         </div>
-                       ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Text Background Variations Cards */}
-                {backgroundVariations.length > 0 && (
-                  <div className="bg-card border border-panel-border rounded-lg p-4">
-                    <h4 className="text-sm font-medium text-foreground mb-3 flex items-center space-x-2">
-                      <Palette className="w-4 h-4 text-primary" />
-                      <span>Text Background Variations</span>
-                      <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
-                        {backgroundVariations.length}
-                      </span>
-                    </h4>
-                    <div className="space-y-2">
-                      {backgroundVariations.map(variation => (
-                        <div 
-                          key={variation.id} 
-                          className={`bg-secondary/30 rounded-lg p-3 cursor-pointer hover:bg-secondary/50 transition-colors ${
-                            selectedVariation?.id === variation.id && selectedVariationType === 'background' 
-                              ? 'ring-2 ring-primary bg-secondary/60' 
-                              : ''
-                          }`}
-                           onClick={() => handleVariationSelect(variation, 'background')}
-                        >
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-xs font-medium text-foreground">{variation.description}</span>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleRemoveBackgroundVariation(variation.id);
-                              }}
-                              className="p-1 text-muted-foreground hover:text-destructive"
-                            >
-                              <Trash2 className="w-3 h-3" />
-                            </Button>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            {variation.colors.length > 0 && (
-                              <div className="flex space-x-1">
-                                {variation.colors.slice(0, 3).map((color, index) => (
-                                  <div
-                                    key={index}
-                                    className="w-4 h-4 rounded border border-border"
-                                    style={{ backgroundColor: color }}
-                                  />
-                                ))}
-                              </div>
-                            )}
-                            {variation.images.length > 0 && (
-                              <span className="text-xs text-muted-foreground">
-                                {variation.images.length} image{variation.images.length !== 1 ? 's' : ''}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Typography Variations Cards */}
-                {typographyVariations.length > 0 && (
-                  <div className="bg-card border border-panel-border rounded-lg p-4">
-                    <h4 className="text-sm font-medium text-foreground mb-3 flex items-center space-x-2">
-                      <Type className="w-4 h-4 text-primary" />
-                      <span>Typography Variations</span>
-                      <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
-                        {typographyVariations.length}
-                      </span>
-                    </h4>
-                     <div className="space-y-2">
-                       {typographyVariations.map((variation) => (
-                         <div 
-                           key={variation.id} 
-                           className={`bg-secondary/30 rounded-lg p-3 cursor-pointer hover:bg-secondary/50 transition-colors ${
-                             selectedVariation?.id === variation.id && selectedVariationType === 'typography' 
-                               ? 'ring-2 ring-primary bg-secondary/60' 
-                               : ''
-                           }`}
-                           onClick={() => handleVariationSelect(variation, 'typography')}
-                         >
-                           <div className="flex items-center justify-between mb-2">
-                             <span className="text-xs font-medium text-foreground">{variation.description}</span>
-                             <Button
-                               variant="ghost"
-                               size="sm"
-                               onClick={(e) => {
-                                 e.stopPropagation();
-                                 handleRemoveTypographyVariation(variation.id);
-                               }}
-                               className="p-1 text-muted-foreground hover:text-destructive"
-                             >
-                               <Trash2 className="w-3 h-3" />
-                             </Button>
-                           </div>
-                           {/* Visual preview of key settings */}
-                           <div className="flex items-center space-x-2 text-xs text-muted-foreground">
-                             {variation.settings.bold && <span className="font-bold">B</span>}
-                             {variation.settings.italic && <span className="italic">I</span>}
-                             {variation.settings.underline && <span className="underline">U</span>}
-                             {variation.settings.textCase !== 'normal' && (
-                               <span>{variation.settings.textCase === 'uppercase' ? 'ABC' : 'abc'}</span>
-                             )}
-                             {variation.settings.textStroke && <span>STR</span>}
-                             <span>•</span>
-                             <span>{variation.settings.textAlign}</span>
-                           </div>
-                         </div>
-                       ))}
-                    </div>
-                  </div>
-                )}
               </div>
             ) : (
               <div className="text-muted-foreground">
@@ -2267,7 +2005,7 @@ const QuickPixl = () => {
          </div>
 
           {/* Send to Render Queue Button - Fixed at bottom for variations section */}
-          {activeSection === 'variations' && (backgroundVariations.length > 0 || templateVariations.length > 0 || fontVariations.length > 0 || typographyVariations.length > 0 || textShapeVariations.length > 0 || rotateFlipVariations.length > 0 || colorFillVariations.length > 0 || strokesVariations.length > 0) && (
+          {activeSection === 'variations' && (backgroundVariations.length > 0 || templateVariations.length > 0 || fontVariations.length > 0 || typographyVariations.length > 0 || textShapeVariations.length > 0 || rotateFlipVariations.length > 0 || colorFillVariations.length > 0 || strokesVariations.length > 0 || characterEffectsVariations.length > 0) && (
             <div className="flex-shrink-0 mt-6">
               <Button
                 className={`w-full font-medium py-3 ${
