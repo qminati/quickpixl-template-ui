@@ -148,68 +148,6 @@ const ImageEffectsPlugin: React.FC<ImageEffectsPluginProps> = ({
                 </label>
               </div>
               
-              {settings.colorize && (
-                <div className="ml-5 space-y-3 border-l-2 border-muted pl-3">
-                  {/* Colorize Hue */}
-                  <div className="space-y-0.5">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">Hue</span>
-                      <span className="text-xs text-muted-foreground">{settings.colorizeHue}°</span>
-                    </div>
-                    <div className="relative">
-                      <div 
-                        className="absolute inset-0 rounded-md pointer-events-none"
-                        style={{
-                          background: 'linear-gradient(to right, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000)',
-                          height: '8px',
-                          top: '50%',
-                          transform: 'translateY(-50%)',
-                          zIndex: 1
-                        }}
-                      />
-                      <Slider
-                        value={[settings.colorizeHue]}
-                        onValueChange={([value]) => updateSettings({ colorizeHue: value })}
-                        min={0}
-                        max={360}
-                        step={1}
-                        className="relative z-10 [&_[data-slider-track]]:bg-transparent"
-                      />
-                    </div>
-                  </div>
-                  
-                  {/* Colorize Saturation */}
-                  <div className="space-y-0.5">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">Saturation</span>
-                      <span className="text-xs text-muted-foreground">{settings.colorizeSaturation}%</span>
-                    </div>
-                    <Slider
-                      value={[settings.colorizeSaturation]}
-                      onValueChange={([value]) => updateSettings({ colorizeSaturation: value })}
-                      min={0}
-                      max={100}
-                      step={1}
-                    />
-                  </div>
-                  
-                  {/* Colorize Brightness */}
-                  <div className="space-y-0.5">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">Brightness</span>
-                      <span className="text-xs text-muted-foreground">{settings.colorizeBrightness}</span>
-                    </div>
-                    <Slider
-                      value={[settings.colorizeBrightness]}
-                      onValueChange={([value]) => updateSettings({ colorizeBrightness: value })}
-                      min={-100}
-                      max={100}
-                      step={1}
-                    />
-                  </div>
-                </div>
-              )}
-              
               {/* Grayscale and Invert side by side */}
               <div className="flex items-center space-x-6">
                 <div className="flex items-center space-x-2">

@@ -299,9 +299,6 @@ const QuickPixl = () => {
     vibrance: 0,
     hue: 0,
     colorize: false,
-    colorizeHue: 0,
-    colorizeSaturation: 50,
-    colorizeBrightness: 0,
     grayscale: false,
     invert: false
   });

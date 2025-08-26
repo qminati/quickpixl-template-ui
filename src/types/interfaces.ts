@@ -268,9 +268,6 @@ export interface ImageEffectsSettings {
   vibrance?: number;       // -100 to 100, default 0
   hue: number;            // 0 to 360, default 0
   colorize: boolean;      // default false
-  colorizeHue: number;    // 0 to 360, default 0
-  colorizeSaturation: number; // 0 to 100, default 50
-  colorizeBrightness: number; // -100 to 100, default 0
   grayscale: boolean;     // default false
   invert: boolean;        // default false
 }
