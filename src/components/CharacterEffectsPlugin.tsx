@@ -161,111 +161,111 @@ const CharacterEffectsPlugin: React.FC<CharacterEffectsPluginProps> = ({
             </div>
 
             {settings.characters.map((character, index) => (
-              <div key={index} className="bg-muted/30 border border-border rounded-md">
-                {/* Character Header */}
-                <div 
-                  className="flex items-center justify-between p-2 cursor-pointer hover:bg-muted/50 transition-colors"
-                  onClick={() => toggleCharacterExpanded(index)}
-                >
-                  <span className="text-xs font-medium text-foreground">
-                    Character {index + 1}
-                  </span>
-                  <div className="flex items-center space-x-1">
-                    {expandedCharacters.has(index) ? (
-                      <ChevronDown className="w-3 h-3 text-muted-foreground" />
-                    ) : (
-                      <ChevronRight className="w-3 h-3 text-muted-foreground" />
-                    )}
-                    {settings.characters.length > 1 && (
-                      <Button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          removeCharacter(index);
-                        }}
-                        size="sm"
-                        variant="ghost"
-                        className="h-4 w-4 p-0 text-muted-foreground hover:text-destructive"
-                      >
-                        <Minus className="w-2.5 h-2.5" />
-                      </Button>
-                    )}
+              <div key={index} className="flex items-start space-x-2">
+                <div className="flex-1 bg-muted/30 border border-border rounded-md">
+                  {/* Character Header */}
+                  <div 
+                    className="flex items-center justify-between p-2 cursor-pointer hover:bg-muted/50 transition-colors"
+                    onClick={() => toggleCharacterExpanded(index)}
+                  >
+                    <span className="text-xs font-medium text-foreground">
+                      Character {index + 1}
+                    </span>
+                    <div className="flex items-center space-x-1">
+                      {expandedCharacters.has(index) ? (
+                        <ChevronDown className="w-3 h-3 text-muted-foreground" />
+                      ) : (
+                        <ChevronRight className="w-3 h-3 text-muted-foreground" />
+                      )}
+                    </div>
                   </div>
-                </div>
 
-                {/* Character Content */}
-                {expandedCharacters.has(index) && (
-                  <div className="p-2 pt-0 space-y-2">
-                    {/* Sizing Section */}
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-medium text-foreground">Sizing</label>
-                      
-                      {/* Width */}
-                      <div className="space-y-0.5">
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs text-muted-foreground">Width</span>
-                          <span className="text-xs text-muted-foreground">{character.width}%</span>
-                        </div>
-                        <Slider
-                          value={[character.width]}
-                          onValueChange={([value]) => updateCharacterSettings(index, { width: value })}
-                          min={50}
-                          max={200}
-                          step={5}
-                          className="w-full"
-                        />
-                      </div>
-
-                      {/* Height */}
-                      <div className="space-y-0.5">
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs text-muted-foreground">Height</span>
-                          <span className="text-xs text-muted-foreground">{character.height}%</span>
-                        </div>
-                        <Slider
-                          value={[character.height]}
-                          onValueChange={([value]) => updateCharacterSettings(index, { height: value })}
-                          min={50}
-                          max={200}
-                          step={5}
-                          className="w-full"
-                        />
-                      </div>
-
-                      {/* Vertical Position */}
-                      <div className="space-y-0.5">
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs text-muted-foreground">Vertical Position</span>
-                          <span className="text-xs text-muted-foreground">{character.verticalOffset}px</span>
-                        </div>
-                        <Slider
-                          value={[character.verticalOffset]}
-                          onValueChange={([value]) => updateCharacterSettings(index, { verticalOffset: value })}
-                          min={-50}
-                          max={50}
-                          step={1}
-                          className="w-full"
-                        />
-                      </div>
-
-                      {/* Individual Rotation (only show in individual mode) */}
-                      {settings.rotationMode === 'individual' && (
+                  {/* Character Content */}
+                  {expandedCharacters.has(index) && (
+                    <div className="p-2 pt-0 space-y-2">
+                      {/* Sizing Section */}
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-medium text-foreground">Sizing</label>
+                        
+                        {/* Width */}
                         <div className="space-y-0.5">
                           <div className="flex items-center justify-between">
-                            <span className="text-xs text-muted-foreground">Rotation</span>
-                            <span className="text-xs text-muted-foreground">{character.rotation}°</span>
+                            <span className="text-xs text-muted-foreground">Width</span>
+                            <span className="text-xs text-muted-foreground">{character.width}%</span>
                           </div>
                           <Slider
-                            value={[character.rotation]}
-                            onValueChange={([value]) => updateCharacterSettings(index, { rotation: value })}
-                            min={-180}
-                            max={180}
+                            value={[character.width]}
+                            onValueChange={([value]) => updateCharacterSettings(index, { width: value })}
+                            min={50}
+                            max={200}
+                            step={5}
+                            className="w-full"
+                          />
+                        </div>
+
+                        {/* Height */}
+                        <div className="space-y-0.5">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs text-muted-foreground">Height</span>
+                            <span className="text-xs text-muted-foreground">{character.height}%</span>
+                          </div>
+                          <Slider
+                            value={[character.height]}
+                            onValueChange={([value]) => updateCharacterSettings(index, { height: value })}
+                            min={50}
+                            max={200}
+                            step={5}
+                            className="w-full"
+                          />
+                        </div>
+
+                        {/* Vertical Position */}
+                        <div className="space-y-0.5">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs text-muted-foreground">Vertical Position</span>
+                            <span className="text-xs text-muted-foreground">{character.verticalOffset}px</span>
+                          </div>
+                          <Slider
+                            value={[character.verticalOffset]}
+                            onValueChange={([value]) => updateCharacterSettings(index, { verticalOffset: value })}
+                            min={-50}
+                            max={50}
                             step={1}
                             className="w-full"
                           />
                         </div>
-                      )}
+
+                        {/* Individual Rotation (only show in individual mode) */}
+                        {settings.rotationMode === 'individual' && (
+                          <div className="space-y-0.5">
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs text-muted-foreground">Rotation</span>
+                              <span className="text-xs text-muted-foreground">{character.rotation}°</span>
+                            </div>
+                            <Slider
+                              value={[character.rotation]}
+                              onValueChange={([value]) => updateCharacterSettings(index, { rotation: value })}
+                              min={-180}
+                              max={180}
+                              step={1}
+                              className="w-full"
+                            />
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
+                  )}
+                </div>
+                
+                {settings.characters.length > 1 && (
+                  <Button
+                    onClick={() => removeCharacter(index)}
+                    size="sm"
+                    variant="outline"
+                    className="h-5 w-5 p-0 mt-2 flex-shrink-0"
+                  >
+                    <Minus className="w-2.5 h-2.5" />
+                  </Button>
                 )}
               </div>
             ))}
