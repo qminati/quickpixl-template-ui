@@ -107,10 +107,10 @@ const ImageInputPlugin: React.FC<ImageInputPluginProps> = ({
                       <button
                         type="button"
                         onClick={() => handleImageRemove(image)}
-                        className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-background border border-input flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-background border border-input flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                         title="Remove"
                       >
-                        <X className="w-1 h-1" />
+                        <X className="w-2 h-2" />
                       </button>
                     </div>
                   ))}
