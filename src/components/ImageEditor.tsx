@@ -202,7 +202,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
                   <button
                     key={`thumb-${index}`}
                     onClick={() => setCurrentPreviewIndex(index)}
-                    className={`w-8 h-8 rounded border-2 overflow-hidden transition-all ${
+                    className={`w-6 h-6 rounded border-2 overflow-hidden transition-all ${
                       index === currentPreviewIndex 
                         ? 'border-primary' 
                         : 'border-panel-border hover:border-primary/50'
