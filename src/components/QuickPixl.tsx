@@ -31,7 +31,8 @@ import {
   Shapes,
   RotateCw,
   Paintbrush,
-  ALargeSmall
+  ALargeSmall,
+  Sliders
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -41,7 +42,7 @@ import ErrorBoundary from './ErrorBoundary';
 import TextEditor from './TextEditor';
 import { validateImage, handleImageError, createImageFallback } from '@/utils/imageUtils';
 import { toast } from 'sonner';
-import { Container, Variation, Template, TemplateVariation, FontVariation, TypographySettings, TypographyVariation, ShapeSettings, TextShapeVariation, RotateFlipSettings, RotateFlipVariation, ColorFillSettings, ColorFillVariation, StrokeSettings, StrokesVariation, CharacterEffectsSettings, CharacterEffectsVariation, AnyVariation } from '@/types/interfaces';
+import { Container, Variation, Template, TemplateVariation, FontVariation, TypographySettings, TypographyVariation, ShapeSettings, TextShapeVariation, RotateFlipSettings, RotateFlipVariation, ColorFillSettings, ColorFillVariation, StrokeSettings, StrokesVariation, CharacterEffectsSettings, CharacterEffectsVariation, ImageEffectsSettings, ImageEffectsVariation, AnyVariation } from '@/types/interfaces';
 import TypographyPlugin from './TypographyPlugin';
 import TextShapePlugin from './TextShapePlugin';
 import RotateFlipPlugin from './RotateFlipPlugin';
@@ -49,6 +50,7 @@ import ColorFillPlugin from './ColorFillPlugin';
 import StrokesPlugin from './StrokesPlugin';
 import TextBackgroundPlugin from './TextBackgroundPlugin';
 import CharacterEffectsPlugin from './CharacterEffectsPlugin';
+import ImageEffectsPlugin from './ImageEffectsPlugin';
 import VariationDetailView from './VariationDetailView';
 
 // Import merchandise-style template images
@@ -287,6 +289,22 @@ const QuickPixl = () => {
     alignment: 'none'
   });
   const [characterEffectsVariations, setCharacterEffectsVariations] = useState<CharacterEffectsVariation[]>([]);
+
+  // Image Effects Plugin State
+  const [isImageEffectsExpanded, setIsImageEffectsExpanded] = useState(true);
+  const [imageEffectsSettings, setImageEffectsSettings] = useState<ImageEffectsSettings>({
+    brightness: 0,
+    contrast: 0,
+    saturation: 0,
+    hue: 0,
+    colorize: false,
+    colorizeHue: 0,
+    colorizeSaturation: 50,
+    colorizeBrightness: 0,
+    grayscale: false,
+    invert: false
+  });
+  const [imageEffectsVariations, setImageEffectsVariations] = useState<ImageEffectsVariation[]>([]);
   
   // Search State
   const [isSearchVisible, setIsSearchVisible] = useState(false);
@@ -704,7 +722,9 @@ const QuickPixl = () => {
                          backgroundVariations.length > 0 ||
                          typographyVariations.length > 0 ||
                          fontVariations.length > 0 ||
-                         templateVariations.length > 0;
+                         templateVariations.length > 0 ||
+                         characterEffectsVariations.length > 0 ||
+                         imageEffectsVariations.length > 0;
     
     if (hasVariations) {
       scrollNewCardIntoView();
@@ -717,6 +737,8 @@ const QuickPixl = () => {
     typographyVariations.length,
     fontVariations.length,
     templateVariations.length,
+    characterEffectsVariations.length,
+    imageEffectsVariations.length,
     scrollNewCardIntoView
   ]);
 
@@ -805,6 +827,36 @@ const QuickPixl = () => {
     toast.success('Character effects variation removed');
   }, []);
 
+  // Image Effects Plugin Handlers
+  const generateImageEffectsDescription = useCallback((settings: ImageEffectsSettings): string => {
+    const effects = [];
+    if (settings.colorize) effects.push('Colorized');
+    if (settings.grayscale) effects.push('Grayscale');
+    if (settings.invert) effects.push('Inverted');
+    if (settings.brightness !== 0) effects.push(`Brightness: ${settings.brightness}`);
+    if (settings.contrast !== 0) effects.push(`Contrast: ${settings.contrast}`);
+    if (settings.saturation !== 0) effects.push(`Saturation: ${settings.saturation}`);
+    if (settings.hue !== 0) effects.push(`Hue: ${settings.hue}°`);
+    
+    return effects.length > 0 ? effects.join(', ') : 'No effects';
+  }, []);
+
+  const handleAddImageEffectsVariation = useCallback(() => {
+    const newVariation: ImageEffectsVariation = {
+      id: `image-effects-variation-${Date.now()}`,
+      settings: { ...imageEffectsSettings },
+      description: generateImageEffectsDescription(imageEffectsSettings)
+    };
+    
+    setImageEffectsVariations(prev => [...prev, newVariation]);
+    toast.success('Image effects variation added');
+  }, [imageEffectsSettings, generateImageEffectsDescription]);
+
+  const handleRemoveImageEffectsVariation = useCallback((variationId: string) => {
+    setImageEffectsVariations(prev => prev.filter(v => v.id !== variationId));
+    toast.success('Image effects variation removed');
+  }, []);
+
   const handleRemoveRotateFlipVariation = (variationId: string) => {
     setRotateFlipVariations(prev => prev.filter(v => v.id !== variationId));
     toast.success('Rotate & flip variation removed');
@@ -883,6 +935,12 @@ const QuickPixl = () => {
       case 'strokes':
         setStrokesVariations(prev => prev.map(v => v.id === updatedVariation.id ? updatedVariation as StrokesVariation : v));
         break;
+      case 'character-effects':
+        setCharacterEffectsVariations(prev => prev.map(v => v.id === updatedVariation.id ? updatedVariation as CharacterEffectsVariation : v));
+        break;
+      case 'image-effects':
+        setImageEffectsVariations(prev => prev.map(v => v.id === updatedVariation.id ? updatedVariation as ImageEffectsVariation : v));
+        break;
     }
     setHasUnsavedChanges(false);
   };
@@ -913,6 +971,12 @@ const QuickPixl = () => {
         break;
       case 'strokes':
         setStrokesVariations(prev => prev.filter(v => v.id !== variationId));
+        break;
+      case 'character-effects':
+        setCharacterEffectsVariations(prev => prev.filter(v => v.id !== variationId));
+        break;
+      case 'image-effects':
+        setImageEffectsVariations(prev => prev.filter(v => v.id !== variationId));
         break;
     }
     setSelectedVariation(null);
@@ -949,6 +1013,15 @@ const QuickPixl = () => {
           break;
         case 'colorFill':
           setColorFillVariations(prev => [...prev, duplicatedVariation as ColorFillVariation]);
+          break;
+        case 'strokes':
+          setStrokesVariations(prev => [...prev, duplicatedVariation as StrokesVariation]);
+          break;
+        case 'character-effects':
+          setCharacterEffectsVariations(prev => [...prev, duplicatedVariation as CharacterEffectsVariation]);
+          break;
+        case 'image-effects':
+          setImageEffectsVariations(prev => [...prev, duplicatedVariation as ImageEffectsVariation]);
           break;
       }
       toast.success('Variation duplicated successfully!');
@@ -1252,6 +1325,7 @@ const QuickPixl = () => {
     setIsRotateFlipExpanded(false);
     setIsStrokesExpanded(false);
     setIsCharacterEffectsExpanded(false);
+    setIsImageEffectsExpanded(false);
   };
 
   const handleShowAll = () => {
@@ -1263,6 +1337,7 @@ const QuickPixl = () => {
     setIsRotateFlipExpanded(true);
     setIsStrokesExpanded(true);
     setIsCharacterEffectsExpanded(true);
+    setIsImageEffectsExpanded(true);
   };
 
   const renderSettingsPanel = () => {
@@ -1930,8 +2005,68 @@ const QuickPixl = () => {
                     </div>
                   </div>
                 )}
-               
-                {backgroundVariations.length === 0 && templateVariations.length === 0 && fontVariations.length === 0 && typographyVariations.length === 0 && textShapeVariations.length === 0 && rotateFlipVariations.length === 0 && colorFillVariations.length === 0 && strokesVariations.length === 0 && characterEffectsVariations.length === 0 && (
+                
+                {imageEffectsVariations.length > 0 && (
+                  <div className="bg-card border border-panel-border rounded-lg p-4">
+                    <h4 className="text-sm font-medium text-foreground mb-3 flex items-center space-x-2">
+                      <Sliders className="w-4 h-4 text-primary" />
+                      <span>Image Effects Variations</span>
+                      <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
+                        {imageEffectsVariations.length}
+                      </span>
+                    </h4>
+                    <div className="space-y-2">
+                      {imageEffectsVariations.map((variation) => (
+                        <div 
+                          key={variation.id} 
+                          className={`bg-secondary/30 rounded-lg p-3 cursor-pointer hover:bg-secondary/50 transition-colors ${
+                            selectedVariation?.id === variation.id && selectedVariationType === 'image-effects' 
+                              ? 'ring-2 ring-primary bg-secondary/60' 
+                              : ''
+                          }`}
+                          onClick={() => handleVariationSelect(variation, 'image-effects')}
+                        >
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-xs font-medium text-foreground">{variation.description}</span>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleRemoveImageEffectsVariation(variation.id);
+                              }}
+                              className="p-1 text-muted-foreground hover:text-destructive"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </Button>
+                          </div>
+                          <div className="flex items-center space-x-2 text-xs text-muted-foreground">
+                            {variation.settings.colorize && <span>Colorized</span>}
+                            {variation.settings.grayscale && (
+                              <>
+                                {variation.settings.colorize && <span>•</span>}
+                                <span>Grayscale</span>
+                              </>
+                            )}
+                            {variation.settings.invert && (
+                              <>
+                                {(variation.settings.colorize || variation.settings.grayscale) && <span>•</span>}
+                                <span>Inverted</span>
+                              </>
+                            )}
+                            {!variation.settings.colorize && !variation.settings.grayscale && !variation.settings.invert && 
+                             variation.settings.brightness === 0 && variation.settings.contrast === 0 && 
+                             variation.settings.saturation === 0 && variation.settings.hue === 0 && (
+                              <span>No effects</span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {backgroundVariations.length === 0 && templateVariations.length === 0 && fontVariations.length === 0 && typographyVariations.length === 0 && textShapeVariations.length === 0 && rotateFlipVariations.length === 0 && colorFillVariations.length === 0 && strokesVariations.length === 0 && characterEffectsVariations.length === 0 && imageEffectsVariations.length === 0 && (
                  <div className="bg-card border border-panel-border rounded-lg p-4 text-center">
                    <Shuffle className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
                    <p className="text-sm text-muted-foreground mb-2">No variations created yet</p>
@@ -1996,6 +2131,14 @@ const QuickPixl = () => {
                   onSettingsChange={setCharacterEffectsSettings}
                   onAddVariation={handleAddCharacterEffectsVariation}
                 />
+                
+                <ImageEffectsPlugin
+                  isExpanded={isImageEffectsExpanded}
+                  onToggleExpanded={() => setIsImageEffectsExpanded(!isImageEffectsExpanded)}
+                  settings={imageEffectsSettings}
+                  onSettingsChange={setImageEffectsSettings}
+                  onAddVariation={handleAddImageEffectsVariation}
+                />
               </div>
             ) : (
               <div className="text-muted-foreground">
@@ -2005,7 +2148,7 @@ const QuickPixl = () => {
          </div>
 
           {/* Send to Render Queue Button - Fixed at bottom for variations section */}
-          {activeSection === 'variations' && (backgroundVariations.length > 0 || templateVariations.length > 0 || fontVariations.length > 0 || typographyVariations.length > 0 || textShapeVariations.length > 0 || rotateFlipVariations.length > 0 || colorFillVariations.length > 0 || strokesVariations.length > 0 || characterEffectsVariations.length > 0) && (
+          {activeSection === 'variations' && (backgroundVariations.length > 0 || templateVariations.length > 0 || fontVariations.length > 0 || typographyVariations.length > 0 || textShapeVariations.length > 0 || rotateFlipVariations.length > 0 || colorFillVariations.length > 0 || strokesVariations.length > 0 || characterEffectsVariations.length > 0 || imageEffectsVariations.length > 0) && (
             <div className="flex-shrink-0 mt-6">
               <Button
                 className={`w-full font-medium py-3 ${
@@ -2021,7 +2164,7 @@ const QuickPixl = () => {
                 Send to Render Queue
               </Button>
               <p className="text-center text-xs text-muted-foreground mt-2">
-                Total: {backgroundVariations.length + templateVariations.length + fontVariations.length + typographyVariations.length + textShapeVariations.length + rotateFlipVariations.length + colorFillVariations.length} variations
+                Total: {backgroundVariations.length + templateVariations.length + fontVariations.length + typographyVariations.length + textShapeVariations.length + rotateFlipVariations.length + colorFillVariations.length + strokesVariations.length + characterEffectsVariations.length + imageEffectsVariations.length} variations
                 {hasUnsavedChanges && <span className="text-destructive"> • Save changes first</span>}
               </p>
             </div>

@@ -25,11 +25,12 @@ import {
   RotateFlipVariation, 
   ColorFillVariation,
   StrokesVariation,
-  CharacterEffectsVariation
+  CharacterEffectsVariation,
+  ImageEffectsVariation
 } from '@/types/interfaces';
 
 type AnyVariation = Variation | TemplateVariation | FontVariation | TypographyVariation | 
-  TextShapeVariation | RotateFlipVariation | ColorFillVariation | StrokesVariation | CharacterEffectsVariation;
+  TextShapeVariation | RotateFlipVariation | ColorFillVariation | StrokesVariation | CharacterEffectsVariation | ImageEffectsVariation;
 
 interface VariationDetailViewProps {
   variation: AnyVariation | null;
@@ -274,6 +275,12 @@ const renderVariationContent = (
       return renderRotateFlipVariation(variation as RotateFlipVariation, isEditing);
     case 'Color Fill':
       return renderColorFillVariation(variation as ColorFillVariation, isEditing);
+    case 'Strokes':
+      return renderStrokesVariation(variation as StrokesVariation, isEditing);
+    case 'Character Effects':
+      return renderCharacterEffectsVariation(variation as CharacterEffectsVariation, isEditing);
+    case 'Image Effects':
+      return renderImageEffectsVariation(variation as ImageEffectsVariation, isEditing);
     default:
       return <div>Unknown variation type</div>;
   }
@@ -581,6 +588,77 @@ const renderColorFillVariation = (variation: ColorFillVariation, isEditing: bool
       
       <div className="text-sm">
         <strong>Mode:</strong> {variation.settings.mode}
+      </div>
+    </div>
+  </Card>
+);
+
+const renderStrokesVariation = (variation: StrokesVariation, isEditing: boolean) => (
+  <Card className="p-6">
+    <h3 className="text-lg font-semibold mb-4">Strokes Settings</h3>
+    <div className="space-y-4">
+      <div className="p-8 border rounded-lg bg-muted/50 text-center">
+        <div className="text-4xl font-bold mb-2" style={{ WebkitTextStroke: '2px black' }}>
+          SAMPLE
+        </div>
+        <p className="text-sm text-muted-foreground">
+          Preview with strokes applied
+        </p>
+      </div>
+      
+      <div className="grid grid-cols-2 gap-4 text-sm">
+        <div><strong>Regular Strokes:</strong> {variation.settings.regular.strokes.length}</div>
+        <div><strong>Character Strokes:</strong> {variation.settings.character.strokes.length}</div>
+        <div><strong>Container Strokes:</strong> {variation.settings.container.strokes.length}</div>
+        <div><strong>Knockout:</strong> {variation.settings.knockout.enabled ? 'Yes' : 'No'}</div>
+      </div>
+    </div>
+  </Card>
+);
+
+const renderCharacterEffectsVariation = (variation: CharacterEffectsVariation, isEditing: boolean) => (
+  <Card className="p-6">
+    <h3 className="text-lg font-semibold mb-4">Character Effects</h3>
+    <div className="space-y-4">
+      <div className="p-8 border rounded-lg bg-muted/50 text-center">
+        <div className="text-4xl font-bold mb-2">
+          SAMPLE
+        </div>
+        <p className="text-sm text-muted-foreground">
+          {variation.settings.characters.length} character{variation.settings.characters.length > 1 ? 's' : ''} with {variation.settings.rotationMode} rotation
+        </p>
+      </div>
+      
+      <div className="grid grid-cols-2 gap-4 text-sm">
+        <div><strong>Characters:</strong> {variation.settings.characters.length}</div>
+        <div><strong>Rotation Mode:</strong> {variation.settings.rotationMode}</div>
+        <div><strong>Alignment:</strong> {variation.settings.alignment}</div>
+      </div>
+    </div>
+  </Card>
+);
+
+const renderImageEffectsVariation = (variation: ImageEffectsVariation, isEditing: boolean) => (
+  <Card className="p-6">
+    <h3 className="text-lg font-semibold mb-4">Image Effects</h3>
+    <div className="space-y-4">
+      <div className="p-8 border rounded-lg bg-muted/50 text-center">
+        <div className="text-4xl font-bold mb-2">
+          PREVIEW
+        </div>
+        <p className="text-sm text-muted-foreground">
+          Image with effects applied
+        </p>
+      </div>
+      
+      <div className="grid grid-cols-2 gap-4 text-sm">
+        <div><strong>Brightness:</strong> {variation.settings.brightness}</div>
+        <div><strong>Contrast:</strong> {variation.settings.contrast}</div>
+        <div><strong>Saturation:</strong> {variation.settings.saturation}</div>
+        <div><strong>Hue:</strong> {variation.settings.hue}°</div>
+        <div><strong>Colorize:</strong> {variation.settings.colorize ? 'Yes' : 'No'}</div>
+        <div><strong>Grayscale:</strong> {variation.settings.grayscale ? 'Yes' : 'No'}</div>
+        <div><strong>Invert:</strong> {variation.settings.invert ? 'Yes' : 'No'}</div>
       </div>
     </div>
   </Card>
