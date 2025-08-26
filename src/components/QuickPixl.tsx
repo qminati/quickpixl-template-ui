@@ -44,6 +44,7 @@ import TypographyPlugin from './TypographyPlugin';
 import TextShapePlugin from './TextShapePlugin';
 import RotateFlipPlugin from './RotateFlipPlugin';
 import ColorFillPlugin from './ColorFillPlugin';
+import TextBackgroundPlugin from './TextBackgroundPlugin';
 import VariationDetailView from './VariationDetailView';
 
 // Import merchandise-style template images
@@ -218,6 +219,10 @@ const QuickPixl = () => {
   
   // Color & Fill Plugin State
   const [isColorFillExpanded, setIsColorFillExpanded] = useState(true);
+  
+  // Text Background Plugin State
+  const [isTextBackgroundExpanded, setIsTextBackgroundExpanded] = useState(true);
+  
   const [colorFillSettings, setColorFillSettings] = useState<ColorFillSettings>({
     mode: 'solid',
     solid: { color: '#000000' },
@@ -667,6 +672,12 @@ const QuickPixl = () => {
     setTimeout(() => scrollNewCardIntoView(), 100);
   };
 
+  const handleAddTextBackgroundVariation = (variation: Variation) => {
+    setBackgroundVariations(prev => [...prev, variation]);
+    toast.success('Text background variation added');
+    setTimeout(() => scrollNewCardIntoView(), 80);
+  };
+
   const handleRemoveColorFillVariation = (variationId: string) => {
     setColorFillVariations(prev => prev.filter(v => v.id !== variationId));
     toast.success('Color & fill variation removed');
@@ -1062,6 +1073,7 @@ const QuickPixl = () => {
   // Functions to handle collapse/expand all for text settings
   const handleCollapseAll = () => {
     setIsColorFillExpanded(false);
+    setIsTextBackgroundExpanded(false);
     setIsFontsExpanded(false);
     setIsTypographyExpanded(false);
     setIsTextShapeExpanded(false);
@@ -1070,6 +1082,7 @@ const QuickPixl = () => {
 
   const handleShowAll = () => {
     setIsColorFillExpanded(true);
+    setIsTextBackgroundExpanded(true);
     setIsFontsExpanded(true);
     setIsTypographyExpanded(true);
     setIsTextShapeExpanded(true);
@@ -1708,6 +1721,51 @@ const QuickPixl = () => {
                   onSettingsChange={setColorFillSettings}
                   onAddVariation={handleAddColorFillVariation}
                 />
+                
+                <TextBackgroundPlugin
+                  isExpanded={isTextBackgroundExpanded}
+                  onToggleExpanded={() => setIsTextBackgroundExpanded(!isTextBackgroundExpanded)}
+                  onAddVariation={handleAddTextBackgroundVariation}
+                />
+                
+                {backgroundVariations.length > 0 && (
+                  <div className="bg-card border border-panel-border rounded-lg p-4">
+                    <h4 className="text-sm font-medium text-foreground mb-3 flex items-center space-x-2">
+                      <Palette className="w-4 h-4 text-primary" />
+                      <span>Text Background Variations</span>
+                      <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
+                        {backgroundVariations.length}
+                      </span>
+                    </h4>
+                    <div className="space-y-2">
+                      {backgroundVariations.map(variation => (
+                        <div key={variation.id} className="bg-secondary/30 rounded-lg p-3 cursor-pointer hover:bg-secondary/50 transition-colors">
+                          <div className="flex items-center space-x-2">
+                            {variation.colors.length > 0 && (
+                              <div className="flex space-x-1">
+                                {variation.colors.slice(0, 3).map((color, index) => (
+                                  <div
+                                    key={index}
+                                    className="w-4 h-4 rounded border border-border"
+                                    style={{ backgroundColor: color }}
+                                  />
+                                ))}
+                              </div>
+                            )}
+                            {variation.images.length > 0 && (
+                              <span className="text-xs text-muted-foreground">
+                                {variation.images.length} image{variation.images.length !== 1 ? 's' : ''}
+                              </span>
+                            )}
+                            <span className="text-xs text-foreground flex-1 truncate">
+                              {variation.description}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 
                 <FontsPlugin />
                 <TypographyPlugin
