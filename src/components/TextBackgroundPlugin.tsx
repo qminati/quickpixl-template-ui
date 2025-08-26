@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { ChevronDown, ChevronUp, Palette, Upload, Trash2 } from 'lucide-react';
+import { ChevronDown, ChevronRight, Palette, Upload, Trash2 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Slider } from './ui/slider';
@@ -64,19 +64,19 @@ const TextBackgroundPlugin: React.FC<TextBackgroundPluginProps> = ({
   }, [mode, solidColor, gradientFrom, gradientTo, gradientAngle, selectedImages, onAddVariation]);
 
   return (
-    <div className="bg-card border border-panel-border rounded-lg">
+    <div className="bg-card border border-panel-border rounded-lg shadow-sm">
       <div
-        className="p-4 cursor-pointer flex items-center justify-between hover:bg-secondary/30 transition-colors"
+        className="p-2.5 cursor-pointer flex items-center justify-between hover:bg-secondary/50 transition-colors"
         onClick={onToggleExpanded}
       >
         <div className="flex items-center space-x-2">
-          <Palette className="w-4 h-4 text-primary" />
+          <Palette className="w-3.5 h-3.5 text-primary" />
           <span className="text-sm font-medium text-foreground">Text Container Background</span>
         </div>
         {isExpanded ? (
-          <ChevronUp className="w-4 h-4 text-muted-foreground" />
+          <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
         ) : (
-          <ChevronDown className="w-4 h-4 text-muted-foreground" />
+          <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
         )}
       </div>
 
