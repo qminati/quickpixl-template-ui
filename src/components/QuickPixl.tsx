@@ -833,7 +833,12 @@ const QuickPixl = () => {
   const scrollNewCardIntoView = useCallback(() => {
     const targets = [leftSettingsRef.current, variationsRef.current];
     requestAnimationFrame(() => {
-      targets.forEach(el => el?.scrollTo({ top: el.scrollHeight, behavior: "smooth" }));
+      targets.forEach(el => {
+        if (el && typeof el.scrollTo === 'function') {
+          const top = el.scrollHeight ?? 0;
+          el.scrollTo({ top, behavior: 'smooth' });
+        }
+      });
     });
   }, []);
 
@@ -1025,7 +1030,12 @@ const QuickPixl = () => {
     // Auto-scroll to bottom of variations
     setTimeout(() => {
       const targets = [leftSettingsRef.current, variationsRef.current];
-      targets.forEach(el => el?.scrollTo({ top: el.scrollHeight, behavior: "smooth" }));
+      targets.forEach(el => {
+        if (el && typeof el.scrollTo === 'function') {
+          const top = el.scrollHeight ?? 0;
+          el.scrollTo({ top, behavior: 'smooth' });
+        }
+      });
     });
   }, [imageInputs]);
 
@@ -2753,31 +2763,7 @@ const QuickPixl = () => {
               <ImageEditor 
                 imageInputs={imageInputs}
                 onImageInputsChange={setImageInputs}
-                onSubmitVariation={(imageArrays) => {
-                  // Create variation from submitted image arrays
-                  const allImages = imageArrays.flat();
-                  
-                  if (allImages.length === 0) {
-                    toast.info('No images to submit');
-                    return;
-                  }
-
-                  const newVariation: Variation = {
-                    id: `image-input-variation-${Date.now()}`,
-                    colors: [],
-                    images: [...allImages],
-                    description: `${allImages.length} image${allImages.length > 1 ? 's' : ''} from ${imageArrays.length} input${imageArrays.length > 1 ? 's' : ''}`
-                  };
-                  
-                  setImageInputVariations(prev => [...prev, newVariation]);
-                  toast.success('Image variation submitted successfully');
-                  
-                  // Auto-scroll to show the new variation
-                  setTimeout(() => {
-                    const targets = [leftSettingsRef.current, variationsRef.current];
-                    targets.forEach(el => el?.scrollTo({ top: el.scrollHeight, behavior: "smooth" }));
-                  });
-                }}
+                onSubmitVariation={handleAddImageInputVariation}
                 onFocusInputTab={(inputId) => {
                   const index = imageInputs.findIndex(input => input.id === inputId);
                   const id = (`II${index + 1}`) as ImageTabId;

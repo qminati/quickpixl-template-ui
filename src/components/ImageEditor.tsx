@@ -114,11 +114,21 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
   };
 
   const handleSubmit = () => {
-    const imageArrays = imageInputs
-      .map(input => input.selectedImages)
-      .filter(images => images.length > 0);
-    
-    onSubmitVariation(imageArrays);
+    try {
+      const imageArrays = imageInputs
+        .map(input => Array.isArray(input.selectedImages) ? input.selectedImages : [])
+        .filter(arr => arr.length > 0);
+
+      if (!imageArrays.length) {
+        // mirror the parent check to avoid useless callback
+        return;
+      }
+
+      onSubmitVariation(imageArrays);
+    } catch (e) {
+      console.error('Submit variation failed:', e);
+      // optional: toast.error('Failed to submit variation');
+    }
   };
 
   const handlePreviousImage = () => {
