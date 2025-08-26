@@ -34,7 +34,8 @@ import {
   Sliders,
   Settings as SettingsIcon,
   Copy as CopyIcon,
-  X as XIcon
+  X as XIcon,
+  Droplets
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -1400,6 +1401,7 @@ const QuickPixl = () => {
     setIsTextShapeExpanded(false);
     setIsRotateFlipExpanded(false);
     setIsStrokesExpanded(false);
+    setIsDropShadowExpanded(false);
     setIsCharacterEffectsExpanded(false);
     setIsImageEffectsExpanded(false);
   };
@@ -1412,6 +1414,7 @@ const QuickPixl = () => {
     setIsTextShapeExpanded(true);
     setIsRotateFlipExpanded(true);
     setIsStrokesExpanded(true);
+    setIsDropShadowExpanded(true);
     setIsCharacterEffectsExpanded(true);
     setIsImageEffectsExpanded(true);
   };
@@ -2142,7 +2145,62 @@ const QuickPixl = () => {
                   </div>
                 )}
                 
-                {backgroundVariations.length === 0 && templateVariations.length === 0 && fontVariations.length === 0 && typographyVariations.length === 0 && textShapeVariations.length === 0 && rotateFlipVariations.length === 0 && colorFillVariations.length === 0 && strokesVariations.length === 0 && characterEffectsVariations.length === 0 && imageEffectsVariations.length === 0 && (
+                {dropShadowVariations.length > 0 && (
+                  <div className="bg-card border border-panel-border rounded-lg p-4">
+                    <h4 className="text-sm font-medium text-foreground mb-3 flex items-center space-x-2">
+                      <Droplets className="w-4 h-4 text-primary" />
+                      <span>Drop Shadow Variations</span>
+                      <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
+                        {dropShadowVariations.length}
+                      </span>
+                    </h4>
+                    <div className="space-y-2">
+                      {dropShadowVariations.map((variation) => (
+                        <div 
+                          key={variation.id} 
+                          className={`bg-secondary/30 rounded-lg p-3 cursor-pointer hover:bg-secondary/50 transition-colors ${
+                            selectedVariation?.id === variation.id && selectedVariationType === 'dropShadow'
+                              ? 'ring-2 ring-primary bg-secondary/60' 
+                              : ''
+                          }`}
+                          onClick={() => handleVariationSelect(variation, 'dropShadow')}
+                        >
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-xs font-medium text-foreground">{variation.description}</span>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleRemoveDropShadowVariation(variation.id);
+                              }}
+                              className="p-1 text-muted-foreground hover:text-destructive"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </Button>
+                          </div>
+                          <div className="flex items-center space-x-2 text-xs text-muted-foreground">
+                            <span className="capitalize">{variation.settings.mode}</span>
+                            {variation.settings.mode === 'regular' && (
+                              <>
+                                <span>•</span>
+                                <span>{variation.settings.regular.shadows.length} shadow{variation.settings.regular.shadows.length !== 1 ? 's' : ''}</span>
+                              </>
+                            )}
+                            {variation.settings.mode === 'character' && (
+                              <>
+                                <span>•</span>
+                                <span>{variation.settings.character.characters.length} char{variation.settings.character.characters.length !== 1 ? 's' : ''}</span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {backgroundVariations.length === 0 && templateVariations.length === 0 && fontVariations.length === 0 && typographyVariations.length === 0 && textShapeVariations.length === 0 && rotateFlipVariations.length === 0 && colorFillVariations.length === 0 && strokesVariations.length === 0 && dropShadowVariations.length === 0 && characterEffectsVariations.length === 0 && imageEffectsVariations.length === 0 && (
                  <div className="bg-card border border-panel-border rounded-lg p-4 text-center">
                    <Shuffle className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
                    <p className="text-sm text-muted-foreground mb-2">No variations created yet</p>
