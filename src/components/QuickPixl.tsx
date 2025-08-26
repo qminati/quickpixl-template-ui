@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { 
   Type, 
   Image as ImageIcon, 
@@ -299,7 +299,7 @@ const QuickPixl = () => {
     { id: 'variations', icon: Shuffle, label: 'Variations' }
   ];
 
-  const handleTemplateSelect = (templateId: number) => {
+  const handleTemplateSelect = useCallback((templateId: number) => {
     const template = templates.find(t => t.id === templateId);
     if (template && !addedTemplates.find(t => t.id === templateId)) {
       setAddedTemplates(prev => [...prev, template]);
@@ -309,14 +309,14 @@ const QuickPixl = () => {
         ? prev.filter(id => id !== templateId)
         : [...prev, templateId]
     );
-  };
+  }, [addedTemplates]);
 
-  // Template Settings Handlers
-  const handleRemoveTemplate = (templateId: number) => {
+  // Template Settings Handlers - optimized with useCallback
+  const handleRemoveTemplate = useCallback((templateId: number) => {
     setAddedTemplates(prev => prev.filter(t => t.id !== templateId));
-  };
+  }, []);
 
-  const handleAddTemplateToVariation = () => {
+  const handleAddTemplateToVariation = useCallback(() => {
     if (addedTemplates.length === 0) return;
     
     const newVariation: TemplateVariation = {
@@ -328,48 +328,50 @@ const QuickPixl = () => {
     setTemplateVariations(prev => [...prev, newVariation]);
     // Clear added templates after adding to variation
     setAddedTemplates([]);
-  };
+  }, [addedTemplates]);
 
-  const handleRemoveTemplateVariation = (variationId: string) => {
+  const handleRemoveTemplateVariation = useCallback((variationId: string) => {
     setTemplateVariations(prev => prev.filter(v => v.id !== variationId));
-  };
+  }, []);
 
-  const handleDoubleClickTemplateVariation = (variation: TemplateVariation) => {
+  const handleDoubleClickTemplateVariation = useCallback((variation: TemplateVariation) => {
     // Add the templates from this variation back to the added templates
     const templatesNotAlreadyAdded = variation.templates.filter(
       template => !addedTemplates.find(t => t.id === template.id)
     );
     setAddedTemplates(prev => [...prev, ...templatesNotAlreadyAdded]);
-  };
+  }, [addedTemplates]);
 
-  // Background Plugin Handlers
-  const handleAddColor = () => {
+  // Background Plugin Handlers - optimized with useCallback
+  const handleAddColor = useCallback(() => {
     if (currentColor && !selectedColors.includes(currentColor)) {
       setSelectedColors(prev => [...prev, currentColor]);
     }
-  };
+  }, [currentColor, selectedColors]);
 
-  const handleRemoveColor = (colorToRemove: string) => {
+  const handleRemoveColor = useCallback((colorToRemove: string) => {
     setSelectedColors(prev => prev.filter(color => color !== colorToRemove));
-  };
+  }, []);
 
-  const handleEyedropper = async () => {
+  const handleEyedropper = useCallback(async () => {
     if (!('EyeDropper' in window)) {
-      toast.error('Eyedropper not supported in this browser. Using color picker instead.');
-      // Auto-focus the color input as fallback
-      if (colorInputRef.current) {
-        colorInputRef.current.focus();
-        colorInputRef.current.click();
-      }
+      toast.error('Eyedropper not supported in this browser');
       return;
     }
-
+    
+    setIsEyedropperActive(true);
+    
     try {
-      setIsEyedropperActive(true);
       const eyeDropper = new (window as any).EyeDropper();
       const result = await eyeDropper.open();
-      setCurrentColor(result.sRGBHex);
-      toast.success('Color picked successfully!');
+      
+      if (result?.sRGBHex) {
+        setCurrentColor(result.sRGBHex);
+        if (colorInputRef.current) {
+          colorInputRef.current.value = result.sRGBHex;
+        }
+        toast.success(`Color picked: ${result.sRGBHex}`);
+      }
     } catch (error) {
       if (error instanceof Error && error.name !== 'AbortError') {
         console.error('Eyedropper error:', error);
@@ -379,7 +381,7 @@ const QuickPixl = () => {
     } finally {
       setIsEyedropperActive(false);
     }
-  };
+  }, []);
 
   // Add loading state for image uploads
   const [isUploading, setIsUploading] = useState(false);
@@ -484,17 +486,17 @@ const QuickPixl = () => {
     setBackgroundVariations(prev => prev.filter(v => v.id !== variationId));
   };
 
-  // Fonts Plugin Handlers
-  const handleFontSelect = (fontFamily: string) => {
+  // Fonts Plugin Handlers - optimized with useCallback
+  const handleFontSelect = useCallback((fontFamily: string) => {
     setLastSelectedFont(fontFamily);
     setSelectedFonts(prev => 
       prev.includes(fontFamily) 
         ? prev.filter(font => font !== fontFamily)
         : [...prev, fontFamily]
     );
-  };
+  }, []);
 
-  const handleAddFontsToVariation = () => {
+  const handleAddFontsToVariation = useCallback(() => {
     if (selectedFonts.length === 0) return;
     
     const newFontVariation: FontVariation = {
@@ -506,14 +508,14 @@ const QuickPixl = () => {
     setFontVariations(prev => [...prev, newFontVariation]);
     setSelectedFonts([]);
     toast.success(`${newFontVariation.fonts.length} font${newFontVariation.fonts.length > 1 ? 's' : ''} added to variation`);
-  };
+  }, [selectedFonts]);
 
-  const handleRemoveFontVariation = (variationId: string) => {
+  const handleRemoveFontVariation = useCallback((variationId: string) => {
     setFontVariations(prev => prev.filter(v => v.id !== variationId));
-  };
+  }, []);
 
-  // Typography Plugin Handlers
-  const generateTypographyDescription = (settings: TypographySettings): string => {
+  // Typography Plugin Handlers - optimized with useMemo and useCallback
+  const generateTypographyDescription = useCallback((settings: TypographySettings): string => {
     const features = [];
     if (settings.bold) features.push('Bold');
     if (settings.italic) features.push('Italic');
@@ -524,9 +526,9 @@ const QuickPixl = () => {
     if (settings.wordSpacing !== 0) features.push(`Word: ${settings.wordSpacing}px`);
     
     return features.length > 0 ? features.join(', ') : 'Default typography';
-  };
+  }, []);
 
-  const handleAddTypographyVariation = () => {
+  const handleAddTypographyVariation = useCallback(() => {
     const newVariation: TypographyVariation = {
       id: `typography-variation-${Date.now()}`,
       settings: { ...typographySettings },
@@ -535,20 +537,20 @@ const QuickPixl = () => {
     
     setTypographyVariations(prev => [...prev, newVariation]);
     toast.success('Typography variation added');
-  };
+  }, [typographySettings, generateTypographyDescription]);
 
-  const handleRemoveTypographyVariation = (variationId: string) => {
+  const handleRemoveTypographyVariation = useCallback((variationId: string) => {
     setTypographyVariations(prev => prev.filter(v => v.id !== variationId));
     toast.success('Typography variation removed');
-  };
+  }, []);
 
-  const handleRemoveBackgroundVariation = (variationId: string) => {
+  const handleRemoveBackgroundVariation = useCallback((variationId: string) => {
     setBackgroundVariations(prev => prev.filter(v => v.id !== variationId));
     toast.success('Text background variation removed');
-  };
+  }, []);
 
-  // Text Shape Plugin Handlers
-  const generateTextShapeDescription = (shape: keyof ShapeSettings, settings: any): string => {
+  // Text Shape Plugin Handlers - optimized with useCallback
+  const generateTextShapeDescription = useCallback((shape: keyof ShapeSettings, settings: any): string => {
     if (shape === 'none') return 'No shape';
     
     let description = shape.charAt(0).toUpperCase() + shape.slice(1);
@@ -570,7 +572,7 @@ const QuickPixl = () => {
     }
     
     return description;
-  };
+  }, []);
 
   const generateRotateFlipDescription = (settings: RotateFlipSettings): string => {
     const parts = [];
@@ -594,13 +596,13 @@ const QuickPixl = () => {
     return parts.join(', ');
   };
 
-  // Helper to scroll new cards into view
-  const scrollNewCardIntoView = () => {
+  // Helper to scroll new cards into view - optimized with useCallback
+  const scrollNewCardIntoView = useCallback(() => {
     const targets = [leftSettingsRef.current, variationsRef.current];
     requestAnimationFrame(() => {
       targets.forEach(el => el?.scrollTo({ top: el.scrollHeight, behavior: "smooth" }));
     });
-  };
+  }, []);
 
   const handleAddTextShapeVariation = () => {
     const newVariation: TextShapeVariation = {
@@ -614,15 +616,29 @@ const QuickPixl = () => {
     toast.success('Text shape variation added');
   };
 
-  // Auto-scroll when text shape variations are added
+  // Consolidated auto-scroll effect for all variation types
   useEffect(() => {
-    if (textShapeVariations.length > 0) scrollNewCardIntoView();
-  }, [textShapeVariations.length]);
-
-  // Auto-scroll when rotate flip variations are added
-  useEffect(() => {
-    if (rotateFlipVariations.length > 0) scrollNewCardIntoView();
-  }, [rotateFlipVariations.length]);
+    const hasVariations = textShapeVariations.length > 0 || 
+                         rotateFlipVariations.length > 0 || 
+                         colorFillVariations.length > 0 || 
+                         backgroundVariations.length > 0 ||
+                         typographyVariations.length > 0 ||
+                         fontVariations.length > 0 ||
+                         templateVariations.length > 0;
+    
+    if (hasVariations) {
+      scrollNewCardIntoView();
+    }
+  }, [
+    textShapeVariations.length, 
+    rotateFlipVariations.length, 
+    colorFillVariations.length,
+    backgroundVariations.length,
+    typographyVariations.length,
+    fontVariations.length,
+    templateVariations.length,
+    scrollNewCardIntoView
+  ]);
 
   const handleRemoveTextShapeVariation = (variationId: string) => {
     setTextShapeVariations(prev => prev.filter(v => v.id !== variationId));
@@ -672,16 +688,12 @@ const QuickPixl = () => {
 
     setColorFillVariations(prev => [...prev, newVariation]);
     toast.success('Color & fill variation added');
-    
-    // Auto-scroll to show the new variation
-    setTimeout(() => scrollNewCardIntoView(), 100);
   };
 
-  const handleAddTextBackgroundVariation = (variation: Variation) => {
+  const handleAddTextBackgroundVariation = useCallback((variation: Variation) => {
     setBackgroundVariations(prev => [...prev, variation]);
     toast.success('Text background variation added');
-    setTimeout(() => scrollNewCardIntoView(), 80);
-  };
+  }, []);
 
   const handleRemoveColorFillVariation = (variationId: string) => {
     setColorFillVariations(prev => prev.filter(v => v.id !== variationId));

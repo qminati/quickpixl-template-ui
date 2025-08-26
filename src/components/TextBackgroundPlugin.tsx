@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { ChevronDown, ChevronUp, Palette, Upload, Trash2 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -23,16 +23,16 @@ const TextBackgroundPlugin: React.FC<TextBackgroundPluginProps> = ({
   const [gradientAngle, setGradientAngle] = useState([45]);
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
     setSelectedImages(prev => [...prev, ...files]);
-  };
+  }, []);
 
-  const removeImage = (index: number) => {
+  const removeImage = useCallback((index: number) => {
     setSelectedImages(prev => prev.filter((_, i) => i !== index));
-  };
+  }, []);
 
-  const handleAddVariation = () => {
+  const handleAddVariation = useCallback(() => {
     let colors: string[] = [];
     let images: File[] = [];
     let description = '';
@@ -61,7 +61,7 @@ const TextBackgroundPlugin: React.FC<TextBackgroundPluginProps> = ({
     if (mode === 'image') {
       setSelectedImages([]);
     }
-  };
+  }, [mode, solidColor, gradientFrom, gradientTo, gradientAngle, selectedImages, onAddVariation]);
 
   return (
     <div className="bg-card border border-panel-border rounded-lg">
