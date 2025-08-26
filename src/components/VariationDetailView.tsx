@@ -482,10 +482,10 @@ const renderTypographyVariation = (variation: TypographyVariation, isEditing: bo
             fontWeight: variation.settings.bold ? 'bold' : 'normal',
             fontStyle: variation.settings.italic ? 'italic' : 'normal',
             textDecoration: variation.settings.underline ? 'underline' : 'none',
-            textTransform: variation.settings.textCase as any,
+            textTransform: variation.settings.textCase as 'none' | 'uppercase' | 'lowercase',
             letterSpacing: `${variation.settings.letterSpacing}px`,
             wordSpacing: `${variation.settings.wordSpacing}px`,
-            textAlign: variation.settings.textAlign as any,
+            textAlign: variation.settings.textAlign as 'left' | 'center' | 'right' | 'justify',
           }}
         >
           Sample Text Preview

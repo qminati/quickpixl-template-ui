@@ -7,6 +7,10 @@ export interface ImageValidation {
 }
 
 export const validateImage = async (file: File): Promise<ImageValidation> => {
+  if (!file || !(file instanceof File)) {
+    return { isValid: false, error: 'Invalid file object' };
+  }
+
   if (file.size > MAX_FILE_SIZE) {
     return { isValid: false, error: 'File size too large (max 10MB)' };
   }
@@ -20,8 +24,13 @@ export const validateImage = async (file: File): Promise<ImageValidation> => {
 
 export const handleImageError = (event: React.SyntheticEvent<HTMLImageElement>) => {
   const img = event.target as HTMLImageElement;
+  if (!img) return;
+  
   // Simple fallback - just hide broken images gracefully
   img.style.display = 'none';
+  
+  // Set a fallback src to prevent further error events
+  img.src = createImageFallback();
 };
 
 export const createImageFallback = (): string => {

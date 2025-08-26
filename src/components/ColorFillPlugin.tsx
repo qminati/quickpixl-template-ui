@@ -38,8 +38,8 @@ const ColorFillPlugin: React.FC<ColorFillPluginProps> = ({
     onSettingsChange({ ...settings, ...updates });
   };
 
-  const updateModeSettings = (mode: keyof ColorFillSettings, updates: any) => {
-    const currentSettings = settings[mode] as any;
+  const updateModeSettings = (mode: keyof ColorFillSettings, updates: Record<string, unknown>) => {
+    const currentSettings = settings[mode] as Record<string, unknown>;
     updateSettings({
       ...settings,
       [mode]: { ...currentSettings, ...updates }

@@ -119,10 +119,10 @@ const TextEditor: React.FC<TextEditorProps> = ({
                 fontWeight: typographySettings?.bold ? 'bold' : 'normal',
                 fontStyle: typographySettings?.italic ? 'italic' : 'normal',
                 textDecoration: typographySettings?.underline ? 'underline' : 'none',
-                textTransform: typographySettings?.textCase === 'normal' ? 'none' : (typographySettings?.textCase || 'none') as any,
+                textTransform: typographySettings?.textCase === 'normal' ? 'none' : (typographySettings?.textCase || 'none') as 'none' | 'uppercase' | 'lowercase',
                 letterSpacing: typographySettings?.letterSpacing ? `${typographySettings.letterSpacing}px` : 'normal',
                 wordSpacing: typographySettings?.wordSpacing ? `${typographySettings.wordSpacing}px` : 'normal',
-                textAlign: (typographySettings?.textAlign || 'center') as any,
+                textAlign: (typographySettings?.textAlign || 'center') as 'left' | 'center' | 'right' | 'justify',
                 WebkitTextStroke: typographySettings?.textStroke ? `${typographySettings.strokeWidth || 1}px ${typographySettings.strokeColor || '#000000'}` : 'none'
               }}
             >

@@ -78,7 +78,7 @@ const StrokesPlugin: React.FC<StrokesPluginProps> = ({
     });
   }, [settings.regular.strokes, updateSettings]);
 
-  const updateRegularStroke = useCallback((strokeId: string, updates: any) => {
+  const updateRegularStroke = useCallback((strokeId: string, updates: Record<string, unknown>) => {
     updateSettings({
       regular: {
         strokes: settings.regular.strokes.map(s => 
@@ -124,7 +124,7 @@ const StrokesPlugin: React.FC<StrokesPluginProps> = ({
     });
   }, [settings.character, updateSettings]);
 
-  const updateCharacterStroke = useCallback((strokeId: string, updates: any) => {
+  const updateCharacterStroke = useCallback((strokeId: string, updates: Record<string, unknown>) => {
     updateSettings({
       character: {
         ...settings.character,
@@ -169,7 +169,7 @@ const StrokesPlugin: React.FC<StrokesPluginProps> = ({
     });
   }, [settings.container.strokes, updateSettings]);
 
-  const updateContainerStroke = useCallback((strokeId: string, updates: any) => {
+  const updateContainerStroke = useCallback((strokeId: string, updates: Record<string, unknown>) => {
     updateSettings({
       container: {
         strokes: settings.container.strokes.map(s => 
@@ -315,7 +315,7 @@ const StrokesPlugin: React.FC<StrokesPluginProps> = ({
     });
   };
 
-  const renderStrokeControls = (stroke: any, strokeType: 'regular' | 'character' | 'container', onUpdate: (updates: any) => void) => {
+  const renderStrokeControls = (stroke: Record<string, any>, strokeType: 'regular' | 'character' | 'container', onUpdate: (updates: Record<string, unknown>) => void) => {
     const isExpanded = expandedStrokes.has(stroke.id);
     
     return (
@@ -460,13 +460,13 @@ const StrokesPlugin: React.FC<StrokesPluginProps> = ({
                   </div>
                 )}
 
-                {stroke.gradient.stops.map((stop: any) => (
+                {stroke.gradient.stops.map((stop: Record<string, any>) => (
                   <div key={stop.id} className="flex items-center space-x-1">
                     <input
                       type="color"
                       value={stop.color}
                       onChange={(e) => {
-                        const newStops = stroke.gradient.stops.map((s: any) => 
+                        const newStops = stroke.gradient.stops.map((s: Record<string, any>) => 
                           s.id === stop.id ? { ...s, color: e.target.value } : s
                         );
                         onUpdate({ gradient: { ...stroke.gradient, stops: newStops } });
@@ -476,7 +476,7 @@ const StrokesPlugin: React.FC<StrokesPluginProps> = ({
                     <Slider
                       value={[stop.position]}
                       onValueChange={([value]) => {
-                        const newStops = stroke.gradient.stops.map((s: any) => 
+                        const newStops = stroke.gradient.stops.map((s: Record<string, any>) => 
                           s.id === stop.id ? { ...s, position: value } : s
                         );
                         onUpdate({ gradient: { ...stroke.gradient, stops: newStops } });
@@ -533,7 +533,7 @@ const StrokesPlugin: React.FC<StrokesPluginProps> = ({
                           variant="ghost"
                           size="sm"
                           onClick={() => {
-                            const newImages = stroke.images.filter((_: any, i: number) => i !== index);
+                            const newImages = stroke.images.filter((_: File, i: number) => i !== index);
                             onUpdate({ images: newImages });
                           }}
                           className="absolute -top-1 -right-1 p-0 h-4 w-4 bg-destructive text-white rounded-full"

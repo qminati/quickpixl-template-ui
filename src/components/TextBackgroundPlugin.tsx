@@ -74,12 +74,18 @@ const TextBackgroundPlugin: React.FC<TextBackgroundPluginProps> = ({
     }
   }, [mode, solidColor, gradientFrom, gradientTo, gradientAngle, selectedImages, onAddVariation, objectUrls]);
 
-  // Cleanup object URLs on unmount
+  // Cleanup object URLs on unmount and when objectUrls change
   useEffect(() => {
     return () => {
-      objectUrls.forEach(url => URL.revokeObjectURL(url));
+      objectUrls.forEach(url => {
+        try {
+          URL.revokeObjectURL(url);
+        } catch (error) {
+          console.warn('Failed to revoke object URL:', error);
+        }
+      });
     };
-  }, [objectUrls]);
+  }, []);
 
   return (
     <div className="bg-card border border-panel-border rounded-lg shadow-sm">

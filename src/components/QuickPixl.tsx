@@ -314,11 +314,9 @@ const QuickPixl = () => {
 
   // Enhanced cleanup function for blob URLs with better error handling
   useEffect(() => {
-    // Create a copy of current URLs to clean up on unmount
-    const urlsToClean = new Map(blobUrls);
-    
     return () => {
-      urlsToClean.forEach((url) => {
+      // Clean up all blob URLs on unmount
+      blobUrls.forEach((url) => {
         try {
           URL.revokeObjectURL(url);
         } catch (error) {
@@ -328,15 +326,12 @@ const QuickPixl = () => {
     };
   }, []); // Empty dependency array, only cleanup on unmount
 
-  // Cleanup blob URLs when they're removed from the map
+  // Monitor blob URLs to prevent memory buildup
   useEffect(() => {
-    const cleanup = () => {
-      if (blobUrls.size > 50) { // Prevent memory buildup
-        console.warn('Large number of blob URLs detected, consider cleanup');
-      }
-    };
-    cleanup();
-  }, [blobUrls.size]);
+    if (blobUrls.size > 50) { // Prevent memory buildup
+      console.warn('Large number of blob URLs detected, consider cleanup');
+    }
+  }, [blobUrls]);
 
   // Helper to safely get blob URL with cleanup tracking and error handling
   const getBlobUrl = (file: File): string => {
@@ -644,7 +639,7 @@ const QuickPixl = () => {
   }, []);
 
   // Text Shape Plugin Handlers - optimized with useCallback
-  const generateTextShapeDescription = useCallback((shape: keyof ShapeSettings, settings: any): string => {
+  const generateTextShapeDescription = useCallback((shape: keyof ShapeSettings, settings: ShapeSettings[keyof ShapeSettings]): string => {
     if (shape === 'none') return 'No shape';
     
     let description = shape.charAt(0).toUpperCase() + shape.slice(1);
@@ -652,13 +647,16 @@ const QuickPixl = () => {
     if (settings) {
       switch (shape) {
         case 'circle':
-          description += ` (${settings.radius}px, ${settings.direction})`;
+          const circleSettings = settings as ShapeSettings['circle'];
+          description += ` (${circleSettings.radius}px, ${circleSettings.direction})`;
           break;
         case 'arc':
-          description += ` (${settings.radius}px, ${settings.arcAngle}°)`;
+          const arcSettings = settings as ShapeSettings['arc'];
+          description += ` (${arcSettings.radius}px, ${arcSettings.arcAngle}°)`;
           break;
         case 'wave':
-          description += ` (${settings.amplitude}px, ${settings.frequency} waves)`;
+          const waveSettings = settings as ShapeSettings['wave'];
+          description += ` (${waveSettings.amplitude}px, ${waveSettings.frequency} waves)`;
           break;
         default:
           break;
@@ -906,29 +904,29 @@ const QuickPixl = () => {
     setHasUnsavedChanges(false);
   };
 
-  const handleVariationSave = (updatedVariation: any) => {
+  const handleVariationSave = (updatedVariation: AnyVariation) => {
     // Update the appropriate variation array based on type
     switch (selectedVariationType) {
       case 'background':
-        setBackgroundVariations(prev => prev.map(v => v.id === updatedVariation.id ? updatedVariation : v));
+        setBackgroundVariations(prev => prev.map(v => v.id === updatedVariation.id ? updatedVariation as Variation : v));
         break;
       case 'template':
-        setTemplateVariations(prev => prev.map(v => v.id === updatedVariation.id ? updatedVariation : v));
+        setTemplateVariations(prev => prev.map(v => v.id === updatedVariation.id ? updatedVariation as TemplateVariation : v));
         break;
       case 'font':
-        setFontVariations(prev => prev.map(v => v.id === updatedVariation.id ? updatedVariation : v));
+        setFontVariations(prev => prev.map(v => v.id === updatedVariation.id ? updatedVariation as FontVariation : v));
         break;
       case 'typography':
-        setTypographyVariations(prev => prev.map(v => v.id === updatedVariation.id ? updatedVariation : v));
+        setTypographyVariations(prev => prev.map(v => v.id === updatedVariation.id ? updatedVariation as TypographyVariation : v));
         break;
       case 'textShape':
-        setTextShapeVariations(prev => prev.map(v => v.id === updatedVariation.id ? updatedVariation : v));
+        setTextShapeVariations(prev => prev.map(v => v.id === updatedVariation.id ? updatedVariation as TextShapeVariation : v));
         break;
       case 'rotateFlip':
-        setRotateFlipVariations(prev => prev.map(v => v.id === updatedVariation.id ? updatedVariation : v));
+        setRotateFlipVariations(prev => prev.map(v => v.id === updatedVariation.id ? updatedVariation as RotateFlipVariation : v));
         break;
       case 'colorFill':
-        setColorFillVariations(prev => prev.map(v => v.id === updatedVariation.id ? updatedVariation : v));
+        setColorFillVariations(prev => prev.map(v => v.id === updatedVariation.id ? updatedVariation as ColorFillVariation : v));
         break;
       case 'strokes':
         setStrokesVariations(prev => prev.map(v => v.id === updatedVariation.id ? updatedVariation as StrokesVariation : v));
