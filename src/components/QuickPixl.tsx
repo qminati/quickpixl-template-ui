@@ -1209,6 +1209,7 @@ const QuickPixl = () => {
     setIsTypographyExpanded(false);
     setIsTextShapeExpanded(false);
     setIsRotateFlipExpanded(false);
+    setIsStrokesExpanded(false);
   };
 
   const handleShowAll = () => {
@@ -1218,6 +1219,7 @@ const QuickPixl = () => {
     setIsTypographyExpanded(true);
     setIsTextShapeExpanded(true);
     setIsRotateFlipExpanded(true);
+    setIsStrokesExpanded(true);
   };
 
   const renderSettingsPanel = () => {
