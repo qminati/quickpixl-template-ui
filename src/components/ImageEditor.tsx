@@ -329,25 +329,8 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
                   </CardHeader>
 
                   <CardContent className="p-3 space-y-3">
-                    {/* Primary preview area */}
-                    <div className="aspect-[4/3] bg-muted/40 rounded-lg overflow-hidden flex items-center justify-center">
-                      {input.selectedImages?.length ? (
-                        <img 
-                          src={getBlobUrlSafe(input.selectedImages[0])} 
-                          className="h-full w-full object-cover" 
-                          alt="Primary preview" 
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.style.display = 'none';
-                          }}
-                        />
-                      ) : (
-                        <div className="text-xs text-muted-foreground">No images yet</div>
-                      )}
-                    </div>
-
-                    {/* Thumbnails (first 6) */}
-                    {input.selectedImages?.length > 0 && (
+                    {/* Thumbnails */}
+                    {input.selectedImages?.length > 0 ? (
                       <div className="grid grid-cols-3 gap-2">
                         {input.selectedImages.slice(0, 6).map((img, i) => (
                           <button 
@@ -377,6 +360,10 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
                             </span>
                           </div>
                         )}
+                      </div>
+                    ) : (
+                      <div className="h-16 bg-muted/40 rounded-lg flex items-center justify-center">
+                        <div className="text-xs text-muted-foreground">No images yet</div>
                       </div>
                     )}
 
