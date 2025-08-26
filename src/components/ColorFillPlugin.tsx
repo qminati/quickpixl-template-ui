@@ -653,7 +653,7 @@ const ColorFillPlugin: React.FC<ColorFillPluginProps> = ({
                   </div>
                   <div className="grid grid-cols-4 gap-1">
                     {settings.image.images.map((image, index) => (
-                      <div key={index} className="relative group aspect-square">
+                      <div key={`fill-image-${image.name}-${image.size}-${index}`} className="relative group aspect-square">
                         <img
                           src={URL.createObjectURL(image)}
                           alt={`Image ${index + 1}`}

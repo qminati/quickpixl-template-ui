@@ -46,7 +46,12 @@ const ImageInputPlugin: React.FC<ImageInputPluginProps> = ({
   };
 
   useEffect(() => {
-    return () => (settings.selectedImages || []).forEach(revokeBlobUrl);
+    return () => {
+      // Clean up blob URLs on unmount
+      if (settings.selectedImages) {
+        settings.selectedImages.forEach(revokeBlobUrl);
+      }
+    };
   }, []); // cleanup on unmount
 
   return (
@@ -88,9 +93,9 @@ const ImageInputPlugin: React.FC<ImageInputPluginProps> = ({
                   </span>
                 </div>
 
-                <div className="grid grid-cols-3 gap-2 max-h-40 overflow-y-auto">
+                 <div className="grid grid-cols-3 gap-2 max-h-40 overflow-y-auto">
                   {settings.selectedImages.map((image, i) => (
-                    <div key={`${image.name}-${i}`} className="relative group">
+                    <div key={`${image.name}-${image.size}-${i}`} className="relative group">
                       <div className="aspect-square bg-muted rounded border overflow-hidden">
                         <img
                           src={getBlobUrl(image)}

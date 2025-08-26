@@ -12,6 +12,8 @@ interface State {
 }
 
 class ErrorBoundary extends React.Component<Props, State> {
+  private isMounted = true;
+
   constructor(props: Props) {
     super(props);
     this.state = { hasError: false, error: null, errorInfo: null };
@@ -25,21 +27,47 @@ class ErrorBoundary extends React.Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('ErrorBoundary caught an error:', error, errorInfo);
-    
-    // Store error info for debugging
-    this.setState({
-      error: error.message || 'An unknown error occurred',
-      errorInfo: errorInfo.componentStack || 'No component stack available'
-    });
+    // Only log and update state if component is still mounted
+    if (this.isMounted) {
+      console.error('ErrorBoundary caught an error:', error, errorInfo);
+      
+      // Store error info for debugging
+      this.setState({
+        error: error.message || 'An unknown error occurred',
+        errorInfo: errorInfo.componentStack || 'No component stack available'
+      });
+
+      // Enhanced error reporting for development
+      if (process.env.NODE_ENV === 'development') {
+        console.group('🔥 Error Boundary Details');
+        console.error('Error:', error);
+        console.error('Error Info:', errorInfo);
+        console.error('Component Stack:', errorInfo.componentStack);
+        console.groupEnd();
+      }
+    }
+  }
+
+  componentWillUnmount() {
+    this.isMounted = false;
   }
 
   handleRetry = () => {
-    this.setState({ 
-      hasError: false, 
-      error: null, 
-      errorInfo: null 
-    });
+    if (this.isMounted) {
+      this.setState({ 
+        hasError: false, 
+        error: null, 
+        errorInfo: null 
+      });
+    }
+  };
+
+  handleReload = () => {
+    try {
+      window.location.reload();
+    } catch (error) {
+      console.error('Failed to reload page:', error);
+    }
   };
 
   render() {
@@ -78,7 +106,7 @@ class ErrorBoundary extends React.Component<Props, State> {
               </button>
               
               <button
-                onClick={() => window.location.reload()}
+                onClick={this.handleReload}
                 className="w-full px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/80 transition-colors text-sm"
               >
                 Reload Page

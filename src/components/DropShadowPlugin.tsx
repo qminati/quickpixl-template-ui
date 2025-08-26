@@ -564,7 +564,7 @@ const DropShadowPlugin: React.FC<DropShadowPluginProps> = ({
                 {shadow.images && shadow.images.length > 0 && (
                   <div className="grid grid-cols-3 gap-1">
                     {shadow.images.map((image: File, index: number) => (
-                      <div key={index} className="relative group">
+                      <div key={`shadow-image-${image.name}-${image.size}-${index}`} className="relative group">
                         <img
                           src={URL.createObjectURL(image)}
                           alt={`Shadow ${index + 1}`}

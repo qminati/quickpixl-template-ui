@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { 
   Type, 
   Image as ImageIcon, 
@@ -398,15 +398,9 @@ const QuickPixl = () => {
           console.warn('Failed to revoke blob URL:', error);
         }
       });
+      setBlobUrls(new Map()); // Clear the map on unmount
     };
   }, []); // Empty dependency array, only cleanup on unmount
-
-  // Monitor blob URLs to prevent memory buildup
-  useEffect(() => {
-    if (blobUrls.size > 50) { // Prevent memory buildup
-      console.warn('Large number of blob URLs detected, consider cleanup');
-    }
-  }, [blobUrls]);
 
   // Helper to safely get blob URL with cleanup tracking and error handling
   const getBlobUrl = useCallback((file: File): string => {
@@ -416,20 +410,25 @@ const QuickPixl = () => {
     }
 
     // Check if we already have a URL for this file
-    if (blobUrls.has(file)) {
-      return blobUrls.get(file)!;
+    const existingUrl = blobUrls.get(file);
+    if (existingUrl) {
+      return existingUrl;
     }
     
     try {
       // Create new URL and track it
       const url = URL.createObjectURL(file);
-      setBlobUrls(prev => new Map(prev).set(file, url));
+      setBlobUrls(prev => {
+        const newMap = new Map(prev);
+        newMap.set(file, url);
+        return newMap;
+      });
       return url;
     } catch (error) {
       console.error('Failed to create blob URL:', error);
       return createImageFallback();
     }
-  }, [blobUrls]);
+  }, []); // Remove blobUrls dependency to prevent infinite re-renders
 
   // Color palette
   const colorPalette = [
@@ -536,6 +535,7 @@ const QuickPixl = () => {
   // Add loading state for image uploads
   const [isUploading, setIsUploading] = useState(false);
 
+  // Enhanced file upload handler with better error handling and loading states
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
     if (files.length === 0) return;
@@ -546,6 +546,8 @@ const QuickPixl = () => {
 
     try {
       for (const file of files) {
+        if (!file) continue;
+        
         try {
           const validation = await validateImage(file);
           if (validation.isValid) {
@@ -554,42 +556,57 @@ const QuickPixl = () => {
             hasErrors = true;
             toast.error(`${file.name}: ${validation.error}`);
           }
-        } catch (error) {
+        } catch (validationError) {
           hasErrors = true;
-          console.error('Failed to validate image:', error);
+          console.error('File validation error:', validationError);
           toast.error(`Failed to validate ${file.name}`);
         }
       }
 
       if (validFiles.length > 0) {
-        setUploadedImages(prev => [...prev, ...validFiles]);
-        setSelectedImages(prev => [...prev, ...validFiles]);
-        toast.success(`${validFiles.length} image${validFiles.length > 1 ? 's' : ''} uploaded successfully!`);
+        try {
+          setUploadedImages(prev => {
+            // Prevent duplicate files
+            const existingNames = new Set(prev.map(f => f.name));
+            const uniqueFiles = validFiles.filter(f => !existingNames.has(f.name));
+            return [...prev, ...uniqueFiles];
+          });
+          
+          setSelectedImages(prev => {
+            const existingNames = new Set(prev.map(f => f.name));
+            const uniqueFiles = validFiles.filter(f => !existingNames.has(f.name));
+            return [...prev, ...uniqueFiles];
+          });
+          
+          toast.success(`${validFiles.length} image${validFiles.length > 1 ? 's' : ''} uploaded successfully!`);
+        } catch (updateError) {
+          console.error('Failed to update state with new images:', updateError);
+          toast.error('Failed to process uploaded images');
+        }
       }
 
       if (hasErrors && validFiles.length === 0) {
         toast.error('No valid images could be uploaded');
       }
     } catch (error) {
-      console.error('Upload error:', error);
+      console.error('Upload process failed:', error);
       toast.error('Failed to upload images. Please try again.');
     } finally {
       setIsUploading(false);
+      // Clear the input to allow re-uploading the same file
+      event.target.value = '';
     }
-
-    // Clear the input
-    event.target.value = '';
   };
 
-  const handleImageSelect = (image: File) => {
+  const handleImageSelect = useCallback((image: File) => {
     setSelectedImages(prev => 
       prev.includes(image) 
         ? prev.filter(img => img !== image)
         : [...prev, image]
     );
-  };
+  }, []);
 
-  const handleImageDelete = (imageToDelete: File) => {
+  const handleImageDelete = useCallback((imageToDelete: File) => {
     if (!imageToDelete || !(imageToDelete instanceof File)) {
       console.warn('Invalid file provided to handleImageDelete');
       return;
@@ -612,13 +629,65 @@ const QuickPixl = () => {
       setSelectedImages(prev => prev.filter(img => img !== imageToDelete));
       
       toast.success('Image removed successfully');
-    } catch (error) {
-      console.error('Error deleting image:', error);
-      toast.error('Failed to remove image');
-    }
-  };
+     } catch (error) {
+       console.error('Error deleting image:', error);
+       toast.error('Failed to remove image');
+     }
+  }, [blobUrls]);
 
-  const handleAddToVariation = () => {
+  // Performance optimizations with useMemo
+  const totalVariations = useMemo(() => 
+    backgroundVariations.length + 
+    templateVariations.length + 
+    fontVariations.length + 
+    typographyVariations.length + 
+    textShapeVariations.length + 
+    rotateFlipVariations.length + 
+    colorFillVariations.length + 
+    strokesVariations.length + 
+    characterEffectsVariations.length + 
+    imageEffectsVariations.length + 
+    imageInputVariations.length + 
+    dropShadowVariations.length
+  , [
+    backgroundVariations.length, 
+    templateVariations.length, 
+    fontVariations.length, 
+    typographyVariations.length,
+    textShapeVariations.length,
+    rotateFlipVariations.length,
+    colorFillVariations.length,
+    strokesVariations.length,
+    characterEffectsVariations.length,
+    imageEffectsVariations.length,
+    imageInputVariations.length,
+    dropShadowVariations.length
+  ]);
+
+  const hasAnyVariations = useMemo(() => totalVariations > 0, [totalVariations]);
+
+  // Optimized variation description generators
+  const generateBackgroundVariationDescription = useCallback((colors: string[], images: File[]) => {
+    const parts: string[] = [];
+    if (colors.length > 0) parts.push(`${colors.length} color${colors.length > 1 ? 's' : ''}`);
+    if (images.length > 0) parts.push(`${images.length} image${images.length > 1 ? 's' : ''}`);
+    return parts.join(' + ') || 'Background variation';
+  }, []);
+
+  const generateImageEffectsDescription = useCallback((settings: ImageEffectsSettings) => {
+    const effects: string[] = [];
+    if (settings.brightness !== 0) effects.push(`brightness(${settings.brightness > 0 ? '+' : ''}${settings.brightness})`);
+    if (settings.contrast !== 0) effects.push(`contrast(${settings.contrast > 0 ? '+' : ''}${settings.contrast})`);
+    if (settings.saturation !== 0) effects.push(`saturation(${settings.saturation > 0 ? '+' : ''}${settings.saturation})`);
+    if (settings.vibrance !== 0) effects.push(`vibrance(${settings.vibrance > 0 ? '+' : ''}${settings.vibrance})`);
+    if (settings.hue !== 0) effects.push(`hue(${settings.hue > 0 ? '+' : ''}${settings.hue}°)`);
+    if (settings.grayscale) effects.push('grayscale');
+    if (settings.colorize) effects.push('colorize');
+    if (settings.invert) effects.push('invert');
+    return effects.length > 0 ? effects.join(', ') : 'Visual effects';
+  }, []);
+
+  const handleAddToVariation = useCallback(() => {
     if (selectedColors.length === 0 && selectedImages.length === 0) {
       toast.info('Please select colors or images before creating a variation');
       return;
@@ -636,11 +705,11 @@ const QuickPixl = () => {
       setSelectedColors([]);
       setSelectedImages([]);
       toast.success('Background variation added successfully');
-    } catch (error) {
-      console.error('Failed to create variation:', error);
-      toast.error('Failed to create variation');
-    }
-  };
+     } catch (error) {
+       console.error('Failed to create variation:', error);
+       toast.error('Failed to create variation');
+     }
+   }, [selectedColors, selectedImages, generateBackgroundVariationDescription]);
 
   const handleSubmitVariation = (texts: string[]) => {
     // Handle text variation submission logic here
@@ -926,21 +995,6 @@ const QuickPixl = () => {
   const handleRemoveDropShadowVariation = useCallback((variationId: string) => {
     setDropShadowVariations(prev => prev.filter(v => v.id !== variationId));
     toast.success('Drop shadow variation removed');
-  }, []);
-
-  // Image Effects Plugin Handlers
-  const generateImageEffectsDescription = useCallback((settings: ImageEffectsSettings): string => {
-    const effects = [];
-    if (settings.colorize) effects.push('Colorized');
-    if (settings.grayscale) effects.push('Grayscale');
-    if (settings.invert) effects.push('Inverted');
-    if (settings.brightness !== 0) effects.push(`Brightness: ${settings.brightness}`);
-    if (settings.contrast !== 0) effects.push(`Contrast: ${settings.contrast}`);
-    if (settings.saturation !== 0) effects.push(`Saturation: ${settings.saturation}`);
-    if (settings.vibrance && settings.vibrance !== 0) effects.push(`Vibrance: ${settings.vibrance}`);
-    if (settings.hue !== 0) effects.push(`Hue: ${settings.hue}°`);
-    
-    return effects.length > 0 ? effects.join(', ') : 'No effects';
   }, []);
 
   const handleAddImageEffectsVariation = useCallback(() => {
@@ -2571,8 +2625,8 @@ const QuickPixl = () => {
                             </Button>
                           </div>
                           <div className="flex space-x-1">
-                            {variation.images.slice(0, 4).map((image, index) => (
-                              <div key={index} className="w-8 h-8 rounded border border-panel-border overflow-hidden">
+                             {variation.images.slice(0, 4).map((image, index) => (
+                               <div key={`${image.name}-${image.size}-${index}`} className="w-8 h-8 rounded border border-panel-border overflow-hidden">
                                 <img
                                   src={getBlobUrl(image)}
                                   alt=""

@@ -550,7 +550,7 @@ const StrokesPlugin: React.FC<StrokesPluginProps> = ({
                 {stroke.images.length > 0 && (
                   <div className="grid grid-cols-3 gap-1">
                     {stroke.images.map((img: File, index: number) => (
-                      <div key={index} className="relative">
+                      <div key={`stroke-image-${img.name}-${img.size}-${index}`} className="relative">
                         <img
                           src={URL.createObjectURL(img)}
                           alt={`Stroke image ${index + 1}`}

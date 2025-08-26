@@ -232,7 +232,7 @@ const TextBackgroundPlugin: React.FC<TextBackgroundPluginProps> = ({
                   </span>
                   <div className="grid grid-cols-3 gap-2">
                     {selectedImages.map((image, index) => (
-                      <div key={index} className="relative group">
+                      <div key={`bg-image-${image.name}-${image.size}-${index}`} className="relative group">
                         <img
                           src={objectUrls[index]}
                           alt={`Background ${index + 1}`}

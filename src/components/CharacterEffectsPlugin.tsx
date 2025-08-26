@@ -161,7 +161,7 @@ const CharacterEffectsPlugin: React.FC<CharacterEffectsPluginProps> = ({
             </div>
 
             {settings.characters.map((character, index) => (
-              <div key={index} className="flex items-start space-x-2">
+              <div key={`character-${index}-${character.width}-${character.height}`} className="flex items-start space-x-2">
                 <div className="flex-1 bg-muted/30 border border-border rounded-md">
                   {/* Character Header */}
                   <div 
