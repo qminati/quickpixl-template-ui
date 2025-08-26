@@ -1,61 +1,38 @@
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
+// src/utils/imageUtils.ts
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
+const ALLOWED_TYPES = ['image/jpeg','image/jpg','image/png','image/webp','image/gif'];
 
-// Global blob URL cache for image handling
-let globalBlobUrlCache = new Map<File, string>();
-
-export interface ImageValidation {
-  isValid: boolean;
-  error?: string;
-}
+export type ImageValidation = { isValid: boolean; error?: string };
 
 export const validateImage = async (file: File): Promise<ImageValidation> => {
-  if (!file || !(file instanceof File)) {
-    return { isValid: false, error: 'Invalid file object' };
-  }
-
-  if (file.size > MAX_FILE_SIZE) {
-    return { isValid: false, error: 'File size too large (max 10MB)' };
-  }
-
-  if (!ALLOWED_TYPES.includes(file.type)) {
-    return { isValid: false, error: 'Invalid file type' };
-  }
-
+  if (!(file instanceof File)) return { isValid: false, error: 'Invalid file object' };
+  if (file.size > MAX_FILE_SIZE) return { isValid: false, error: 'File too large (>10MB)' };
+  if (!ALLOWED_TYPES.includes(file.type)) return { isValid: false, error: 'Invalid file type' };
   return { isValid: true };
 };
 
-export const handleImageError = (event: React.SyntheticEvent<HTMLImageElement>) => {
-  const img = event.target as HTMLImageElement;
-  if (!img) return;
-  
-  // Simple fallback - just hide broken images gracefully
-  img.style.display = 'none';
-  
-  // Set a fallback src to prevent further error events
-  img.src = createImageFallback();
-};
+const blobCache = new WeakMap<File, string>();
 
 export const getBlobUrl = (file: File): string => {
-  if (!file || !(file instanceof File)) {
-    console.error('Invalid file provided to getBlobUrl');
-    return createImageFallback();
+  let url = blobCache.get(file);
+  if (!url) {
+    url = URL.createObjectURL(file);
+    blobCache.set(file, url);
   }
+  return url;
+};
 
-  // Check if we already have a URL for this file
-  if (globalBlobUrlCache.has(file)) {
-    return globalBlobUrlCache.get(file)!;
+export const revokeBlobUrl = (file: File) => {
+  const url = blobCache.get(file);
+  if (url) {
+    URL.revokeObjectURL(url);
+    blobCache.delete(file);
   }
-  
-  try {
-    // Create new URL and cache it
-    const url = URL.createObjectURL(file);
-    globalBlobUrlCache.set(file, url);
-    return url;
-  } catch (error) {
-    console.error('Failed to create blob URL:', error);
-    return createImageFallback();
-  }
+};
+
+export const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+  const img = e.target as HTMLImageElement;
+  if (img) img.style.display = 'none';
 };
 
 export const createImageFallback = (): string => {

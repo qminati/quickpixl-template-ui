@@ -48,7 +48,7 @@ import ImageEditor from './ImageEditor';
 import ImageInputPlugin from './ImageInputPlugin';
 import { validateImage, handleImageError, createImageFallback } from '@/utils/imageUtils';
 import { toast } from 'sonner';
-import { Container, Variation, Template, TemplateVariation, FontVariation, TypographySettings, TypographyVariation, ShapeSettings, TextShapeVariation, RotateFlipSettings, RotateFlipVariation, ColorFillSettings, ColorFillVariation, StrokeSettings, StrokesVariation, CharacterEffectsSettings, CharacterEffectsVariation, ImageEffectsSettings, ImageEffectsVariation, DropShadowSettings, DropShadowVariation, AnyVariation } from '@/types/interfaces';
+import { Container, Variation, Template, TemplateVariation, FontVariation, TypographySettings, TypographyVariation, ShapeSettings, TextShapeVariation, RotateFlipSettings, RotateFlipVariation, ColorFillSettings, ColorFillVariation, StrokeSettings, StrokesVariation, CharacterEffectsSettings, CharacterEffectsVariation, ImageEffectsSettings, ImageEffectsVariation, DropShadowSettings, DropShadowVariation, ImageInputSettings, AnyVariation } from '@/types/interfaces';
 import TypographyPlugin from './TypographyPlugin';
 import TextShapePlugin from './TextShapePlugin';
 import RotateFlipPlugin from './RotateFlipPlugin';
@@ -161,7 +161,6 @@ const QuickPixl = () => {
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const [backgroundVariations, setBackgroundVariations] = useState<Variation[]>([]);
   const [isBackgroundExpanded, setIsBackgroundExpanded] = useState(true);
-  const [isImageInputExpanded, setIsImageInputExpanded] = useState(true);
   const [currentColor, setCurrentColor] = useState('#FF6B6B');
   const [isEyedropperActive, setIsEyedropperActive] = useState(false);
   
@@ -306,6 +305,14 @@ const QuickPixl = () => {
     character: { characters: [] }
   });
   const [dropShadowVariations, setDropShadowVariations] = useState<DropShadowVariation[]>([]);
+
+  // Image Input Plugin State
+  const [isImageInputExpanded, setIsImageInputExpanded] = useState(true);
+  const [imageInputSettings, setImageInputSettings] = useState<ImageInputSettings>({
+    selectedImages: [],
+    selectionMode: 'multiple'
+  });
+  const [imageInputVariations, setImageInputVariations] = useState<Variation[]>([]);
 
   // Image Effects Plugin State
   const [isImageEffectsExpanded, setIsImageEffectsExpanded] = useState(true);
@@ -946,6 +953,35 @@ const QuickPixl = () => {
     setImageEffectsVariations(prev => [...prev, newVariation]);
     toast.success('Visual effects variation added');
   }, [imageEffectsSettings, generateImageEffectsDescription]);
+
+  const generateImageInputDescription = useCallback((settings: ImageInputSettings): string => {
+    const imageCount = settings.selectedImages.length;
+    if (imageCount === 0) return 'No images selected';
+    return `${imageCount} image${imageCount > 1 ? 's' : ''} (${settings.selectionMode})`;
+  }, []);
+
+  const handleAddImageInputVariation = useCallback(() => {
+    if (imageInputSettings.selectedImages.length === 0) {
+      toast.info('Please select images before creating a variation');
+      return;
+    }
+
+    const newVariation: Variation = {
+      id: `image-input-variation-${Date.now()}`,
+      colors: [],
+      images: [...imageInputSettings.selectedImages],
+      description: generateImageInputDescription(imageInputSettings)
+    };
+    
+    setImageInputVariations(prev => [...prev, newVariation]);
+    toast.success('Image input variation added');
+    
+    // Auto-scroll to bottom of variations
+    setTimeout(() => {
+      const targets = [leftSettingsRef.current, variationsRef.current];
+      targets.forEach(el => el?.scrollTo({ top: el.scrollHeight, behavior: "smooth" }));
+    });
+  }, [imageInputSettings, generateImageInputDescription]);
 
   const handleRemoveImageEffectsVariation = useCallback((variationId: string) => {
     setImageEffectsVariations(prev => prev.filter(v => v.id !== variationId));
@@ -2422,18 +2458,9 @@ const QuickPixl = () => {
                 <ImageInputPlugin
                   isExpanded={isImageInputExpanded}
                   onToggleExpanded={() => setIsImageInputExpanded(!isImageInputExpanded)}
-                  settings={{
-                    selectedImages: [],
-                    selectionMode: 'multiple'
-                  }}
-                  onSettingsChange={(settings) => {
-                    // Handle image input settings change based on active tab
-                    console.log('Image input settings changed:', settings);
-                  }}
-                  onAddVariation={() => {
-                    // Handle image input variation creation
-                    console.log('Create image input variation');
-                  }}
+                  settings={imageInputSettings}
+                  onSettingsChange={setImageInputSettings}
+                  onAddVariation={handleAddImageInputVariation}
                 />
                 
                 {/* Image Effects Plugin */}

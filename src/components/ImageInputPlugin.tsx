@@ -1,186 +1,110 @@
-import React from 'react';
+// src/components/ImageInputPlugin.tsx
+import React, { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ChevronDown, ChevronRight, Upload, X, Plus } from 'lucide-react';
 import { ImageInputSettings } from '@/types/interfaces';
-import { validateImage, getBlobUrl } from '@/utils/imageUtils';
+import { validateImage, getBlobUrl, revokeBlobUrl, handleImageError } from '@/utils/imageUtils';
 import { toast } from 'sonner';
 
 interface ImageInputPluginProps {
   isExpanded: boolean;
   onToggleExpanded: () => void;
-  settings: ImageInputSettings;
+  settings: ImageInputSettings;                  // expects { selectedImages: File[], ... }
   onSettingsChange: (settings: ImageInputSettings) => void;
   onAddVariation: () => void;
 }
 
 const ImageInputPlugin: React.FC<ImageInputPluginProps> = ({
-  isExpanded,
-  onToggleExpanded,
-  settings,
-  onSettingsChange,
-  onAddVariation
+  isExpanded, onToggleExpanded, settings, onSettingsChange, onAddVariation
 }) => {
-  const [isUploading, setIsUploading] = React.useState(false);
-
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
-    if (files.length === 0) return;
+    if (!files.length) return;
 
-    setIsUploading(true);
-    const validFiles: File[] = [];
-    let hasErrors = false;
+    const valid: File[] = [];
+    let hadErrors = false;
 
-    try {
-      for (const file of files) {
-        try {
-          const validation = await validateImage(file);
-          if (validation.isValid) {
-            validFiles.push(file);
-          } else {
-            hasErrors = true;
-            toast.error(`${file.name}: ${validation.error}`);
-          }
-        } catch (error) {
-          hasErrors = true;
-          console.error('Failed to validate image:', error);
-          toast.error(`Failed to validate ${file.name}`);
-        }
-      }
-
-      if (validFiles.length > 0) {
-        const newImages = [...settings.selectedImages, ...validFiles];
-        
-        onSettingsChange({
-          ...settings,
-          selectedImages: newImages
-        });
-        
-        toast.success(`${validFiles.length} image${validFiles.length > 1 ? 's' : ''} uploaded successfully!`);
-      }
-
-      if (hasErrors && validFiles.length === 0) {
-        toast.error('No valid images could be uploaded');
-      }
-    } catch (error) {
-      console.error('Upload error:', error);
-      toast.error('Failed to upload images. Please try again.');
-    } finally {
-      setIsUploading(false);
+    for (const f of files) {
+      const v = await validateImage(f);
+      if (v.isValid) valid.push(f); else { hadErrors = true; toast.error(`${f.name}: ${v.error}`); }
     }
 
-    // Clear the input
-    event.target.value = '';
-  };
-
-  const handleImageRemove = (imageToRemove: File) => {
-    const newImages = settings.selectedImages.filter(img => img !== imageToRemove);
-    onSettingsChange({
-      ...settings,
-      selectedImages: newImages
-    });
-    toast.success('Image removed');
-  };
-
-  const handleSelectionModeChange = (mode: 'single' | 'multiple') => {
-    let newImages = settings.selectedImages;
-    
-    // If switching to single mode and multiple images are selected, keep only the first one
-    if (mode === 'single' && settings.selectedImages.length > 1) {
-      newImages = [settings.selectedImages[0]];
+    if (valid.length) {
+      onSettingsChange({ ...settings, selectedImages: [...(settings.selectedImages || []), ...valid] });
+      toast.success(`${valid.length} image${valid.length > 1 ? 's' : ''} uploaded`);
+    } else if (hadErrors) {
+      toast.error('No valid images could be uploaded');
     }
-    
-    onSettingsChange({
-      ...settings,
-      selectionMode: mode,
-      selectedImages: newImages
-    });
+
+    event.target.value = ''; // allow re-upload of same filename
   };
 
-  const getBlobUrlSafe = (file: File): string => {
-    try {
-      return getBlobUrl(file);
-    } catch (error) {
-      console.error('Failed to create blob URL:', error);
-      return '';
-    }
+  const handleImageRemove = (file: File) => {
+    revokeBlobUrl(file);
+    onSettingsChange({ ...settings, selectedImages: (settings.selectedImages || []).filter(x => x !== file) });
   };
+
+  useEffect(() => {
+    return () => (settings.selectedImages || []).forEach(revokeBlobUrl);
+  }, []); // cleanup on unmount
 
   return (
     <div className="bg-card border border-panel-border rounded-lg shadow-sm">
       <Collapsible open={isExpanded} onOpenChange={onToggleExpanded}>
         <CollapsibleTrigger asChild>
-          <div 
-            className="flex items-center justify-between p-2.5 cursor-pointer hover:bg-secondary/50 transition-colors"
-          >
+          <div className="flex items-center justify-between p-2.5 cursor-pointer hover:bg-secondary/50 transition-colors">
             <div className="flex items-center space-x-2">
               <Upload className="w-3.5 h-3.5 text-primary" />
               <span className="text-sm font-medium text-foreground">Image Input</span>
             </div>
-            {isExpanded ? (
-              <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
-            ) : (
-              <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
-            )}
+            {isExpanded ? <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" /> : <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />}
           </div>
         </CollapsibleTrigger>
-        
+
         <CollapsibleContent>
           <div className="p-3 pt-0 space-y-4">
-            {/* Image Upload Section */}
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-foreground">Upload Images</span>
-              </div>
-              
+              <span className="text-xs font-medium text-foreground">Upload Images</span>
               <div className="relative">
                 <input
                   type="file"
                   accept="image/*"
                   multiple
+                  className="absolute inset-0 opacity-0 cursor-pointer"
                   onChange={handleImageUpload}
-                  disabled={isUploading}
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
-                  id="image-input"
                 />
-                <label 
-                  htmlFor="image-input" 
-                  className="w-full h-16 border-2 border-dashed border-panel-border hover:border-primary hover:bg-primary/5 transition-colors cursor-pointer flex flex-col items-center justify-center space-y-1 rounded-md bg-background disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <Upload className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-xs text-muted-foreground">
-                    {isUploading ? 'Uploading...' : 'Upload Images'}
-                  </span>
-                </label>
+                <div className="border border-input rounded-md px-3 py-2 text-xs text-muted-foreground">
+                  Click to select images or drop them here
+                </div>
               </div>
             </div>
 
-            {/* Selected Images Display */}
-            {settings.selectedImages.length > 0 && (
+            {(settings.selectedImages?.length || 0) > 0 && (
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-medium text-foreground">
                     Selected Images ({settings.selectedImages.length})
                   </span>
                 </div>
-                <div className="grid grid-cols-3 gap-2 max-h-32 overflow-y-auto">
-                  {settings.selectedImages.map((image, index) => (
-                    <div key={`${image.name}-${index}`} className="relative group">
+
+                <div className="grid grid-cols-3 gap-2 max-h-40 overflow-y-auto">
+                  {settings.selectedImages.map((image, i) => (
+                    <div key={`${image.name}-${i}`} className="relative group">
                       <div className="aspect-square bg-muted rounded border overflow-hidden">
                         <img
-                          src={getBlobUrlSafe(image)}
-                          alt={`Selected image ${index + 1}`}
+                          src={getBlobUrl(image)}
+                          alt={`Selected image ${i + 1}`}
                           className="w-full h-full object-cover"
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.style.display = 'none';
-                          }}
+                          onError={handleImageError}
+                          draggable={false}
                         />
                       </div>
                       <button
+                        type="button"
                         onClick={() => handleImageRemove(image)}
-                        className="absolute -top-1 -right-1 w-5 h-5 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                        title="Remove image"
+                        className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-background border border-input flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                        title="Remove"
                       >
                         <X className="w-3 h-3" />
                       </button>
@@ -190,14 +114,8 @@ const ImageInputPlugin: React.FC<ImageInputPluginProps> = ({
               </div>
             )}
 
-            {/* Add Variation Button */}
-            <div className="pt-2">
-              <Button
-                onClick={onAddVariation}
-                className="w-full h-6 text-xs"
-                variant="outline"
-                disabled={settings.selectedImages.length === 0}
-              >
+            <div className="pt-1">
+              <Button variant="outline" size="sm" onClick={onAddVariation} disabled={(settings.selectedImages?.length || 0) === 0}>
                 <Plus className="w-3 h-3 mr-1" />
                 Add Image Input Variation
               </Button>
