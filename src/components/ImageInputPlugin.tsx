@@ -78,7 +78,7 @@ const ImageInputPlugin: React.FC<ImageInputPluginProps> = ({
                   className="absolute inset-0 opacity-0 cursor-pointer"
                   onChange={handleImageUpload}
                 />
-                <div className="border border-input rounded-md px-3 py-2 text-xs text-muted-foreground">
+                <div className="border border-dashed border-input rounded-md px-3 py-2 text-xs text-muted-foreground">
                   Click to select images or drop them here
                 </div>
               </div>
