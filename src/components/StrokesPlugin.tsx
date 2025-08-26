@@ -188,24 +188,33 @@ const StrokesPlugin: React.FC<StrokesPluginProps> = ({
     };
 
     if (strokeType === 'regular') {
+      const stroke = settings.regular.strokes.find(s => s.id === strokeId);
+      if (!stroke?.gradient) return;
+      
       updateRegularStroke(strokeId, {
         gradient: {
-          ...settings.regular.strokes.find(s => s.id === strokeId)?.gradient,
-          stops: [...(settings.regular.strokes.find(s => s.id === strokeId)?.gradient.stops || []), newStop]
+          ...stroke.gradient,
+          stops: [...stroke.gradient.stops, newStop]
         }
       });
     } else if (strokeType === 'character') {
+      const stroke = settings.character.strokes.find(s => s.id === strokeId);
+      if (!stroke?.gradient) return;
+      
       updateCharacterStroke(strokeId, {
         gradient: {
-          ...settings.character.strokes.find(s => s.id === strokeId)?.gradient,
-          stops: [...(settings.character.strokes.find(s => s.id === strokeId)?.gradient.stops || []), newStop]
+          ...stroke.gradient,
+          stops: [...stroke.gradient.stops, newStop]
         }
       });
     } else if (strokeType === 'container') {
+      const stroke = settings.container.strokes.find(s => s.id === strokeId);
+      if (!stroke?.gradient) return;
+      
       updateContainerStroke(strokeId, {
         gradient: {
-          ...settings.container.strokes.find(s => s.id === strokeId)?.gradient,
-          stops: [...(settings.container.strokes.find(s => s.id === strokeId)?.gradient.stops || []), newStop]
+          ...stroke.gradient,
+          stops: [...stroke.gradient.stops, newStop]
         }
       });
     }
@@ -263,16 +272,25 @@ const StrokesPlugin: React.FC<StrokesPluginProps> = ({
       if (validImages.length === 0) return;
 
       if (strokeType === 'regular') {
+        const stroke = settings.regular.strokes.find(s => s.id === strokeId);
+        if (!stroke) return;
+        
         updateRegularStroke(strokeId, {
-          images: [...(settings.regular.strokes.find(s => s.id === strokeId)?.images || []), ...validImages]
+          images: [...stroke.images, ...validImages]
         });
       } else if (strokeType === 'character') {
+        const stroke = settings.character.strokes.find(s => s.id === strokeId);
+        if (!stroke) return;
+        
         updateCharacterStroke(strokeId, {
-          images: [...(settings.character.strokes.find(s => s.id === strokeId)?.images || []), ...validImages]
+          images: [...stroke.images, ...validImages]
         });
       } else if (strokeType === 'container') {
+        const stroke = settings.container.strokes.find(s => s.id === strokeId);
+        if (!stroke) return;
+        
         updateContainerStroke(strokeId, {
-          images: [...(settings.container.strokes.find(s => s.id === strokeId)?.images || []), ...validImages]
+          images: [...stroke.images, ...validImages]
         });
       }
 

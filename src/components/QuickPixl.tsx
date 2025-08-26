@@ -427,7 +427,7 @@ const QuickPixl = () => {
   }, []);
 
   const handleEyedropper = useCallback(async () => {
-    if (typeof window === 'undefined' || !('EyeDropper' in window)) {
+    if (typeof window === 'undefined' || !window.EyeDropper) {
       toast.error('Eyedropper not supported in this browser');
       return;
     }
@@ -435,7 +435,7 @@ const QuickPixl = () => {
     setIsEyedropperActive(true);
     
     try {
-      const eyeDropper = new (window as any).EyeDropper();
+      const eyeDropper = new window.EyeDropper();
       const result = await eyeDropper.open();
       
       if (result?.sRGBHex) {
@@ -728,6 +728,7 @@ const QuickPixl = () => {
     textShapeVariations.length, 
     rotateFlipVariations.length, 
     colorFillVariations.length,
+    strokesVariations.length,
     backgroundVariations.length,
     typographyVariations.length,
     fontVariations.length,

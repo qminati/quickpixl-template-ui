@@ -1,14 +1,14 @@
-interface EyeDropper {
-  open(): Promise<{ sRGBHex: string }>;
+interface EyeDropperResult {
+  sRGBHex: string;
 }
 
-interface EyeDropperConstructor {
-  new (): EyeDropper;
+interface EyeDropper {
+  open(): Promise<EyeDropperResult>;
 }
 
 declare global {
   interface Window {
-    EyeDropper?: EyeDropperConstructor;
+    EyeDropper?: new () => EyeDropper;
   }
 }
 

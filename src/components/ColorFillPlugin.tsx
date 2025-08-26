@@ -275,7 +275,16 @@ const ColorFillPlugin: React.FC<ColorFillPluginProps> = ({
                     const input = document.createElement('input');
                     input.type = 'color';
                     input.value = settings.solid.color;
-                    input.onchange = (e) => handleSolidColorChange((e.target as HTMLInputElement).value);
+                    input.style.position = 'absolute';
+                    input.style.visibility = 'hidden';
+                    input.onchange = (e) => {
+                      handleSolidColorChange((e.target as HTMLInputElement).value);
+                      document.body.removeChild(input);
+                    };
+                    input.oncancel = () => {
+                      document.body.removeChild(input);
+                    };
+                    document.body.appendChild(input);
                     input.click();
                   }}
                 />
@@ -369,7 +378,16 @@ const ColorFillPlugin: React.FC<ColorFillPluginProps> = ({
                           const input = document.createElement('input');
                           input.type = 'color';
                           input.value = stop.color;
-                          input.onchange = (e) => updateGradientStop(stop.id, { color: (e.target as HTMLInputElement).value });
+                          input.style.position = 'absolute';
+                          input.style.visibility = 'hidden';
+                          input.onchange = (e) => {
+                            updateGradientStop(stop.id, { color: (e.target as HTMLInputElement).value });
+                            document.body.removeChild(input);
+                          };
+                          input.oncancel = () => {
+                            document.body.removeChild(input);
+                          };
+                          document.body.appendChild(input);
                           input.click();
                         }}
                       />
@@ -440,7 +458,16 @@ const ColorFillPlugin: React.FC<ColorFillPluginProps> = ({
                       const input = document.createElement('input');
                       input.type = 'color';
                       input.value = '#808080';
-                      input.onchange = (e) => addPaletteColorManual((e.target as HTMLInputElement).value);
+                      input.style.position = 'absolute';
+                      input.style.visibility = 'hidden';
+                      input.onchange = (e) => {
+                        addPaletteColorManual((e.target as HTMLInputElement).value);
+                        document.body.removeChild(input);
+                      };
+                      input.oncancel = () => {
+                        document.body.removeChild(input);
+                      };
+                      document.body.appendChild(input);
                       input.click();
                     }}
                   />
