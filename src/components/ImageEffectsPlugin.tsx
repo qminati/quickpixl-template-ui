@@ -34,7 +34,7 @@ const ImageEffectsPlugin: React.FC<ImageEffectsPluginProps> = ({
           >
             <div className="flex items-center space-x-2">
               <Sliders className="w-3.5 h-3.5 text-primary" />
-              <span className="text-sm font-medium text-foreground">Image Effects</span>
+              <span className="text-sm font-medium text-foreground">Visual Effects</span>
             </div>
             {isExpanded ? (
               <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
@@ -136,20 +136,19 @@ const ImageEffectsPlugin: React.FC<ImageEffectsPluginProps> = ({
                 </div>
               </div>
               
-              {/* Colorize Mode Section */}
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="colorize"
-                  checked={settings.colorize}
-                  onCheckedChange={(checked) => updateSettings({ colorize: !!checked })}
-                />
-                <label htmlFor="colorize" className="text-xs font-medium">
-                  Colorize
-                </label>
-              </div>
-              
-              {/* Grayscale and Invert side by side */}
+              {/* Colorize, Greyscale, and Invert options */}
               <div className="flex items-center space-x-6">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="colorize"
+                    checked={settings.colorize}
+                    onCheckedChange={(checked) => updateSettings({ colorize: !!checked })}
+                  />
+                  <label htmlFor="colorize" className="text-xs font-medium">
+                    Colorize
+                  </label>
+                </div>
+                
                 <div className="flex items-center space-x-2">
                   <Checkbox
                     id="grayscale"
@@ -182,7 +181,7 @@ const ImageEffectsPlugin: React.FC<ImageEffectsPluginProps> = ({
                 variant="outline"
               >
                 <Plus className="w-3 h-3 mr-1" />
-                Add Image Effects Variation
+                Add Visual Effects Variation
               </Button>
             </div>
           </div>

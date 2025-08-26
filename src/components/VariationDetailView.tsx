@@ -279,7 +279,7 @@ const renderVariationContent = (
       return renderStrokesVariation(variation as StrokesVariation, isEditing);
     case 'Character Effects':
       return renderCharacterEffectsVariation(variation as CharacterEffectsVariation, isEditing);
-    case 'Image Effects':
+    case 'Visual Effects':
       return renderImageEffectsVariation(variation as ImageEffectsVariation, isEditing);
     default:
       return <div>Unknown variation type</div>;
@@ -640,7 +640,7 @@ const renderCharacterEffectsVariation = (variation: CharacterEffectsVariation, i
 
 const renderImageEffectsVariation = (variation: ImageEffectsVariation, isEditing: boolean) => (
   <Card className="p-6">
-    <h3 className="text-lg font-semibold mb-4">Image Effects</h3>
+    <h3 className="text-lg font-semibold mb-4">Visual Effects</h3>
     <div className="space-y-4">
       <div className="p-8 border rounded-lg bg-muted/50 text-center">
         <div className="text-4xl font-bold mb-2">

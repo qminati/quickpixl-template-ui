@@ -848,12 +848,12 @@ const QuickPixl = () => {
     };
     
     setImageEffectsVariations(prev => [...prev, newVariation]);
-    toast.success('Image effects variation added');
+    toast.success('Visual effects variation added');
   }, [imageEffectsSettings, generateImageEffectsDescription]);
 
   const handleRemoveImageEffectsVariation = useCallback((variationId: string) => {
     setImageEffectsVariations(prev => prev.filter(v => v.id !== variationId));
-    toast.success('Image effects variation removed');
+    toast.success('Visual effects variation removed');
   }, []);
 
   const handleRemoveRotateFlipVariation = (variationId: string) => {
@@ -937,7 +937,7 @@ const QuickPixl = () => {
       case 'character-effects':
         setCharacterEffectsVariations(prev => prev.map(v => v.id === updatedVariation.id ? updatedVariation as CharacterEffectsVariation : v));
         break;
-      case 'image-effects':
+      case 'visual-effects':
         setImageEffectsVariations(prev => prev.map(v => v.id === updatedVariation.id ? updatedVariation as ImageEffectsVariation : v));
         break;
     }
@@ -974,7 +974,7 @@ const QuickPixl = () => {
       case 'character-effects':
         setCharacterEffectsVariations(prev => prev.filter(v => v.id !== variationId));
         break;
-      case 'image-effects':
+      case 'visual-effects':
         setImageEffectsVariations(prev => prev.filter(v => v.id !== variationId));
         break;
     }
@@ -1019,7 +1019,7 @@ const QuickPixl = () => {
         case 'character-effects':
           setCharacterEffectsVariations(prev => [...prev, duplicatedVariation as CharacterEffectsVariation]);
           break;
-        case 'image-effects':
+        case 'visual-effects':
           setImageEffectsVariations(prev => [...prev, duplicatedVariation as ImageEffectsVariation]);
           break;
       }
@@ -2009,7 +2009,7 @@ const QuickPixl = () => {
                   <div className="bg-card border border-panel-border rounded-lg p-4">
                     <h4 className="text-sm font-medium text-foreground mb-3 flex items-center space-x-2">
                       <Sliders className="w-4 h-4 text-primary" />
-                      <span>Image Effects Variations</span>
+                      <span>Visual Effects Variations</span>
                       <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
                         {imageEffectsVariations.length}
                       </span>
@@ -2019,11 +2019,11 @@ const QuickPixl = () => {
                         <div 
                           key={variation.id} 
                           className={`bg-secondary/30 rounded-lg p-3 cursor-pointer hover:bg-secondary/50 transition-colors ${
-                            selectedVariation?.id === variation.id && selectedVariationType === 'image-effects' 
+                            selectedVariation?.id === variation.id && selectedVariationType === 'visual-effects' 
                               ? 'ring-2 ring-primary bg-secondary/60' 
                               : ''
                           }`}
-                          onClick={() => handleVariationSelect(variation, 'image-effects')}
+                          onClick={() => handleVariationSelect(variation, 'visual-effects')}
                         >
                           <div className="flex items-center justify-between mb-2">
                             <span className="text-xs font-medium text-foreground">{variation.description}</span>
