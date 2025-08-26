@@ -271,17 +271,8 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
           
           {/* Manage Image Inputs - Scrollable */}
           <div className="p-4">
-            <div className="flex items-center justify-between mb-4">
+            <div className="mb-4">
               <h3 className="text-base font-medium text-foreground">Manage Image Inputs</h3>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={addImageInput}
-                className="text-xs"
-              >
-                <Plus className="h-3 w-3 mr-1" />
-                Add Input
-              </Button>
             </div>
             
             <div className="space-y-3 max-h-96">
@@ -295,9 +286,9 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
                   }`}
                   onClick={() => setCurrentInputIndex(index)}
                 >
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-start justify-between mb-2">
                     <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-primary"></div>
+                      <div className="w-2 h-2 rounded-full bg-primary mt-1"></div>
                       <span className="text-sm font-medium">Input {index + 1}</span>
                       <span className="text-xs text-muted-foreground">
                         ({input.selectedImages.length} image{input.selectedImages.length !== 1 ? 's' : ''})
@@ -310,9 +301,23 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
                         size="sm"
                         onClick={(e) => {
                           e.stopPropagation();
+                          setCurrentInputIndex(index);
+                        }}
+                        className="h-7 w-7 p-0"
+                        title="Settings"
+                      >
+                        <SettingsIcon className="h-3 w-3" />
+                      </Button>
+                      
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
                           duplicateImageInput(input.id);
                         }}
                         className="h-7 w-7 p-0"
+                        title="Duplicate"
                       >
                         <Copy className="h-3 w-3" />
                       </Button>
@@ -326,12 +331,49 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
                             removeImageInput(input.id);
                           }}
                           className="h-7 w-7 p-0 text-destructive hover:text-destructive"
+                          title="Delete"
                         >
                           <Trash2 className="h-3 w-3" />
                         </Button>
                       )}
+                      
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          addImageInput();
+                        }}
+                        className="h-7 w-7 p-0 ml-1"
+                        title="Add Input"
+                      >
+                        <Plus className="h-3 w-3" />
+                      </Button>
                     </div>
                   </div>
+                  
+                  {/* Image Thumbnails */}
+                  {input.selectedImages.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {input.selectedImages.slice(0, 4).map((image, imgIndex) => (
+                        <div key={imgIndex} className="relative">
+                          <img
+                            src={getBlobUrlSafe(image)}
+                            alt={`Thumbnail ${imgIndex + 1}`}
+                            className="w-12 h-12 rounded border object-cover"
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        </div>
+                      ))}
+                      {input.selectedImages.length > 4 && (
+                        <div className="w-12 h-12 rounded border bg-muted flex items-center justify-center">
+                          <span className="text-xs text-muted-foreground">
+                            +{input.selectedImages.length - 4}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
