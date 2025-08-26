@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Plus, Minus, Settings as SettingsIcon } from 'lucide-react';
+import { Plus, Minus, Settings as SettingsIcon, Copy as CopyIcon } from 'lucide-react';
 import { TextInput, TypographySettings } from '@/types/interfaces';
 
 interface TextEditorProps {
@@ -45,6 +45,22 @@ const TextEditor: React.FC<TextEditorProps> = ({
   const removeTextInput = (id: string) => {
     if (textInputs.length > 1) {
       setTextInputs(prev => prev.filter(input => input.id !== id));
+    }
+  };
+
+  const duplicateTextInput = (id: string) => {
+    const inputToDuplicate = textInputs.find(input => input.id === id);
+    if (inputToDuplicate) {
+      const newInput: TextInput = {
+        id: String(textInputs.length + 1),
+        text: inputToDuplicate.text // Copy the text content
+      };
+      setTextInputs(prev => {
+        const index = prev.findIndex(input => input.id === id);
+        // Insert the duplicate right after the original
+        const newArray = [...prev.slice(0, index + 1), newInput, ...prev.slice(index + 1)];
+        return newArray;
+      });
     }
   };
 
@@ -251,6 +267,15 @@ const TextEditor: React.FC<TextEditorProps> = ({
                       onChange={(e) => updateTextInput(input.id, e.target.value)}
                       className="flex-1 bg-background"
                     />
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => duplicateTextInput(input.id)}
+                      className="p-2 h-8 w-8"
+                      title="Duplicate input"
+                    >
+                      <CopyIcon className="w-4 h-4" />
+                    </Button>
                     <Button
                       variant="ghost"
                       size="sm"
