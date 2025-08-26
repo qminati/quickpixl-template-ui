@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { 
   Paintbrush, 
   ChevronDown,
@@ -35,6 +35,10 @@ const StrokesPlugin: React.FC<StrokesPluginProps> = ({
 }) => {
   const [activeStrokeType, setActiveStrokeType] = useState<'regular' | 'character' | 'container' | 'knockout'>('regular');
   const [expandedStrokes, setExpandedStrokes] = useState<Set<string>>(new Set());
+  
+  // File input refs
+  const regularStrokeImageInputRef = useRef<HTMLInputElement>(null);
+  const containerImageInputRef = useRef<HTMLInputElement>(null);
 
   const updateSettings = useCallback((updates: Partial<StrokeSettings>) => {
     onSettingsChange({ ...settings, ...updates });
@@ -470,12 +474,10 @@ const StrokesPlugin: React.FC<StrokesPluginProps> = ({
                     variant="outline"
                     size="sm"
                     onClick={() => {
-                      const input = document.createElement('input');
-                      input.type = 'file';
-                      input.multiple = true;
-                      input.accept = 'image/*';
-                      input.onchange = (e) => handleImageUpload(e as any, strokeType, stroke.id);
-                      input.click();
+                      const input = regularStrokeImageInputRef.current;
+                      if (input) {
+                        input.click();
+                      }
                     }}
                     className="h-5 px-2 text-xs"
                   >
@@ -1011,12 +1013,10 @@ const StrokesPlugin: React.FC<StrokesPluginProps> = ({
                           variant="outline"
                           size="sm"
                           onClick={() => {
-                            const input = document.createElement('input');
-                            input.type = 'file';
-                            input.multiple = true;
-                            input.accept = 'image/*';
-                            input.onchange = (e) => handleImageUpload(e as any, 'container');
-                            input.click();
+                            const input = containerImageInputRef.current;
+                            if (input) {
+                              input.click();
+                            }
                           }}
                           className="h-5 px-2 text-xs"
                         >
@@ -1160,6 +1160,32 @@ const StrokesPlugin: React.FC<StrokesPluginProps> = ({
               Add Variation
             </Button>
           </div>
+          
+          {/* Hidden file inputs */}
+          <input
+            ref={regularStrokeImageInputRef}
+            type="file"
+            multiple
+            accept="image/*"
+            onChange={(e) => {
+              const strokeType = activeStrokeType as 'regular' | 'character';
+              const currentStroke = strokeType === 'regular' 
+                ? settings.regular.strokes[settings.regular.strokes.length - 1]
+                : settings.character.strokes[settings.character.strokes.length - 1];
+              if (currentStroke) {
+                handleImageUpload(e, strokeType, currentStroke.id);
+              }
+            }}
+            style={{ display: 'none' }}
+          />
+          <input
+            ref={containerImageInputRef}
+            type="file"
+            multiple
+            accept="image/*"
+            onChange={(e) => handleImageUpload(e, 'container')}
+            style={{ display: 'none' }}
+          />
         </div>
       )}
     </div>

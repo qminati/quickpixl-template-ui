@@ -29,7 +29,8 @@ import {
   Hash,
   Search,
   Shapes,
-  RotateCw
+  RotateCw,
+  Paintbrush
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -862,26 +863,29 @@ const QuickPixl = () => {
   const handleVariationDelete = (variationId: string) => {
     // Remove from appropriate array and clear selection
     switch (selectedVariationType) {
-      case 'Background':
+      case 'background':
         setBackgroundVariations(prev => prev.filter(v => v.id !== variationId));
         break;
-      case 'Template':
+      case 'template':
         setTemplateVariations(prev => prev.filter(v => v.id !== variationId));
         break;
-      case 'Font':
+      case 'font':
         setFontVariations(prev => prev.filter(v => v.id !== variationId));
         break;
-      case 'Typography':
+      case 'typography':
         setTypographyVariations(prev => prev.filter(v => v.id !== variationId));
         break;
-      case 'Text Shape':
+      case 'textShape':
         setTextShapeVariations(prev => prev.filter(v => v.id !== variationId));
         break;
-      case 'Rotate & Flip':
+      case 'rotateFlip':
         setRotateFlipVariations(prev => prev.filter(v => v.id !== variationId));
         break;
-      case 'Color Fill':
+      case 'colorFill':
         setColorFillVariations(prev => prev.filter(v => v.id !== variationId));
+        break;
+      case 'strokes':
+        setStrokesVariations(prev => prev.filter(v => v.id !== variationId));
         break;
     }
     setSelectedVariation(null);
@@ -1481,7 +1485,7 @@ const QuickPixl = () => {
                         className={`bg-secondary rounded-lg p-3 flex items-center justify-between cursor-pointer transition-all
                           ${selectedVariation?.id === variation.id ? 'ring-2 ring-primary bg-primary/10' : 'hover:bg-secondary/80'}
                         `}
-                        onClick={() => handleVariationSelect(variation, 'Background')}
+                        onClick={() => handleVariationSelect(variation, 'background')}
                       >
                         <div className="flex items-center space-x-3">
                           <div className="flex space-x-1">
@@ -1548,7 +1552,7 @@ const QuickPixl = () => {
                         className={`bg-secondary/30 rounded-lg p-3 cursor-pointer transition-all
                           ${selectedVariation?.id === variation.id ? 'ring-2 ring-primary bg-primary/10' : 'hover:bg-secondary/50'}
                         `}
-                        onClick={() => handleVariationSelect(variation, 'Template')}
+                        onClick={() => handleVariationSelect(variation, 'template')}
                         onDoubleClick={() => handleDoubleClickTemplateVariation(variation)}
                         title="Click to view details, double-click to add templates back to panel"
                       >
@@ -1604,7 +1608,7 @@ const QuickPixl = () => {
                         className={`bg-secondary/30 rounded-lg p-3 cursor-pointer transition-all
                           ${selectedVariation?.id === variation.id ? 'ring-2 ring-primary bg-primary/10' : 'hover:bg-secondary/50'}
                         `}
-                        onClick={() => handleVariationSelect(variation, 'Font')}
+                        onClick={() => handleVariationSelect(variation, 'font')}
                       >
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-xs font-medium text-foreground">{variation.description}</span>
@@ -1960,7 +1964,7 @@ const QuickPixl = () => {
                                ? 'ring-2 ring-primary bg-secondary/60' 
                                : ''
                            }`}
-                           onClick={() => handleVariationSelect(variation, 'font')}
+                           onClick={() => handleVariationSelect(variation, 'typography')}
                          >
                            <div className="flex items-center justify-between mb-2">
                              <span className="text-xs font-medium text-foreground">{variation.description}</span>
@@ -2083,7 +2087,7 @@ const QuickPixl = () => {
                               ? 'ring-2 ring-primary bg-secondary/60' 
                               : ''
                           }`}
-                          onClick={() => handleVariationSelect(variation, 'background')}
+                           onClick={() => handleVariationSelect(variation, 'background')}
                         >
                           <div className="flex items-center justify-between mb-2">
                             <span className="text-xs font-medium text-foreground">{variation.description}</span>
