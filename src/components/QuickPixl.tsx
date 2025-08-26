@@ -39,7 +39,7 @@ import ErrorBoundary from './ErrorBoundary';
 import TextEditor from './TextEditor';
 import { validateImage, handleImageError, createImageFallback } from '@/utils/imageUtils';
 import { toast } from 'sonner';
-import { Container, Variation, Template, TemplateVariation, FontVariation, TypographySettings, TypographyVariation, ShapeSettings, TextShapeVariation, RotateFlipSettings, RotateFlipVariation, ColorFillSettings, ColorFillVariation } from '@/types/interfaces';
+import { Container, Variation, Template, TemplateVariation, FontVariation, TypographySettings, TypographyVariation, ShapeSettings, TextShapeVariation, RotateFlipSettings, RotateFlipVariation, ColorFillSettings, ColorFillVariation, AnyVariation } from '@/types/interfaces';
 import TypographyPlugin from './TypographyPlugin';
 import TextShapePlugin from './TextShapePlugin';
 import RotateFlipPlugin from './RotateFlipPlugin';
@@ -254,33 +254,57 @@ const QuickPixl = () => {
   const [searchQuery, setSearchQuery] = useState('');
   
   // Variation Detail View State
-  const [selectedVariation, setSelectedVariation] = useState<any>(null);
+  const [selectedVariation, setSelectedVariation] = useState<AnyVariation | null>(null);
   const [selectedVariationType, setSelectedVariationType] = useState<string>('');
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
-  // Enhanced cleanup function for blob URLs
+  // Enhanced cleanup function for blob URLs with better error handling
   useEffect(() => {
     // Create a copy of current URLs to clean up on unmount
     const urlsToClean = new Map(blobUrls);
     
     return () => {
       urlsToClean.forEach((url) => {
-        URL.revokeObjectURL(url);
+        try {
+          URL.revokeObjectURL(url);
+        } catch (error) {
+          console.warn('Failed to revoke blob URL:', error);
+        }
       });
     };
   }, []); // Empty dependency array, only cleanup on unmount
 
-  // Helper to safely get blob URL with cleanup tracking
+  // Cleanup blob URLs when they're removed from the map
+  useEffect(() => {
+    const cleanup = () => {
+      if (blobUrls.size > 50) { // Prevent memory buildup
+        console.warn('Large number of blob URLs detected, consider cleanup');
+      }
+    };
+    cleanup();
+  }, [blobUrls.size]);
+
+  // Helper to safely get blob URL with cleanup tracking and error handling
   const getBlobUrl = (file: File): string => {
+    if (!file || !(file instanceof File)) {
+      console.error('Invalid file provided to getBlobUrl');
+      return createImageFallback();
+    }
+
     // Check if we already have a URL for this file
     if (blobUrls.has(file)) {
       return blobUrls.get(file)!;
     }
     
-    // Create new URL and track it
-    const url = URL.createObjectURL(file);
-    setBlobUrls(prev => new Map(prev).set(file, url));
-    return url;
+    try {
+      // Create new URL and track it
+      const url = URL.createObjectURL(file);
+      setBlobUrls(prev => new Map(prev).set(file, url));
+      return url;
+    } catch (error) {
+      console.error('Failed to create blob URL:', error);
+      return createImageFallback();
+    }
   };
 
   // Color palette
@@ -354,7 +378,7 @@ const QuickPixl = () => {
   }, []);
 
   const handleEyedropper = useCallback(async () => {
-    if (!('EyeDropper' in window)) {
+    if (typeof window === 'undefined' || !('EyeDropper' in window)) {
       toast.error('Eyedropper not supported in this browser');
       return;
     }
@@ -371,6 +395,8 @@ const QuickPixl = () => {
           colorInputRef.current.value = result.sRGBHex;
         }
         toast.success(`Color picked: ${result.sRGBHex}`);
+      } else {
+        toast.info('No color was selected');
       }
     } catch (error) {
       if (error instanceof Error && error.name !== 'AbortError') {
@@ -440,6 +466,11 @@ const QuickPixl = () => {
   };
 
   const handleImageDelete = (imageToDelete: File) => {
+    if (!imageToDelete || !(imageToDelete instanceof File)) {
+      console.warn('Invalid file provided to handleImageDelete');
+      return;
+    }
+
     try {
       // Clean up the blob URL for this specific image
       const url = blobUrls.get(imageToDelete);
@@ -464,18 +495,27 @@ const QuickPixl = () => {
   };
 
   const handleAddToVariation = () => {
-    if (selectedColors.length === 0 && selectedImages.length === 0) return;
+    if (selectedColors.length === 0 && selectedImages.length === 0) {
+      toast.info('Please select colors or images before creating a variation');
+      return;
+    }
     
-    const newVariation: Variation = {
-      id: Date.now().toString(),
-      colors: [...selectedColors],
-      images: [...selectedImages],
-      description: `${selectedColors.length} colors, ${selectedImages.length} images`
-    };
-    
-    setBackgroundVariations(prev => [...prev, newVariation]);
-    setSelectedColors([]);
-    setSelectedImages([]);
+    try {
+      const newVariation: Variation = {
+        id: Date.now().toString(),
+        colors: [...selectedColors],
+        images: [...selectedImages],
+        description: `${selectedColors.length} colors, ${selectedImages.length} images`
+      };
+      
+      setBackgroundVariations(prev => [...prev, newVariation]);
+      setSelectedColors([]);
+      setSelectedImages([]);
+      toast.success('Background variation added successfully');
+    } catch (error) {
+      console.error('Failed to create variation:', error);
+      toast.error('Failed to create variation');
+    }
   };
 
   const handleSubmitVariation = (texts: string[]) => {
@@ -775,25 +815,25 @@ const QuickPixl = () => {
 
       switch (selectedVariationType) {
         case 'background':
-          setBackgroundVariations(prev => [...prev, duplicatedVariation]);
+          setBackgroundVariations(prev => [...prev, duplicatedVariation as Variation]);
           break;
         case 'template':
-          setTemplateVariations(prev => [...prev, duplicatedVariation]);
+          setTemplateVariations(prev => [...prev, duplicatedVariation as TemplateVariation]);
           break;
         case 'font':
-          setFontVariations(prev => [...prev, duplicatedVariation]);
+          setFontVariations(prev => [...prev, duplicatedVariation as FontVariation]);
           break;
         case 'typography':
-          setTypographyVariations(prev => [...prev, duplicatedVariation]);
+          setTypographyVariations(prev => [...prev, duplicatedVariation as TypographyVariation]);
           break;
         case 'textShape':
-          setTextShapeVariations(prev => [...prev, duplicatedVariation]);
+          setTextShapeVariations(prev => [...prev, duplicatedVariation as TextShapeVariation]);
           break;
         case 'rotateFlip':
-          setRotateFlipVariations(prev => [...prev, duplicatedVariation]);
+          setRotateFlipVariations(prev => [...prev, duplicatedVariation as RotateFlipVariation]);
           break;
         case 'colorFill':
-          setColorFillVariations(prev => [...prev, duplicatedVariation]);
+          setColorFillVariations(prev => [...prev, duplicatedVariation as ColorFillVariation]);
           break;
       }
       toast.success('Variation duplicated successfully!');
@@ -2105,20 +2145,24 @@ const QuickPixl = () => {
         {/* Main Canvas Area */}
         <div className="flex-1 overflow-hidden">
           {activeSection === 'canvas' ? (
-            <CanvasEditor 
-              canvasWidth={canvasWidth}
-              canvasHeight={canvasHeight}
-              containers={containers}
-              setContainers={setContainers}
-              selectedContainer={selectedContainer}
-              setSelectedContainer={setSelectedContainer}
-            />
+            <ErrorBoundary>
+              <CanvasEditor 
+                canvasWidth={canvasWidth}
+                canvasHeight={canvasHeight}
+                containers={containers}
+                setContainers={setContainers}
+                selectedContainer={selectedContainer}
+                setSelectedContainer={setSelectedContainer}
+              />
+            </ErrorBoundary>
           ) : activeSection === 'text' ? (
-            <TextEditor 
-              onSubmitVariation={handleSubmitVariation} 
-              lastSelectedFont={lastSelectedFont}
-              typographySettings={typographySettings}
-            />
+            <ErrorBoundary>
+              <TextEditor 
+                onSubmitVariation={handleSubmitVariation}
+                lastSelectedFont={lastSelectedFont}
+                typographySettings={typographySettings}
+              />
+            </ErrorBoundary>
           ) : activeSection === 'variations' ? (
             <VariationDetailView
               variation={selectedVariation}

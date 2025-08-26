@@ -159,3 +159,13 @@ export interface ColorFillVariation {
   settings: ColorFillSettings;
   description: string;
 }
+
+// Union type for all variation types to improve type safety
+export type AnyVariation = 
+  | Variation 
+  | TemplateVariation 
+  | FontVariation 
+  | TypographyVariation 
+  | TextShapeVariation 
+  | RotateFlipVariation 
+  | ColorFillVariation;

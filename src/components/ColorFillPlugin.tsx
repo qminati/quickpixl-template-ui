@@ -141,29 +141,60 @@ const ColorFillPlugin: React.FC<ColorFillPluginProps> = ({
     updateModeSettings('palette', { colors: newColors });
   };
 
-  // Image functions
+  // Image functions with enhanced error handling
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    const validFiles: File[] = [];
-
-    for (const file of files) {
-      const validation = await validateImage(file);
-      if (validation.isValid) {
-        validFiles.push(file);
-      } else {
-        toast.error(`Invalid file ${file.name}: ${validation.error}`);
-      }
+    if (!e.target.files || e.target.files.length === 0) {
+      return;
     }
 
-    if (validFiles.length > 0) {
-      if (settings.mode === 'image') {
-        const newImages = [...settings.image.images, ...validFiles];
-        updateModeSettings('image', { images: newImages });
-      } else if (settings.mode === 'palette' && settings.palette.source === 'image') {
-        updateModeSettings('palette', { extractedImage: validFiles[0] });
-        addExtractedColors();
+    const files = Array.from(e.target.files);
+    const validFiles: File[] = [];
+    let hasErrors = false;
+
+    try {
+      for (const file of files) {
+        if (!file) continue;
+        
+        try {
+          const validation = await validateImage(file);
+          if (validation.isValid) {
+            validFiles.push(file);
+          } else {
+            hasErrors = true;
+            toast.error(`Invalid file ${file.name}: ${validation.error}`);
+          }
+        } catch (validationError) {
+          hasErrors = true;
+          console.error('File validation error:', validationError);
+          toast.error(`Failed to validate ${file.name}`);
+        }
       }
-      toast.success(`${validFiles.length} image(s) uploaded`);
+
+      if (validFiles.length > 0) {
+        try {
+          if (settings.mode === 'image') {
+            const newImages = [...settings.image.images, ...validFiles];
+            updateModeSettings('image', { images: newImages });
+          } else if (settings.mode === 'palette' && settings.palette.source === 'image') {
+            updateModeSettings('palette', { extractedImage: validFiles[0] });
+            addExtractedColors();
+          }
+          toast.success(`${validFiles.length} image(s) uploaded`);
+        } catch (updateError) {
+          console.error('Failed to update settings with new images:', updateError);
+          toast.error('Failed to process uploaded images');
+        }
+      }
+
+      if (hasErrors && validFiles.length === 0) {
+        toast.error('No valid images could be uploaded');
+      }
+    } catch (error) {
+      console.error('Upload process failed:', error);
+      toast.error('Failed to upload images. Please try again.');
+    } finally {
+      // Clear the input to allow re-uploading the same file
+      e.target.value = '';
     }
   };
 
