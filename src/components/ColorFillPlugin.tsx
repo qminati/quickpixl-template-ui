@@ -7,8 +7,7 @@ import {
   X,
   Shuffle,
   Upload,
-  Pipette,
-  Move
+  Pipette
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';

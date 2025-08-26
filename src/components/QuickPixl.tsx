@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { 
   Type, 
   Image as ImageIcon, 
@@ -30,7 +30,6 @@ import {
   Search,
   Shapes,
   RotateCw,
-  Paintbrush,
   ALargeSmall,
   Sliders
 } from 'lucide-react';
@@ -609,7 +608,7 @@ const QuickPixl = () => {
     setFontVariations(prev => prev.filter(v => v.id !== variationId));
   }, []);
 
-  // Typography Plugin Handlers - optimized with useMemo and useCallback
+  // Typography Plugin Handlers - optimized with useCallback
   const generateTypographyDescription = useCallback((settings: TypographySettings): string => {
     const features = [];
     if (settings.bold) features.push('Bold');
