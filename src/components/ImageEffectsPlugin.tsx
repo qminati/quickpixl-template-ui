@@ -114,26 +114,14 @@ const ImageEffectsPlugin: React.FC<ImageEffectsPluginProps> = ({
                   <span className="text-xs text-muted-foreground">Hue</span>
                   <span className="text-xs text-muted-foreground">{settings.hue}°</span>
                 </div>
-                <div className="relative">
-                  <div 
-                    className="absolute inset-0 rounded-md pointer-events-none"
-                    style={{
-                      background: 'linear-gradient(to right, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000)',
-                      height: '8px',
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      zIndex: 1
-                    }}
-                  />
-                  <Slider
-                    value={[settings.hue]}
-                    onValueChange={([value]) => updateSettings({ hue: value })}
-                    min={0}
-                    max={360}
-                    step={1}
-                    className="relative z-10 [&_[data-slider-track]]:bg-transparent"
-                  />
-                </div>
+                <Slider
+                  value={[settings.hue]}
+                  onValueChange={([value]) => updateSettings({ hue: value })}
+                  min={0}
+                  max={360}
+                  step={1}
+                  className="[&>span:first-child]:bg-gradient-to-r [&>span:first-child]:from-red-500 [&>span:first-child]:via-yellow-500 [&>span:first-child]:via-green-500 [&>span:first-child]:via-cyan-500 [&>span:first-child]:via-blue-500 [&>span:first-child]:via-purple-500 [&>span:first-child]:to-red-500 [&>span:first-child>span]:bg-transparent"
+                />
               </div>
               
               {/* Colorize, Greyscale, and Invert options */}
