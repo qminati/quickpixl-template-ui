@@ -209,26 +209,27 @@ export interface StrokeSettings {
     randomizeTransforms: boolean;
   };
   container: {
-    enabled: boolean;
-    size: number;
-    fillType: 'solid' | 'gradient' | 'image';
-    color: string;
-    gradient: {
-      type: 'linear' | 'radial' | 'conic';
-      angle: number;
-      stops: Array<{
-        id: string;
-        color: string;
-        position: number;
-      }>;
-    };
-    images: File[];
-    opacity: number;
+    strokes: Array<{
+      id: string;
+      size: number;
+      fillType: 'solid' | 'gradient' | 'image';
+      color: string;
+      gradient: {
+        type: 'linear' | 'radial' | 'conic';
+        angle: number;
+        stops: Array<{
+          id: string;
+          color: string;
+          position: number;
+        }>;
+      };
+      images: File[];
+      opacity: number;
+    }>;
   };
   knockout: {
     enabled: boolean;
     size: number;
-    opacity: number;
   };
 }
 

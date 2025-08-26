@@ -268,25 +268,11 @@ const QuickPixl = () => {
       randomizeTransforms: false
     },
     container: {
-      enabled: false,
-      size: 2,
-      fillType: 'solid',
-      color: '#000000',
-      gradient: {
-        type: 'linear',
-        angle: 0,
-        stops: [
-          { id: '1', color: '#000000', position: 0 },
-          { id: '2', color: '#ffffff', position: 100 }
-        ]
-      },
-      images: [],
-      opacity: 100
+      strokes: []
     },
     knockout: {
       enabled: false,
-      size: 2,
-      opacity: 100
+      size: 2
     }
   });
   const [strokesVariations, setStrokesVariations] = useState<StrokesVariation[]>([]);
@@ -751,8 +737,8 @@ const QuickPixl = () => {
       parts.push(`${settings.character.strokes.length} character stroke${settings.character.strokes.length > 1 ? 's' : ''}`);
     }
     
-    if (settings.container.enabled) {
-      parts.push('container stroke');
+    if (settings.container.strokes.length > 0) {
+      parts.push(`${settings.container.strokes.length} container stroke${settings.container.strokes.length > 1 ? 's' : ''}`);
     }
     
     if (settings.knockout.enabled) {

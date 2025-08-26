@@ -135,81 +135,118 @@ const StrokesPlugin: React.FC<StrokesPluginProps> = ({
     });
   }, [settings.character, updateSettings]);
 
+  // Container Stroke Functions
+  const addContainerStroke = useCallback(() => {
+    const newStroke = {
+      id: Date.now().toString(),
+      size: 2,
+      fillType: 'solid' as const,
+      color: '#000000',
+      gradient: {
+        type: 'linear' as const,
+        angle: 0,
+        stops: [
+          { id: '1', color: '#000000', position: 0 },
+          { id: '2', color: '#ffffff', position: 100 }
+        ]
+      },
+      images: [],
+      opacity: 100
+    };
+    
+    updateSettings({
+      container: {
+        strokes: [...settings.container.strokes, newStroke]
+      }
+    });
+  }, [settings.container.strokes, updateSettings]);
+
+  const removeContainerStroke = useCallback((strokeId: string) => {
+    updateSettings({
+      container: {
+        strokes: settings.container.strokes.filter(s => s.id !== strokeId)
+      }
+    });
+  }, [settings.container.strokes, updateSettings]);
+
+  const updateContainerStroke = useCallback((strokeId: string, updates: any) => {
+    updateSettings({
+      container: {
+        strokes: settings.container.strokes.map(s => 
+          s.id === strokeId ? { ...s, ...updates } : s
+        )
+      }
+    });
+  }, [settings.container.strokes, updateSettings]);
+
   // Gradient Functions
-  const addGradientStop = useCallback((strokeType: 'regular' | 'character' | 'container', strokeId?: string) => {
+  const addGradientStop = useCallback((strokeType: 'regular' | 'character' | 'container', strokeId: string) => {
     const newStop = {
       id: Date.now().toString(),
       color: '#808080',
       position: 50
     };
 
-    if (strokeType === 'container') {
-      updateSettings({
-        container: {
-          ...settings.container,
-          gradient: {
-            ...settings.container.gradient,
-            stops: [...settings.container.gradient.stops, newStop]
-          }
+    if (strokeType === 'regular') {
+      updateRegularStroke(strokeId, {
+        gradient: {
+          ...settings.regular.strokes.find(s => s.id === strokeId)?.gradient,
+          stops: [...(settings.regular.strokes.find(s => s.id === strokeId)?.gradient.stops || []), newStop]
         }
       });
-    } else if (strokeId) {
-      if (strokeType === 'regular') {
+    } else if (strokeType === 'character') {
+      updateCharacterStroke(strokeId, {
+        gradient: {
+          ...settings.character.strokes.find(s => s.id === strokeId)?.gradient,
+          stops: [...(settings.character.strokes.find(s => s.id === strokeId)?.gradient.stops || []), newStop]
+        }
+      });
+    } else if (strokeType === 'container') {
+      updateContainerStroke(strokeId, {
+        gradient: {
+          ...settings.container.strokes.find(s => s.id === strokeId)?.gradient,
+          stops: [...(settings.container.strokes.find(s => s.id === strokeId)?.gradient.stops || []), newStop]
+        }
+      });
+    }
+  }, [settings, updateRegularStroke, updateCharacterStroke, updateContainerStroke]);
+
+  const removeGradientStop = useCallback((strokeType: 'regular' | 'character' | 'container', stopId: string, strokeId: string) => {
+    if (strokeType === 'regular') {
+      const stroke = settings.regular.strokes.find(s => s.id === strokeId);
+      if (stroke) {
         updateRegularStroke(strokeId, {
           gradient: {
-            ...settings.regular.strokes.find(s => s.id === strokeId)?.gradient,
-            stops: [...(settings.regular.strokes.find(s => s.id === strokeId)?.gradient.stops || []), newStop]
+            ...stroke.gradient,
+            stops: stroke.gradient.stops.filter(stop => stop.id !== stopId)
           }
         });
-      } else if (strokeType === 'character') {
+      }
+    } else if (strokeType === 'character') {
+      const stroke = settings.character.strokes.find(s => s.id === strokeId);
+      if (stroke) {
         updateCharacterStroke(strokeId, {
           gradient: {
-            ...settings.character.strokes.find(s => s.id === strokeId)?.gradient,
-            stops: [...(settings.character.strokes.find(s => s.id === strokeId)?.gradient.stops || []), newStop]
+            ...stroke.gradient,
+            stops: stroke.gradient.stops.filter(stop => stop.id !== stopId)
+          }
+        });
+      }
+    } else if (strokeType === 'container') {
+      const stroke = settings.container.strokes.find(s => s.id === strokeId);
+      if (stroke) {
+        updateContainerStroke(strokeId, {
+          gradient: {
+            ...stroke.gradient,
+            stops: stroke.gradient.stops.filter(stop => stop.id !== stopId)
           }
         });
       }
     }
-  }, [settings, updateSettings, updateRegularStroke, updateCharacterStroke]);
-
-  const removeGradientStop = useCallback((strokeType: 'regular' | 'character' | 'container', stopId: string, strokeId?: string) => {
-    if (strokeType === 'container') {
-      updateSettings({
-        container: {
-          ...settings.container,
-          gradient: {
-            ...settings.container.gradient,
-            stops: settings.container.gradient.stops.filter(stop => stop.id !== stopId)
-          }
-        }
-      });
-    } else if (strokeId) {
-      if (strokeType === 'regular') {
-        const stroke = settings.regular.strokes.find(s => s.id === strokeId);
-        if (stroke) {
-          updateRegularStroke(strokeId, {
-            gradient: {
-              ...stroke.gradient,
-              stops: stroke.gradient.stops.filter(stop => stop.id !== stopId)
-            }
-          });
-        }
-      } else if (strokeType === 'character') {
-        const stroke = settings.character.strokes.find(s => s.id === strokeId);
-        if (stroke) {
-          updateCharacterStroke(strokeId, {
-            gradient: {
-              ...stroke.gradient,
-              stops: stroke.gradient.stops.filter(stop => stop.id !== stopId)
-            }
-          });
-        }
-      }
-    }
-  }, [settings, updateSettings, updateRegularStroke, updateCharacterStroke]);
+  }, [settings, updateRegularStroke, updateCharacterStroke, updateContainerStroke]);
 
   // Image Upload Handler
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, strokeType: 'regular' | 'character' | 'container', strokeId?: string) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, strokeType: 'regular' | 'character' | 'container', strokeId: string) => {
     try {
       const files = Array.from(e.target.files || []);
       const validImages: File[] = [];
@@ -225,23 +262,18 @@ const StrokesPlugin: React.FC<StrokesPluginProps> = ({
 
       if (validImages.length === 0) return;
 
-      if (strokeType === 'container') {
-        updateSettings({
-          container: {
-            ...settings.container,
-            images: [...settings.container.images, ...validImages]
-          }
+      if (strokeType === 'regular') {
+        updateRegularStroke(strokeId, {
+          images: [...(settings.regular.strokes.find(s => s.id === strokeId)?.images || []), ...validImages]
         });
-      } else if (strokeId) {
-        if (strokeType === 'regular') {
-          updateRegularStroke(strokeId, {
-            images: [...(settings.regular.strokes.find(s => s.id === strokeId)?.images || []), ...validImages]
-          });
-        } else if (strokeType === 'character') {
-          updateCharacterStroke(strokeId, {
-            images: [...(settings.character.strokes.find(s => s.id === strokeId)?.images || []), ...validImages]
-          });
-        }
+      } else if (strokeType === 'character') {
+        updateCharacterStroke(strokeId, {
+          images: [...(settings.character.strokes.find(s => s.id === strokeId)?.images || []), ...validImages]
+        });
+      } else if (strokeType === 'container') {
+        updateContainerStroke(strokeId, {
+          images: [...(settings.container.strokes.find(s => s.id === strokeId)?.images || []), ...validImages]
+        });
       }
 
       toast.success(`${validImages.length} image${validImages.length > 1 ? 's' : ''} uploaded successfully`);
@@ -283,7 +315,7 @@ const StrokesPlugin: React.FC<StrokesPluginProps> = ({
     });
   };
 
-  const renderStrokeControls = (stroke: any, strokeType: 'regular' | 'character', onUpdate: (updates: any) => void) => {
+  const renderStrokeControls = (stroke: any, strokeType: 'regular' | 'character' | 'container', onUpdate: (updates: any) => void) => {
     const isExpanded = expandedStrokes.has(stroke.id);
     
     return (
@@ -307,7 +339,9 @@ const StrokesPlugin: React.FC<StrokesPluginProps> = ({
               size="sm"
               onClick={(e) => {
                 e.stopPropagation();
-                strokeType === 'regular' ? removeRegularStroke(stroke.id) : removeCharacterStroke(stroke.id);
+                if (strokeType === 'regular') removeRegularStroke(stroke.id);
+                else if (strokeType === 'character') removeCharacterStroke(stroke.id);
+                else if (strokeType === 'container') removeContainerStroke(stroke.id);
               }}
               className="p-1 h-auto text-muted-foreground hover:text-destructive"
             >
@@ -474,7 +508,7 @@ const StrokesPlugin: React.FC<StrokesPluginProps> = ({
                     variant="outline"
                     size="sm"
                     onClick={() => {
-                      const input = regularStrokeImageInputRef.current;
+                      const input = strokeType === 'container' ? containerImageInputRef.current : regularStrokeImageInputRef.current;
                       if (input) {
                         input.click();
                       }
@@ -720,22 +754,22 @@ const StrokesPlugin: React.FC<StrokesPluginProps> = ({
 
                   <div className="space-y-1">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">Rotation</span>
-                      <span className="text-xs text-muted-foreground">{settings.character.perCharacterTransforms.rotation.toFixed(0)}°</span>
+                      <span className="text-xs text-muted-foreground">Y Offset</span>
+                      <span className="text-xs text-muted-foreground">{settings.character.perCharacterTransforms.yOffset.toFixed(0)}px</span>
                     </div>
                     <Slider
-                      value={[settings.character.perCharacterTransforms.rotation]}
+                      value={[settings.character.perCharacterTransforms.yOffset]}
                       onValueChange={([value]) => updateSettings({
                         character: {
                           ...settings.character,
                           perCharacterTransforms: {
                             ...settings.character.perCharacterTransforms,
-                            rotation: value
+                            yOffset: value
                           }
                         }
                       })}
-                      min={-45}
-                      max={45}
+                      min={-20}
+                      max={20}
                       step={1}
                       className="w-full"
                     />
@@ -767,22 +801,22 @@ const StrokesPlugin: React.FC<StrokesPluginProps> = ({
 
                 <div className="space-y-1">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-muted-foreground">Y Offset</span>
-                    <span className="text-xs text-muted-foreground">{settings.character.perCharacterTransforms.yOffset.toFixed(0)}px</span>
+                    <span className="text-xs text-muted-foreground">Rotation</span>
+                    <span className="text-xs text-muted-foreground">{settings.character.perCharacterTransforms.rotation.toFixed(0)}°</span>
                   </div>
                   <Slider
-                    value={[settings.character.perCharacterTransforms.yOffset]}
+                    value={[settings.character.perCharacterTransforms.rotation]}
                     onValueChange={([value]) => updateSettings({
                       character: {
                         ...settings.character,
                         perCharacterTransforms: {
                           ...settings.character.perCharacterTransforms,
-                          yOffset: value
+                          rotation: value
                         }
                       }
                     })}
-                    min={-20}
-                    max={20}
+                    min={-45}
+                    max={45}
                     step={1}
                     className="w-full"
                   />
@@ -805,280 +839,29 @@ const StrokesPlugin: React.FC<StrokesPluginProps> = ({
           {/* Container Stroke */}
           {activeStrokeType === 'container' && (
             <div className="space-y-2">
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="container-enabled"
-                  checked={settings.container.enabled}
-                  onCheckedChange={(checked) => updateSettings({
-                    container: {
-                      ...settings.container,
-                      enabled: !!checked
-                    }
-                  })}
-                />
-                <label htmlFor="container-enabled" className="text-xs font-medium text-foreground">
-                  Enable Container Stroke
-                </label>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-medium text-foreground">Container Strokes</span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={addContainerStroke}
+                  className="h-6 px-2 text-xs"
+                >
+                  <Plus className="w-2.5 h-2.5 mr-1" />
+                  Add Stroke
+                </Button>
               </div>
-
-              {settings.container.enabled && (
-                <div className="space-y-2">
-                  {/* Size */}
-                  <div className="space-y-1">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">Size</span>
-                      <span className="text-xs text-muted-foreground">{settings.container.size}px</span>
-                    </div>
-                    <Slider
-                      value={[settings.container.size]}
-                      onValueChange={([value]) => updateSettings({
-                        container: {
-                          ...settings.container,
-                          size: value
-                        }
-                      })}
-                      min={0}
-                      max={100}
-                      step={1}
-                      className="w-full"
-                    />
+              
+              <div className="space-y-1">
+                {settings.container.strokes.map((stroke) => 
+                  renderStrokeControls(stroke, 'container', (updates) => updateContainerStroke(stroke.id, updates))
+                )}
+                {settings.container.strokes.length === 0 && (
+                  <div className="text-xs text-muted-foreground text-center py-2">
+                    No container strokes added yet
                   </div>
-
-                  {/* Fill Type */}
-                  <div className="space-y-1">
-                    <span className="text-xs text-muted-foreground">Fill Type</span>
-                    <Select 
-                      value={settings.container.fillType} 
-                      onValueChange={(value) => updateSettings({
-                        container: {
-                          ...settings.container,
-                          fillType: value as 'solid' | 'gradient' | 'image'
-                        }
-                      })}
-                    >
-                      <SelectTrigger className="h-6 text-xs">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="solid">Solid Color</SelectItem>
-                        <SelectItem value="gradient">Gradient</SelectItem>
-                        <SelectItem value="image">Image</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Solid Color */}
-                  {settings.container.fillType === 'solid' && (
-                    <div className="space-y-1">
-                      <span className="text-xs text-muted-foreground">Color</span>
-                      <div className="flex items-center space-x-1">
-                        <input
-                          type="color"
-                          value={settings.container.color}
-                          onChange={(e) => updateSettings({
-                            container: {
-                              ...settings.container,
-                              color: e.target.value
-                            }
-                          })}
-                          className="w-6 h-6 rounded border cursor-pointer"
-                        />
-                        <Input
-                          value={settings.container.color}
-                          onChange={(e) => updateSettings({
-                            container: {
-                              ...settings.container,
-                              color: e.target.value
-                            }
-                          })}
-                          className="h-6 text-xs flex-1"
-                          placeholder="#000000"
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Gradient */}
-                  {settings.container.fillType === 'gradient' && (
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-muted-foreground">Gradient</span>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => addGradientStop('container')}
-                          className="h-5 px-2 text-xs"
-                        >
-                          <Plus className="w-2 h-2 mr-1" />
-                          Stop
-                        </Button>
-                      </div>
-                      
-                      <Select 
-                        value={settings.container.gradient.type} 
-                        onValueChange={(value) => updateSettings({
-                          container: {
-                            ...settings.container,
-                            gradient: { ...settings.container.gradient, type: value as 'linear' | 'radial' | 'conic' }
-                          }
-                        })}
-                      >
-                        <SelectTrigger className="h-6 text-xs">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="linear">Linear</SelectItem>
-                          <SelectItem value="radial">Radial</SelectItem>
-                          <SelectItem value="conic">Conic</SelectItem>
-                        </SelectContent>
-                      </Select>
-
-                      {settings.container.gradient.type === 'linear' && (
-                        <div className="space-y-1">
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs text-muted-foreground">Angle</span>
-                            <span className="text-xs text-muted-foreground">{settings.container.gradient.angle}°</span>
-                          </div>
-                          <Slider
-                            value={[settings.container.gradient.angle]}
-                            onValueChange={([value]) => updateSettings({
-                              container: {
-                                ...settings.container,
-                                gradient: { ...settings.container.gradient, angle: value }
-                              }
-                            })}
-                            min={0}
-                            max={360}
-                            step={1}
-                            className="w-full"
-                          />
-                        </div>
-                      )}
-
-                      {settings.container.gradient.stops.map((stop) => (
-                        <div key={stop.id} className="flex items-center space-x-1">
-                          <input
-                            type="color"
-                            value={stop.color}
-                            onChange={(e) => {
-                              const newStops = settings.container.gradient.stops.map(s => 
-                                s.id === stop.id ? { ...s, color: e.target.value } : s
-                              );
-                              updateSettings({
-                                container: {
-                                  ...settings.container,
-                                  gradient: { ...settings.container.gradient, stops: newStops }
-                                }
-                              });
-                            }}
-                            className="w-4 h-4 rounded border cursor-pointer"
-                          />
-                          <Slider
-                            value={[stop.position]}
-                            onValueChange={([value]) => {
-                              const newStops = settings.container.gradient.stops.map(s => 
-                                s.id === stop.id ? { ...s, position: value } : s
-                              );
-                              updateSettings({
-                                container: {
-                                  ...settings.container,
-                                  gradient: { ...settings.container.gradient, stops: newStops }
-                                }
-                              });
-                            }}
-                            min={0}
-                            max={100}
-                            step={1}
-                            className="flex-1"
-                          />
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => removeGradientStop('container', stop.id)}
-                            className="p-1 h-auto text-muted-foreground hover:text-destructive"
-                          >
-                            <X className="w-2 h-2" />
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Image Upload */}
-                  {settings.container.fillType === 'image' && (
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-muted-foreground">Images</span>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            const input = containerImageInputRef.current;
-                            if (input) {
-                              input.click();
-                            }
-                          }}
-                          className="h-5 px-2 text-xs"
-                        >
-                          <Upload className="w-2 h-2 mr-1" />
-                          Upload
-                        </Button>
-                      </div>
-                      
-                      {settings.container.images.length > 0 && (
-                        <div className="grid grid-cols-3 gap-1">
-                          {settings.container.images.map((img, index) => (
-                            <div key={index} className="relative">
-                              <img
-                                src={URL.createObjectURL(img)}
-                                alt={`Container image ${index + 1}`}
-                                className="w-full h-12 object-cover rounded border"
-                              />
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => {
-                                  const newImages = settings.container.images.filter((_, i) => i !== index);
-                                  updateSettings({
-                                    container: {
-                                      ...settings.container,
-                                      images: newImages
-                                    }
-                                  });
-                                }}
-                                className="absolute -top-1 -right-1 p-0 h-4 w-4 bg-destructive text-white rounded-full"
-                              >
-                                <X className="w-2 h-2" />
-                              </Button>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Opacity */}
-                  <div className="space-y-1">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">Opacity</span>
-                      <span className="text-xs text-muted-foreground">{settings.container.opacity}%</span>
-                    </div>
-                    <Slider
-                      value={[settings.container.opacity]}
-                      onValueChange={([value]) => updateSettings({
-                        container: {
-                          ...settings.container,
-                          opacity: value
-                        }
-                      })}
-                      min={0}
-                      max={100}
-                      step={1}
-                      className="w-full"
-                    />
-                  </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           )}
 
@@ -1123,27 +906,6 @@ const StrokesPlugin: React.FC<StrokesPluginProps> = ({
                       className="w-full"
                     />
                   </div>
-
-                  {/* Opacity */}
-                  <div className="space-y-1">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">Opacity</span>
-                      <span className="text-xs text-muted-foreground">{settings.knockout.opacity}%</span>
-                    </div>
-                    <Slider
-                      value={[settings.knockout.opacity]}
-                      onValueChange={([value]) => updateSettings({
-                        knockout: {
-                          ...settings.knockout,
-                          opacity: value
-                        }
-                      })}
-                      min={0}
-                      max={100}
-                      step={1}
-                      className="w-full"
-                    />
-                  </div>
                 </div>
               )}
             </div>
@@ -1168,10 +930,15 @@ const StrokesPlugin: React.FC<StrokesPluginProps> = ({
             multiple
             accept="image/*"
             onChange={(e) => {
-              const strokeType = activeStrokeType as 'regular' | 'character';
-              const currentStroke = strokeType === 'regular' 
-                ? settings.regular.strokes[settings.regular.strokes.length - 1]
-                : settings.character.strokes[settings.character.strokes.length - 1];
+              const strokeType = activeStrokeType as 'regular' | 'character' | 'container';
+              let currentStroke;
+              if (strokeType === 'regular') {
+                currentStroke = settings.regular.strokes[settings.regular.strokes.length - 1];
+              } else if (strokeType === 'character') {
+                currentStroke = settings.character.strokes[settings.character.strokes.length - 1];
+              } else if (strokeType === 'container') {
+                currentStroke = settings.container.strokes[settings.container.strokes.length - 1];
+              }
               if (currentStroke) {
                 handleImageUpload(e, strokeType, currentStroke.id);
               }
@@ -1183,7 +950,12 @@ const StrokesPlugin: React.FC<StrokesPluginProps> = ({
             type="file"
             multiple
             accept="image/*"
-            onChange={(e) => handleImageUpload(e, 'container')}
+            onChange={(e) => {
+              const currentStroke = settings.container.strokes[settings.container.strokes.length - 1];
+              if (currentStroke) {
+                handleImageUpload(e, 'container', currentStroke.id);
+              }
+            }}
             style={{ display: 'none' }}
           />
         </div>
