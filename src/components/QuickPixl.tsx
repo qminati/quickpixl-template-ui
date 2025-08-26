@@ -51,6 +51,8 @@ import TextBackgroundPlugin from './TextBackgroundPlugin';
 import CharacterEffectsPlugin from './CharacterEffectsPlugin';
 import ImageEffectsPlugin from './ImageEffectsPlugin';
 import VariationDetailView from './VariationDetailView';
+import TabSettings from './TabSettings';
+import useTabSettings from '@/hooks/useTabSettings';
 
 // Import merchandise-style template images
 import merchFocusGood from '@/assets/merch-focus-good.jpg';
@@ -176,47 +178,67 @@ const QuickPixl = () => {
   
   // Typography Plugin State
   const [isTypographyExpanded, setIsTypographyExpanded] = useState(true);
-  const [typographySettings, setTypographySettings] = useState<TypographySettings>({
-    bold: false,
-    italic: false,
-    underline: false,
-    textCase: 'normal',
-    letterSpacing: 0,
-    wordSpacing: 0,
-    textAlign: 'center',
-    textStroke: false,
-    strokeWidth: 1,
-    strokeColor: '#000000'
-  });
+  const getTypographySettings = (): TypographySettings => {
+    return tabSettings.getSettings('typography', {
+      bold: false,
+      italic: false,
+      underline: false,
+      textCase: 'normal' as 'normal' | 'uppercase' | 'lowercase',
+      letterSpacing: 0,
+      wordSpacing: 0,
+      textAlign: 'center' as 'left' | 'center' | 'right' | 'justify',
+      textStroke: false,
+      strokeWidth: 1,
+      strokeColor: '#000000'
+    });
+  };
+  const setTypographySettings = (settings: TypographySettings) => {
+    tabSettings.setSettings('typography', settings);
+  };
   const [typographyVariations, setTypographyVariations] = useState<TypographyVariation[]>([]);
   
   // Text Shape Plugin State
   const [isTextShapeExpanded, setIsTextShapeExpanded] = useState(true);
-  const [selectedShape, setSelectedShape] = useState<keyof ShapeSettings>('none');
-  const [shapeSettings, setShapeSettings] = useState<ShapeSettings>({
-    none: null,
-    circle: { radius: 100, startAngle: 0, direction: 'clockwise' },
-    arc: { radius: 150, arcAngle: 90, flip: false },
-    arch: { height: 30, curve: 50 },
-    angle: { angle: 0, skew: 0 },
-    flag: { waveHeight: 20, waveLength: 100, reverse: false },
-    wave: { amplitude: 20, frequency: 3, phase: 0 },
-    distort: {
-      topLeft: { x: 0, y: 0 },
-      topRight: { x: 0, y: 0 },
-      bottomLeft: { x: 0, y: 0 },
-      bottomRight: { x: 0, y: 0 },
-      intensity: 50
-    }
-  });
+  const getSelectedShape = (): keyof ShapeSettings => {
+    return tabSettings.getSettings('textShape', 'none');
+  };
+  const setSelectedShape = (shape: keyof ShapeSettings) => {
+    tabSettings.setSettings('textShape', shape);
+  };
+  const getShapeSettings = (): ShapeSettings => {
+    return tabSettings.getSettings('shapeSettings', {
+      none: null,
+      circle: { radius: 100, startAngle: 0, direction: 'clockwise' as 'clockwise' | 'counter-clockwise' },
+      arc: { radius: 150, arcAngle: 90, flip: false },
+      arch: { height: 30, curve: 50 },
+      angle: { angle: 0, skew: 0 },
+      flag: { waveHeight: 20, waveLength: 100, reverse: false },
+      wave: { amplitude: 20, frequency: 3, phase: 0 },
+      distort: {
+        topLeft: { x: 0, y: 0 },
+        topRight: { x: 0, y: 0 },
+        bottomLeft: { x: 0, y: 0 },
+        bottomRight: { x: 0, y: 0 },
+        intensity: 50
+      }
+    });
+  };
+  const setShapeSettings = (settings: ShapeSettings) => {
+    tabSettings.setSettings('shapeSettings', settings);
+  };
   const [textShapeVariations, setTextShapeVariations] = useState<TextShapeVariation[]>([]);
   
   // Rotate & Flip Settings State
-  const [rotateFlipSettings, setRotateFlipSettings] = useState<RotateFlipSettings>({
-    rotation: 0,
-    flipHorizontal: false,
-    flipVertical: false
-  });
+  const getRotateFlipSettings = (): RotateFlipSettings => {
+    return tabSettings.getSettings('rotateFlip', {
+      rotation: 0,
+      flipHorizontal: false,
+      flipVertical: false
+    });
+  };
+  const setRotateFlipSettings = (settings: RotateFlipSettings) => {
+    tabSettings.setSettings('rotateFlip', settings);
+  };
   const [rotateFlipVariations, setRotateFlipVariations] = useState<RotateFlipVariation[]>([]);
   
   // Rotate & Flip Plugin State
@@ -228,79 +250,99 @@ const QuickPixl = () => {
   // Text Background Plugin State
   const [isTextBackgroundExpanded, setIsTextBackgroundExpanded] = useState(true);
   
-  const [colorFillSettings, setColorFillSettings] = useState<ColorFillSettings>({
-    mode: 'solid',
-    solid: { color: '#000000' },
-    gradient: {
-      type: 'linear',
-      angle: 0,
-      stops: [
-        { id: '1', color: '#000000', position: 0 },
-        { id: '2', color: '#ffffff', position: 100 }
-      ]
-    },
-    palette: {
-      source: 'rgb',
-      colors: [],
-      componentInput: 1,
-      randomize: false
-    },
-    image: {
-      mode: 'single',
-      images: [],
-      opacity: 100,
-      randomize: false
-    }
-  });
+  const getColorFillSettings = (): ColorFillSettings => {
+    return tabSettings.getSettings('colorFill', {
+      mode: 'solid' as 'solid' | 'gradient' | 'palette' | 'image',
+      solid: { color: '#000000' },
+      gradient: {
+        type: 'linear' as 'linear' | 'radial' | 'conic',
+        angle: 0,
+        stops: [
+          { id: '1', color: '#000000', position: 0 },
+          { id: '2', color: '#ffffff', position: 100 }
+        ]
+      },
+      palette: {
+        source: 'rgb' as 'rgb' | 'component' | 'image',
+        colors: [],
+        componentInput: 1,
+        randomize: false
+      },
+      image: {
+        mode: 'single' as 'single' | 'multiple',
+        images: [],
+        opacity: 100,
+        randomize: false
+      }
+    });
+  };
+  const setColorFillSettings = (settings: ColorFillSettings) => {
+    tabSettings.setSettings('colorFill', settings);
+  };
   const [colorFillVariations, setColorFillVariations] = useState<ColorFillVariation[]>([]);
   
   // Strokes Plugin State
   const [isStrokesExpanded, setIsStrokesExpanded] = useState(true);
-  const [strokesSettings, setStrokesSettings] = useState<StrokeSettings>({
-    regular: { strokes: [] },
-    character: {
-      strokes: [],
-      differentStrokePerCharacter: false,
-      perCharacterTransforms: {
-        widthScale: 100,
-        heightScale: 100,
-        rotation: 0,
-        xOffset: 0,
-        yOffset: 0
+  const getStrokesSettings = (): StrokeSettings => {
+    return tabSettings.getSettings('strokes', {
+      regular: { strokes: [] },
+      character: {
+        strokes: [],
+        differentStrokePerCharacter: false,
+        perCharacterTransforms: {
+          widthScale: 100,
+          heightScale: 100,
+          rotation: 0,
+          xOffset: 0,
+          yOffset: 0
+        },
+        randomizeTransforms: false
       },
-      randomizeTransforms: false
-    },
-    container: {
-      strokes: []
-    },
-    knockout: {
-      enabled: false,
-      size: 2
-    }
-  });
+      container: {
+        strokes: []
+      },
+      knockout: {
+        enabled: false,
+        size: 2
+      }
+    });
+  };
+  const setStrokesSettings = (settings: StrokeSettings) => {
+    tabSettings.setSettings('strokes', settings);
+  };
   const [strokesVariations, setStrokesVariations] = useState<StrokesVariation[]>([]);
 
   // Character Effects Plugin State
   const [isCharacterEffectsExpanded, setIsCharacterEffectsExpanded] = useState(true);
-  const [characterEffectsSettings, setCharacterEffectsSettings] = useState<CharacterEffectsSettings>({
-    characters: [{ width: 100, height: 100, verticalOffset: 0, rotation: 0 }],
-    rotationMode: 'individual',
-    alignment: 'none'
-  });
+  const getCharacterEffectsSettings = (): CharacterEffectsSettings => {
+    return tabSettings.getSettings('characterEffects', {
+      characters: [{ width: 100, height: 100, verticalOffset: 0, rotation: 0 }],
+      rotationMode: 'individual' as 'individual' | 'mirror' | 'wave' | 'random',
+      alignment: 'none' as 'none' | 'top' | 'bottom'
+    });
+  };
+  const setCharacterEffectsSettings = (settings: CharacterEffectsSettings) => {
+    tabSettings.setSettings('characterEffects', settings);
+  };
   const [characterEffectsVariations, setCharacterEffectsVariations] = useState<CharacterEffectsVariation[]>([]);
 
   // Image Effects Plugin State
   const [isImageEffectsExpanded, setIsImageEffectsExpanded] = useState(true);
-  const [imageEffectsSettings, setImageEffectsSettings] = useState<ImageEffectsSettings>({
-    brightness: 0,
-    contrast: 0,
-    saturation: 0,
-    vibrance: 0,
-    hue: 0,
-    colorize: false,
-    grayscale: false,
-    invert: false
-  });
+  const getImageEffectsSettings = (): ImageEffectsSettings => {
+    return tabSettings.getSettings('imageEffects', {
+      brightness: 0,
+      contrast: 0,
+      saturation: 0,
+      vibrance: 0,
+      hue: 0,
+      colorize: false,
+      grayscale: false,
+      invert: false
+    });
+  };
+  const setImageEffectsSettings = (settings: ImageEffectsSettings) => {
+    tabSettings.setSettings('imageEffects', settings);
+  };
   const [imageEffectsVariations, setImageEffectsVariations] = useState<ImageEffectsVariation[]>([]);
   
   // Search State
@@ -311,6 +353,10 @@ const QuickPixl = () => {
   const [selectedVariation, setSelectedVariation] = useState<AnyVariation | null>(null);
   const [selectedVariationType, setSelectedVariationType] = useState<string>('');
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+
+  // Text Settings Tab Management
+  const [textInputCount, setTextInputCount] = useState(3);
+  const tabSettings = useTabSettings(textInputCount);
 
   // Enhanced cleanup function for blob URLs with better error handling
   useEffect(() => {
@@ -618,15 +664,16 @@ const QuickPixl = () => {
   }, []);
 
   const handleAddTypographyVariation = useCallback(() => {
+    const currentSettings = getTypographySettings();
     const newVariation: TypographyVariation = {
       id: `typography-variation-${Date.now()}`,
-      settings: { ...typographySettings },
-      description: generateTypographyDescription(typographySettings)
+      settings: { ...currentSettings },
+      description: generateTypographyDescription(currentSettings)
     };
     
     setTypographyVariations(prev => [...prev, newVariation]);
     toast.success('Typography variation added');
-  }, [typographySettings, generateTypographyDescription]);
+  }, [getTypographySettings, generateTypographyDescription]);
 
   const handleRemoveTypographyVariation = useCallback((variationId: string) => {
     setTypographyVariations(prev => prev.filter(v => v.id !== variationId));
@@ -697,11 +744,13 @@ const QuickPixl = () => {
   }, []);
 
   const handleAddTextShapeVariation = () => {
+    const currentShape = getSelectedShape();
+    const currentShapeSettings = getShapeSettings();
     const newVariation: TextShapeVariation = {
       id: `text-shape-variation-${Date.now()}`,
-      shape: selectedShape,
-      settings: selectedShape === 'none' ? null : shapeSettings[selectedShape],
-      description: generateTextShapeDescription(selectedShape, selectedShape === 'none' ? null : shapeSettings[selectedShape])
+      shape: currentShape,
+      settings: currentShape === 'none' ? null : currentShapeSettings[currentShape],
+      description: generateTextShapeDescription(currentShape, currentShape === 'none' ? null : currentShapeSettings[currentShape])
     };
     
     setTextShapeVariations(prev => [...prev, newVariation]);
@@ -744,10 +793,11 @@ const QuickPixl = () => {
   };
 
   const handleAddRotateFlipVariation = () => {
+    const currentSettings = getRotateFlipSettings();
     const newVariation: RotateFlipVariation = {
       id: `rotate-flip-variation-${Date.now()}`,
-      settings: { ...rotateFlipSettings },
-      description: generateRotateFlipDescription(rotateFlipSettings)
+      settings: { ...currentSettings },
+      description: generateRotateFlipDescription(currentSettings)
     };
 
     setRotateFlipVariations(prev => [...prev, newVariation]);
@@ -778,15 +828,17 @@ const QuickPixl = () => {
   }, []);
 
   const handleAddStrokesVariation = useCallback(() => {
+  const handleAddStrokesVariation = useCallback(() => {
+    const currentSettings = getStrokesSettings();
     const newVariation: StrokesVariation = {
       id: `strokes-variation-${Date.now()}`,
-      settings: { ...strokesSettings },
-      description: generateStrokesDescription(strokesSettings)
+      settings: { ...currentSettings },
+      description: generateStrokesDescription(currentSettings)
     };
 
     setStrokesVariations(prev => [...prev, newVariation]);
     toast.success('Strokes variation added');
-  }, [strokesSettings, generateStrokesDescription]);
+  }, [getStrokesSettings, generateStrokesDescription]);
 
   // Generate description for character effects variation
   const generateCharacterEffectsDescription = useCallback((settings: CharacterEffectsSettings) => {
@@ -803,15 +855,17 @@ const QuickPixl = () => {
   }, []);
 
   const handleAddCharacterEffectsVariation = useCallback(() => {
+  const handleAddCharacterEffectsVariation = useCallback(() => {
+    const currentSettings = getCharacterEffectsSettings();
     const newVariation: CharacterEffectsVariation = {
       id: `character-effects-variation-${Date.now()}`,
-      settings: { ...characterEffectsSettings },
-      description: generateCharacterEffectsDescription(characterEffectsSettings)
+      settings: { ...currentSettings },
+      description: generateCharacterEffectsDescription(currentSettings)
     };
 
     setCharacterEffectsVariations(prev => [...prev, newVariation]);
     toast.success('Character effects variation added');
-  }, [characterEffectsSettings, generateCharacterEffectsDescription]);
+  }, [getCharacterEffectsSettings, generateCharacterEffectsDescription]);
 
   const handleRemoveStrokesVariation = useCallback((variationId: string) => {
     setStrokesVariations(prev => prev.filter(v => v.id !== variationId));
@@ -839,15 +893,17 @@ const QuickPixl = () => {
   }, []);
 
   const handleAddImageEffectsVariation = useCallback(() => {
+  const handleAddImageEffectsVariation = useCallback(() => {
+    const currentSettings = getImageEffectsSettings();
     const newVariation: ImageEffectsVariation = {
       id: `image-effects-variation-${Date.now()}`,
-      settings: { ...imageEffectsSettings },
-      description: generateImageEffectsDescription(imageEffectsSettings)
+      settings: { ...currentSettings },
+      description: generateImageEffectsDescription(currentSettings)
     };
-    
+
     setImageEffectsVariations(prev => [...prev, newVariation]);
     toast.success('Visual effects variation added');
-  }, [imageEffectsSettings, generateImageEffectsDescription]);
+  }, [getImageEffectsSettings, generateImageEffectsDescription]);
 
   const handleRemoveImageEffectsVariation = useCallback((variationId: string) => {
     setImageEffectsVariations(prev => prev.filter(v => v.id !== variationId));
@@ -878,10 +934,11 @@ const QuickPixl = () => {
   };
 
   const handleAddColorFillVariation = () => {
+    const currentSettings = getColorFillSettings();
     const newVariation: ColorFillVariation = {
       id: `color-fill-variation-${Date.now()}`,
-      settings: { ...colorFillSettings },
-      description: generateColorFillDescription(colorFillSettings)
+      settings: { ...currentSettings },
+      description: generateColorFillDescription(currentSettings)
     };
 
     setColorFillVariations(prev => [...prev, newVariation]);
@@ -2072,70 +2129,83 @@ const QuickPixl = () => {
                )}
              </div>
             ) : activeSection === 'text' ? (
-              <div className="space-y-4">
-                <ColorFillPlugin
-                  isExpanded={isColorFillExpanded}
-                  onToggleExpanded={() => setIsColorFillExpanded(!isColorFillExpanded)}
-                  settings={colorFillSettings}
-                  onSettingsChange={setColorFillSettings}
-                  onAddVariation={handleAddColorFillVariation}
+              <div className="space-y-0">
+                {/* Tab Settings */}
+                <TabSettings
+                  currentTab={tabSettings.currentTab}
+                  onTabChange={tabSettings.setCurrentTab}
+                  tabs={tabSettings.tabs}
+                  onAddTab={() => tabSettings.addTab()}
+                  onRemoveTab={tabSettings.removeTab}
+                  hasCustomSettings={tabSettings.hasCustomSettings}
                 />
                 
-                <TextBackgroundPlugin
-                  isExpanded={isTextBackgroundExpanded}
-                  onToggleExpanded={() => setIsTextBackgroundExpanded(!isTextBackgroundExpanded)}
-                  onAddVariation={handleAddTextBackgroundVariation}
-                />
-                
-                <FontsPlugin />
-                <TypographyPlugin
-                  isExpanded={isTypographyExpanded}
-                  onToggleExpanded={() => setIsTypographyExpanded(!isTypographyExpanded)}
-                  settings={typographySettings}
-                  onSettingsChange={setTypographySettings}
-                  onAddVariation={handleAddTypographyVariation}
-                />
-                <TextShapePlugin
-                  isExpanded={isTextShapeExpanded}
-                  onToggleExpanded={() => setIsTextShapeExpanded(!isTextShapeExpanded)}
-                  selectedShape={selectedShape}
-                  onShapeChange={setSelectedShape}
-                  shapeSettings={shapeSettings}
-                  onShapeSettingsChange={setShapeSettings}
-                  onAddVariation={handleAddTextShapeVariation}
-                />
-                
-                <RotateFlipPlugin
-                  isExpanded={isRotateFlipExpanded}
-                  onToggleExpanded={() => setIsRotateFlipExpanded(!isRotateFlipExpanded)}
-                  settings={rotateFlipSettings}
-                  onSettingsChange={setRotateFlipSettings}
-                  onAddVariation={handleAddRotateFlipVariation}
-                />
-                
-                <StrokesPlugin
-                  isExpanded={isStrokesExpanded}
-                  onToggleExpanded={() => setIsStrokesExpanded(!isStrokesExpanded)}
-                  settings={strokesSettings}
-                  onSettingsChange={setStrokesSettings}
-                  onAddVariation={handleAddStrokesVariation}
-                />
-                
-                <CharacterEffectsPlugin
-                  isExpanded={isCharacterEffectsExpanded}
-                  onToggleExpanded={() => setIsCharacterEffectsExpanded(!isCharacterEffectsExpanded)}
-                  settings={characterEffectsSettings}
-                  onSettingsChange={setCharacterEffectsSettings}
-                  onAddVariation={handleAddCharacterEffectsVariation}
-                />
-                
-                <ImageEffectsPlugin
-                  isExpanded={isImageEffectsExpanded}
-                  onToggleExpanded={() => setIsImageEffectsExpanded(!isImageEffectsExpanded)}
-                  settings={imageEffectsSettings}
-                  onSettingsChange={setImageEffectsSettings}
-                  onAddVariation={handleAddImageEffectsVariation}
-                />
+                {/* Plugin Content */}
+                <div className="space-y-4 p-4">
+                  <ColorFillPlugin
+                    isExpanded={isColorFillExpanded}
+                    onToggleExpanded={() => setIsColorFillExpanded(!isColorFillExpanded)}
+                    settings={getColorFillSettings()}
+                    onSettingsChange={setColorFillSettings}
+                    onAddVariation={handleAddColorFillVariation}
+                  />
+                  
+                  <TextBackgroundPlugin
+                    isExpanded={isTextBackgroundExpanded}
+                    onToggleExpanded={() => setIsTextBackgroundExpanded(!isTextBackgroundExpanded)}
+                    onAddVariation={handleAddTextBackgroundVariation}
+                  />
+                  
+                  <FontsPlugin />
+                  <TypographyPlugin
+                    isExpanded={isTypographyExpanded}
+                    onToggleExpanded={() => setIsTypographyExpanded(!isTypographyExpanded)}
+                    settings={getTypographySettings()}
+                    onSettingsChange={setTypographySettings}
+                    onAddVariation={handleAddTypographyVariation}
+                  />
+                  <TextShapePlugin
+                    isExpanded={isTextShapeExpanded}
+                    onToggleExpanded={() => setIsTextShapeExpanded(!isTextShapeExpanded)}
+                    selectedShape={getSelectedShape()}
+                    onShapeChange={setSelectedShape}
+                    shapeSettings={getShapeSettings()}
+                    onShapeSettingsChange={setShapeSettings}
+                    onAddVariation={handleAddTextShapeVariation}
+                  />
+                  
+                  <RotateFlipPlugin
+                    isExpanded={isRotateFlipExpanded}
+                    onToggleExpanded={() => setIsRotateFlipExpanded(!isRotateFlipExpanded)}
+                    settings={getRotateFlipSettings()}
+                    onSettingsChange={setRotateFlipSettings}
+                    onAddVariation={handleAddRotateFlipVariation}
+                  />
+                  
+                  <StrokesPlugin
+                    isExpanded={isStrokesExpanded}
+                    onToggleExpanded={() => setIsStrokesExpanded(!isStrokesExpanded)}
+                    settings={getStrokesSettings()}
+                    onSettingsChange={setStrokesSettings}
+                    onAddVariation={handleAddStrokesVariation}
+                  />
+                  
+                  <CharacterEffectsPlugin
+                    isExpanded={isCharacterEffectsExpanded}
+                    onToggleExpanded={() => setIsCharacterEffectsExpanded(!isCharacterEffectsExpanded)}
+                    settings={getCharacterEffectsSettings()}
+                    onSettingsChange={setCharacterEffectsSettings}
+                    onAddVariation={handleAddCharacterEffectsVariation}
+                  />
+                  
+                  <ImageEffectsPlugin
+                    isExpanded={isImageEffectsExpanded}
+                    onToggleExpanded={() => setIsImageEffectsExpanded(!isImageEffectsExpanded)}
+                    settings={getImageEffectsSettings()}
+                    onSettingsChange={setImageEffectsSettings}
+                    onAddVariation={handleAddImageEffectsVariation}
+                  />
+                </div>
               </div>
             ) : (
               <div className="text-muted-foreground">
@@ -2246,12 +2316,47 @@ const QuickPixl = () => {
                 setSelectedContainer={setSelectedContainer}
               />
             </ErrorBoundary>
-          ) : activeSection === 'text' ? (
             <ErrorBoundary>
               <TextEditor 
                 onSubmitVariation={handleSubmitVariation}
                 lastSelectedFont={lastSelectedFont}
-                typographySettings={typographySettings}
+                typographySettings={getTypographySettings()}
+                onInputSettingsClick={(inputIndex) => {
+                  const tabId = `TI${inputIndex + 1}`;
+                  tabSettings.setCurrentTab(tabId);
+                  setActiveSection('text');
+                }}
+                onInputDuplicate={(inputIndex) => {
+                  const sourceTabId = `TI${inputIndex + 1}`;
+                  const newInputIndex = textInputCount;
+                  const newTabId = `TI${newInputIndex + 1}`;
+                  setTextInputCount(prev => prev + 1);
+                  tabSettings.duplicateTabSettings(sourceTabId, newTabId);
+                }}
+                inputSettingsIndicators={Array.from({ length: textInputCount }, (_, i) => ({
+                  [i]: tabSettings.hasCustomSettings(`TI${i + 1}`)
+                })).reduce((acc, curr) => ({ ...acc, ...curr }), {})}
+              />
+            </ErrorBoundary>
+              <TextEditor 
+                onSubmitVariation={handleSubmitVariation}
+                lastSelectedFont={lastSelectedFont}
+                typographySettings={getTypographySettings()}
+                onInputSettingsClick={(inputIndex) => {
+                  const tabId = `TI${inputIndex + 1}`;
+                  tabSettings.setCurrentTab(tabId);
+                  setActiveSection('text');
+                }}
+                onInputDuplicate={(inputIndex) => {
+                  const sourceTabId = `TI${inputIndex + 1}`;
+                  const newInputIndex = textInputCount;
+                  const newTabId = `TI${newInputIndex + 1}`;
+                  setTextInputCount(prev => prev + 1);
+                  tabSettings.duplicateTabSettings(sourceTabId, newTabId);
+                }}
+                inputSettingsIndicators={Array.from({ length: textInputCount }, (_, i) => ({
+                  [i]: tabSettings.hasCustomSettings(`TI${i + 1}`)
+                })).reduce((acc, curr) => ({ ...acc, ...curr }), {})}
               />
             </ErrorBoundary>
           ) : activeSection === 'variations' ? (
