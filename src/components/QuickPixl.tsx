@@ -2754,8 +2754,29 @@ const QuickPixl = () => {
                 imageInputs={imageInputs}
                 onImageInputsChange={setImageInputs}
                 onSubmitVariation={(imageArrays) => {
-                  // Handle image variation submission logic here
-                  console.log('Image variations submitted:', imageArrays);
+                  // Create variation from submitted image arrays
+                  const allImages = imageArrays.flat();
+                  
+                  if (allImages.length === 0) {
+                    toast.info('No images to submit');
+                    return;
+                  }
+
+                  const newVariation: Variation = {
+                    id: `image-input-variation-${Date.now()}`,
+                    colors: [],
+                    images: [...allImages],
+                    description: `${allImages.length} image${allImages.length > 1 ? 's' : ''} from ${imageArrays.length} input${imageArrays.length > 1 ? 's' : ''}`
+                  };
+                  
+                  setImageInputVariations(prev => [...prev, newVariation]);
+                  toast.success('Image variation submitted successfully');
+                  
+                  // Auto-scroll to show the new variation
+                  setTimeout(() => {
+                    const targets = [leftSettingsRef.current, variationsRef.current];
+                    targets.forEach(el => el?.scrollTo({ top: el.scrollHeight, behavior: "smooth" }));
+                  });
                 }}
                 onFocusInputTab={(inputId) => {
                   const index = imageInputs.findIndex(input => input.id === inputId);
