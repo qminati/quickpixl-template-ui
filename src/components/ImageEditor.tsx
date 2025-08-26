@@ -332,7 +332,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
                     {/* Thumbnails */}
                     {input.selectedImages?.length > 0 ? (
                       <div className="grid grid-cols-3 gap-2">
-                        {input.selectedImages.slice(0, 6).map((img, i) => (
+                        {input.selectedImages.slice(0, 5).map((img, i) => (
                           <button 
                             key={i} 
                             onClick={() => {
@@ -353,12 +353,16 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
                             />
                           </button>
                         ))}
-                        {input.selectedImages.length > 6 && (
-                          <div className="h-16 rounded-md border bg-muted/40 flex items-center justify-center">
+                        {input.selectedImages.length > 5 && (
+                          <button 
+                            onClick={() => setCurrentInputIndex(index)}
+                            className="h-16 rounded-md border bg-muted/40 flex items-center justify-center hover:border-primary"
+                            aria-label={`View ${input.selectedImages.length - 5} more images`}
+                          >
                             <span className="text-xs text-muted-foreground">
-                              +{input.selectedImages.length - 6}
+                              +{input.selectedImages.length - 5}
                             </span>
-                          </div>
+                          </button>
                         )}
                       </div>
                     ) : (
