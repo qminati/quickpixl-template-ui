@@ -48,7 +48,7 @@ import ImageEditor from './ImageEditor';
 import ImageInputPlugin from './ImageInputPlugin';
 import { validateImage, handleImageError, createImageFallback } from '@/utils/imageUtils';
 import { toast } from 'sonner';
-import { Container, Variation, Template, TemplateVariation, FontVariation, TypographySettings, TypographyVariation, ShapeSettings, TextShapeVariation, RotateFlipSettings, RotateFlipVariation, ColorFillSettings, ColorFillVariation, StrokeSettings, StrokesVariation, CharacterEffectsSettings, CharacterEffectsVariation, ImageEffectsSettings, ImageEffectsVariation, DropShadowSettings, DropShadowVariation, ImageTabSettings, AnyVariation } from '@/types/interfaces';
+import { Container, Variation, Template, TemplateVariation, FontVariation, TypographySettings, TypographyVariation, ShapeSettings, TextShapeVariation, RotateFlipSettings, RotateFlipVariation, ColorFillSettings, ColorFillVariation, StrokeSettings, StrokesVariation, CharacterEffectsSettings, CharacterEffectsVariation, ImageEffectsSettings, ImageEffectsVariation, DropShadowSettings, DropShadowVariation, AnyVariation } from '@/types/interfaces';
 import TypographyPlugin from './TypographyPlugin';
 import TextShapePlugin from './TextShapePlugin';
 import RotateFlipPlugin from './RotateFlipPlugin';
@@ -319,26 +319,6 @@ const QuickPixl = () => {
     invert: false
   });
   const [imageEffectsVariations, setImageEffectsVariations] = useState<ImageEffectsVariation[]>([]);
-
-  // Image Tab Settings State
-  const [imageSettings, setImageSettings] = useState<ImageTabSettings>({
-    global: {
-      imageInput: {
-        selectedImages: [],
-        selectionMode: 'multiple'
-      },
-      imageEffects: {
-        brightness: 100,
-        contrast: 100,
-        saturation: 100,
-        hue: 0,
-        colorize: false,
-        grayscale: false,
-        invert: false
-      }
-    },
-    inputs: {}
-  });
   
   // Search State
   const [isSearchVisible, setIsSearchVisible] = useState(false);
@@ -2556,8 +2536,15 @@ const QuickPixl = () => {
           ) : activeSection === 'images' ? (
             <ErrorBoundary>
               <ImageEditor 
-                imageSettings={imageSettings}
-                onImageSettingsChange={setImageSettings}
+                onSubmitVariation={(imageArrays) => {
+                  // Handle image variation submission logic here
+                  console.log('Image variations submitted:', imageArrays);
+                }}
+                onFocusInputTab={(i) => {
+                  const id = (`II${i+1}`) as ImageTabId;
+                  ensureImageTab(id);
+                  setActiveImageTab(id);
+                }}
               />
             </ErrorBoundary>
           ) : activeSection === 'variations' ? (
