@@ -51,7 +51,7 @@ const CanvasEditor: React.FC<CanvasEditorProps> = ({
       const containerHeight = containerRef.current.clientHeight - 100;
       
       // Prevent division by zero
-      if (canvasHeight === 0) {
+      if (canvasHeight === 0 || canvasWidth === 0) {
         setDisplaySize({ width: 800, height: 800 });
         return;
       }
@@ -86,6 +86,7 @@ const CanvasEditor: React.FC<CanvasEditorProps> = ({
   // Memoized ruler marks generation for better performance
   const horizontalRulerMarks = useMemo(() => {
     const marks = [];
+    if (canvasWidth === 0) return marks;
     const scale = displaySize.width / canvasWidth; // pixels per unit
     const step = Math.max(10, Math.round(50 / scale)); // Adaptive step based on zoom
     
@@ -120,6 +121,7 @@ const CanvasEditor: React.FC<CanvasEditorProps> = ({
 
   const verticalRulerMarks = useMemo(() => {
     const marks = [];
+    if (canvasHeight === 0) return marks;
     const scale = displaySize.height / canvasHeight; // pixels per unit
     const step = Math.max(10, Math.round(50 / scale)); // Adaptive step based on zoom
     
