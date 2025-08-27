@@ -750,44 +750,6 @@ const renderImageDropShadowVariation = (variation: ImageDropShadowVariation, isE
   </Card>
 );
 
-const renderImageDropShadowVariation = (variation: ImageDropShadowVariation, isEditing: boolean) => (
-  <Card className="p-6">
-    <h3 className="text-lg font-semibold mb-4">Image Drop Shadow</h3>
-    <div className="space-y-4">
-      <div className="p-8 border rounded-lg bg-muted/50 text-center">
-        <div 
-          className="text-4xl font-bold mb-2"
-          style={{
-            filter: variation.settings.shadows.length > 0
-              ? variation.settings.shadows.map(shadow => 
-                  `drop-shadow(${shadow.offsetX}px ${shadow.offsetY}px ${shadow.blur}px rgba(0,0,0,${shadow.opacity/100}))`
-                ).join(' ')
-              : 'drop-shadow(2px 2px 4px rgba(0,0,0,0.3))'
-          }}
-        >
-          IMAGE
-        </div>
-        <p className="text-sm text-muted-foreground">
-          Preview with image drop shadows applied
-        </p>
-      </div>
-      
-      <div className="text-sm">
-        <div><strong>Shadows:</strong> {variation.settings.shadows.length}</div>
-        {variation.settings.shadows.length > 0 && (
-          <div className="mt-2 space-y-1">
-            {variation.settings.shadows.map((shadow, index) => (
-              <div key={shadow.id} className="text-xs text-muted-foreground">
-                Shadow {index + 1}: {shadow.offsetX}px, {shadow.offsetY}px, {shadow.blur}px ({shadow.opacity}%)
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  </Card>
-);
-
 // Helper function to get element count
 const getElementCount = (variation: AnyVariation, variationType: string): number => {
   switch (variationType) {
