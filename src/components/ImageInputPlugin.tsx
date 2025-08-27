@@ -67,57 +67,71 @@ const ImageInputPlugin: React.FC<ImageInputPluginProps> = ({
         </CollapsibleTrigger>
 
         <CollapsibleContent>
-          <div className="p-3 pt-0 space-y-4 max-h-96 overflow-y-auto">
-            <div className="flex items-center space-x-3">
-              <span className="text-xs font-medium text-foreground whitespace-nowrap">Upload Images</span>
-              <div className="relative flex-1">
+          <div className="p-3 pt-0">
+            <div className="flex items-stretch h-24 gap-3">
+              {/* Upload Images Label */}
+              <div className="flex items-center justify-center w-20 bg-secondary/30 rounded-md border">
+                <span className="text-xs font-medium text-foreground text-center leading-tight">Upload Images</span>
+              </div>
+
+              {/* File Input Area */}
+              <div className="relative w-48">
                 <input
                   type="file"
                   accept="image/*"
                   multiple
-                  className="absolute inset-0 opacity-0 cursor-pointer"
+                  className="absolute inset-0 opacity-0 cursor-pointer z-10"
                   onChange={handleImageUpload}
                 />
-                <div className="border border-dashed border-input rounded-md px-3 py-2 text-xs text-muted-foreground">
-                  Click to select images or drop them here
-                </div>
-              </div>
-            </div>
-
-            {(settings.selectedImages?.length || 0) > 0 && (
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium text-foreground">
-                    Selected Images ({settings.selectedImages.length})
+                <div className="h-full border border-dashed border-input rounded-md px-3 py-2 flex items-center justify-center bg-background hover:bg-secondary/20 transition-colors">
+                  <span className="text-xs text-muted-foreground text-center leading-tight">
+                    Click to select images or drop them here
                   </span>
                 </div>
-
-                 <div className="grid grid-cols-12 gap-0.5 max-h-20 overflow-y-auto">
-                  {settings.selectedImages.map((image, i) => (
-                    <div key={`${image.name}-${image.size}-${i}`} className="relative group">
-                      <div className="aspect-square bg-muted rounded border overflow-hidden">
-                        <img
-                          src={getBlobUrl(image)}
-                          alt={`Selected image ${i + 1}`}
-                          className="w-full h-full object-cover"
-                          onError={handleImageError}
-                          draggable={false}
-                        />
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => handleImageRemove(image)}
-                        className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-background border border-input flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                        title="Remove"
-                      >
-                        <X className="w-2 h-2" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
               </div>
-            )}
 
+              {/* Selected Images Section */}
+              <div className="flex-1 min-w-0">
+                {(settings.selectedImages?.length || 0) > 0 ? (
+                  <div className="h-full flex flex-col">
+                    <div className="flex items-center mb-2">
+                      <span className="text-xs font-medium text-foreground">
+                        Selected Images ({settings.selectedImages.length})
+                      </span>
+                    </div>
+                    <div className="flex-1 overflow-y-auto">
+                      <div className="grid grid-cols-12 gap-0.5">
+                        {settings.selectedImages.map((image, i) => (
+                          <div key={`${image.name}-${image.size}-${i}`} className="relative group">
+                            <div className="aspect-square bg-muted rounded border overflow-hidden">
+                              <img
+                                src={getBlobUrl(image)}
+                                alt={`Selected image ${i + 1}`}
+                                className="w-full h-full object-cover"
+                                onError={handleImageError}
+                                draggable={false}
+                              />
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => handleImageRemove(image)}
+                              className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-background border border-input flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                              title="Remove"
+                            >
+                              <X className="w-2 h-2" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="h-full flex items-center justify-center border border-dashed border-input rounded-md bg-secondary/10">
+                    <span className="text-xs text-muted-foreground">No images selected</span>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </CollapsibleContent>
       </Collapsible>
