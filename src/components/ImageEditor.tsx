@@ -300,9 +300,9 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
                             onFocusInputTab?.(input.id);
                           }} 
                           className="h-6 w-6"
-                          aria-label="Focus"
+                          aria-label="Settings"
                         >
-                          <Target className="h-3 w-3" />
+                          <SettingsIcon className="h-3 w-3" />
                         </Button>
                         <Button 
                           variant="ghost" 
