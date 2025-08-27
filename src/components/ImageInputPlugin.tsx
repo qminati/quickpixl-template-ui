@@ -69,13 +69,8 @@ const ImageInputPlugin: React.FC<ImageInputPluginProps> = ({
         <CollapsibleContent>
           <div className="p-3 pt-0">
             <div className="flex items-stretch h-24 gap-3">
-              {/* Upload Images Label */}
-              <div className="flex items-center justify-center w-20 bg-secondary/30 rounded-md border">
-                <span className="text-xs font-medium text-foreground text-center leading-tight">Upload Images</span>
-              </div>
-
-              {/* File Input Area */}
-              <div className="relative w-48">
+              {/* Combined Upload Area */}
+              <div className="relative w-56">
                 <input
                   type="file"
                   accept="image/*"
@@ -83,9 +78,13 @@ const ImageInputPlugin: React.FC<ImageInputPluginProps> = ({
                   className="absolute inset-0 opacity-0 cursor-pointer z-10"
                   onChange={handleImageUpload}
                 />
-                <div className="h-full border border-dashed border-input rounded-md px-3 py-2 flex items-center justify-center bg-background hover:bg-secondary/20 transition-colors">
-                  <span className="text-xs text-muted-foreground text-center leading-tight">
-                    Click to select images or drop them here
+                <div className="h-full border border-dashed border-input rounded-md px-3 py-2 flex flex-col items-center justify-center bg-background hover:bg-secondary/20 transition-colors">
+                  <Upload className="w-4 h-4 text-primary mb-1" />
+                  <span className="text-xs font-medium text-foreground text-center leading-tight">
+                    Upload Images
+                  </span>
+                  <span className="text-xs text-muted-foreground text-center leading-tight mt-1">
+                    Click or drag & drop
                   </span>
                 </div>
               </div>
