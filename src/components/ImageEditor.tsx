@@ -2,6 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ChevronLeft, ChevronRight, Settings as SettingsIcon, Copy, Plus, Minus, Trash2, Target, ImageIcon } from 'lucide-react';
 import { ImageInput } from '@/types/interfaces';
 import ImageInputPlugin from './ImageInputPlugin';
@@ -28,6 +29,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
   const [currentPreviewIndex, setCurrentPreviewIndex] = useState(0);
   const [currentInputIndex, setCurrentInputIndex] = useState(0);
   const [isImageInputExpanded, setIsImageInputExpanded] = useState(true);
+  const [imageBackgroundColor, setImageBackgroundColor] = useState('#ffffff');
 
   // Use prop inputs if provided, otherwise use internal state
   const imageInputs = propImageInputs || internalImageInputs;
@@ -180,14 +182,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
                 <ChevronLeft className="w-4 h-4" />
               </Button>
               
-              <span className="text-sm text-muted-foreground">
-                {currentInputImages.length > 0 
-                  ? `${currentPreviewIndex + 1} of ${currentInputImages.length}` 
-                  : 'No images'
-                }
-              </span>
-              
-              <Button
+               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleNextImage}
@@ -198,41 +193,104 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
               </Button>
             </div>
             
-            {/* Thumbnail Navigation */}
-            {currentInputImages.length > 0 && (
-              <div className="flex items-center space-x-1">
-                {currentInputImages.slice(0, 5).map((image, index) => (
-                  <button
-                    key={`thumb-${image.name}-${image.size}-${index}`}
-                    onClick={() => setCurrentPreviewIndex(index)}
-                    className={`w-px h-px rounded border overflow-hidden transition-all ${
-                      index === currentPreviewIndex 
-                        ? 'border-primary' 
-                        : 'border-panel-border hover:border-primary/50'
-                    }`}
+            {/* Background Color Picker on the Right */}
+            <div className="flex items-center space-x-2">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-7 px-2 text-xs"
                   >
-                    <img
-                      src={getBlobUrlSafe(image)}
-                      alt={`Thumbnail ${index + 1}`}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.style.display = 'none';
-                      }}
+                    <div 
+                      className="w-3 h-3 rounded mr-1 border border-panel-border" 
+                      style={{ backgroundColor: imageBackgroundColor }}
                     />
-                  </button>
+                    Background
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-64 p-3" align="end">
+                  <div className="space-y-3">
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="color"
+                        value={imageBackgroundColor}
+                        onChange={(e) => setImageBackgroundColor(e.target.value)}
+                        className="w-8 h-8 rounded border border-panel-border cursor-pointer"
+                      />
+                      <input
+                        type="text"
+                        value={imageBackgroundColor}
+                        onChange={(e) => setImageBackgroundColor(e.target.value)}
+                        className="flex-1 px-2 py-1 text-xs bg-background border border-panel-border rounded"
+                        placeholder="#ffffff"
+                      />
+                    </div>
+                    <div className="text-xs text-muted-foreground">Image background color</div>
+                  </div>
+                </PopoverContent>
+              </Popover>
+              <div className="flex items-center space-x-1">
+                {[
+                  { color: '#ffffff', name: 'White' },
+                  { color: '#000000', name: 'Black' },
+                  { color: '#f3f4f6', name: 'Light Grey' },
+                  { color: '#6b7280', name: 'Grey' },
+                  { color: '#ef4444', name: 'Red' },
+                  { color: '#3b82f6', name: 'Blue' }
+                ].map((preset) => (
+                  <button
+                    key={preset.color}
+                    onClick={() => setImageBackgroundColor(preset.color)}
+                    className="w-5 h-5 rounded-full border border-panel-border hover:scale-110 transition-transform"
+                    style={{ backgroundColor: preset.color }}
+                    title={preset.name}
+                  />
                 ))}
-                {currentInputImages.length > 5 && (
-                  <span className="text-xs text-muted-foreground px-2">
-                    +{currentInputImages.length - 5} more
-                  </span>
-                )}
               </div>
-            )}
+              
+              {/* Thumbnail Navigation */}
+              {currentInputImages.length > 0 && (
+                <div className="flex items-center space-x-1 ml-4">
+                  {currentInputImages.slice(0, 5).map((image, index) => (
+                    <button
+                      key={`thumb-${image.name}-${image.size}-${index}`}
+                      onClick={() => setCurrentPreviewIndex(index)}
+                      className={`w-6 h-6 rounded border overflow-hidden transition-all ${
+                        index === currentPreviewIndex 
+                          ? 'border-primary' 
+                          : 'border-panel-border hover:border-primary/50'
+                      }`}
+                    >
+                      <img
+                        src={getBlobUrlSafe(image)}
+                        alt={`Thumbnail ${index + 1}`}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                        }}
+                      />
+                    </button>
+                  ))}
+                  {currentInputImages.length > 5 && (
+                    <span className="text-xs text-muted-foreground px-2">
+                      +{currentInputImages.length - 5} more
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
           
           {/* Canvas Content */}
-          <div className="relative bg-muted/10 overflow-hidden" style={{ height: 'calc(100% - 40px)' }}>
+          <div 
+            className="relative overflow-hidden" 
+            style={{ 
+              height: 'calc(100% - 40px)',
+              backgroundColor: imageBackgroundColor 
+            }}
+          >
             <ImageErrorBoundary>
               {currentPreviewImage ? (
                 <img
