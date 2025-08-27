@@ -2779,53 +2779,6 @@ const QuickPixl = () => {
                     </div>
                   </div>
                 )}
-                  <div className="bg-card border border-panel-border rounded-lg p-4">
-                    <h4 className="text-sm font-medium text-foreground mb-3 flex items-center space-x-2">
-                      <ImageIcon className="w-4 h-4 text-primary" />
-                      <span>Image Input Variations</span>
-                      <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
-                        {imageInputVariations.length}
-                      </span>
-                    </h4>
-                    <div className="space-y-2">
-                      {imageInputVariations.map((variation) => (
-                        <div 
-                          key={variation.id} 
-                          className="bg-secondary/30 rounded-lg p-3 cursor-pointer hover:bg-secondary/50 transition-colors"
-                        >
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-xs font-medium text-foreground">{variation.description}</span>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleRemoveImageInputVariation(variation.id);
-                              }}
-                              className="p-1 text-muted-foreground hover:text-destructive"
-                            >
-                              <Trash2 className="w-3 h-3" />
-                            </Button>
-                          </div>
-                          <div className="flex space-x-1">
-                             {variation.images.slice(0, 4).map((image, index) => (
-                               <div key={`${image.name}-${image.size}-${index}`} className="w-8 h-8 rounded border border-panel-border overflow-hidden">
-                                <img
-                                  src={getBlobUrl(image)}
-                                  alt=""
-                                  className="w-full h-full object-cover"
-                                />
-                              </div>
-                            ))}
-                            {variation.images.length > 4 && (
-                              <span className="text-xs text-muted-foreground self-center">+{variation.images.length - 4}</span>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </div>
             ) : (
               <div className="text-muted-foreground">
