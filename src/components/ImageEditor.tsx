@@ -258,25 +258,28 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
       {/* Scrollable Content Area - Image Upload and Management */}
       <div className="flex-1 min-h-0 overflow-y-auto p-6 pt-4">
         <div className="bg-card border border-input rounded-lg">
-          {/* Image Upload Plugin - Fixed */}
-          <div className="flex-shrink-0 p-4 border-b border-input">
-            <ImageInputPlugin
-              isExpanded={isImageInputExpanded}
-              onToggleExpanded={() => setIsImageInputExpanded(!isImageInputExpanded)}
-              settings={imageInputs[currentInputIndex]}
-              onSettingsChange={(settings) => {
-                updateImageInput(imageInputs[currentInputIndex].id, settings.selectedImages, settings.selectionMode);
-              }}
-            />
-          </div>
-          
-          {/* Manage Image Inputs - 3-Column Grid */}
+          {/* Two Column Layout: Upload Plugin + Image Inputs */}
           <div className="p-4">
-            <div className="mb-4">
-              <h3 className="text-base font-medium text-foreground">Manage Image Inputs</h3>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 max-h-96 overflow-y-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Left Column: Image Upload Plugin */}
+              <div className="lg:col-span-1">
+                <ImageInputPlugin
+                  isExpanded={isImageInputExpanded}
+                  onToggleExpanded={() => setIsImageInputExpanded(!isImageInputExpanded)}
+                  settings={imageInputs[currentInputIndex]}
+                  onSettingsChange={(settings) => {
+                    updateImageInput(imageInputs[currentInputIndex].id, settings.selectedImages, settings.selectionMode);
+                  }}
+                />
+              </div>
+              
+              {/* Right Column: Manage Image Inputs */}
+              <div className="lg:col-span-2">
+                <div className="mb-4">
+                  <h3 className="text-base font-medium text-foreground">Manage Image Inputs</h3>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-96 overflow-y-auto">
               {imageInputs.map((input, index) => (
                 <Card 
                   key={input.id} 
@@ -389,14 +392,16 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
                 </Card>
               ))}
               
-              {/* Add Image Input Tile */}
-              <button 
-                onClick={addImageInput}
-                className="h-full min-h-[220px] border-2 border-dashed rounded-xl flex flex-col items-center justify-center hover:bg-muted/30 transition-colors group"
-              >
-                <div className="text-3xl mb-2 group-hover:scale-110 transition-transform">＋</div>
-                <div className="text-sm font-medium">Add Image Input</div>
-              </button>
+                  {/* Add Image Input Tile */}
+                  <button 
+                    onClick={addImageInput}
+                    className="h-full min-h-[220px] border-2 border-dashed rounded-xl flex flex-col items-center justify-center hover:bg-muted/30 transition-colors group"
+                  >
+                    <div className="text-3xl mb-2 group-hover:scale-110 transition-transform">＋</div>
+                    <div className="text-sm font-medium">Add Image Input</div>
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
