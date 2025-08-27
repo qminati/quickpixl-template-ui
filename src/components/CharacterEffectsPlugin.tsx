@@ -145,6 +145,22 @@ const CharacterEffectsPlugin: React.FC<CharacterEffectsPluginProps> = ({
       {/* Content */}
       {isExpanded && (
         <div className="p-3 pt-0 space-y-3">
+          {/* Opacity Slider */}
+          <div className="space-y-0.5">
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-muted-foreground">Opacity</span>
+              <span className="text-xs text-muted-foreground">{settings.opacity}%</span>
+            </div>
+            <Slider
+              value={[settings.opacity]}
+              onValueChange={([value]) => updateSettings({ opacity: value })}
+              min={0}
+              max={100}
+              step={1}
+              className="w-full"
+            />
+          </div>
+
           {/* Character Settings List */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">

@@ -296,6 +296,7 @@ const QuickPixl = () => {
   // Character Effects Plugin State
   const [isCharacterEffectsExpanded, setIsCharacterEffectsExpanded] = useState(true);
   const [characterEffectsSettings, setCharacterEffectsSettings] = useState<CharacterEffectsSettings>({
+    opacity: 100,
     characters: [{ width: 100, height: 100, verticalOffset: 0, rotation: 0 }],
     rotationMode: 'individual',
     alignment: 'none'
@@ -320,6 +321,7 @@ const QuickPixl = () => {
   // Image Effects Plugin State
   const [isImageEffectsExpanded, setIsImageEffectsExpanded] = useState(true);
   const [imageEffectsSettings, setImageEffectsSettings] = useState<ImageEffectsSettings>({
+    opacity: 100,
     brightness: 0,
     contrast: 0,
     saturation: 0,

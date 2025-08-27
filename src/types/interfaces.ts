@@ -273,6 +273,7 @@ export interface CharacterSettings {
 }
 
 export interface CharacterEffectsSettings {
+  opacity: number;
   characters: CharacterSettings[];
   rotationMode: 'individual' | 'progressive' | 'wave' | 'mirror' | 'random';
   alignment: 'none' | 'top' | 'center' | 'bottom' | 'baseline';
@@ -288,6 +289,7 @@ export interface CharacterEffectsVariation {
 }
 
 export interface ImageEffectsSettings {
+  opacity: number;
   brightness: number;
   contrast: number;
   saturation: number;

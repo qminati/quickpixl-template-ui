@@ -46,6 +46,21 @@ const ImageEffectsPlugin: React.FC<ImageEffectsPluginProps> = ({
         
         <CollapsibleContent>
           <div className="p-3 pt-0 space-y-3">
+            {/* Opacity Slider */}
+            <div className="space-y-0.5">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-muted-foreground">Opacity</span>
+                <span className="text-xs text-muted-foreground">{settings.opacity}%</span>
+              </div>
+              <Slider
+                value={[settings.opacity]}
+                onValueChange={([value]) => updateSettings({ opacity: value })}
+                min={0}
+                max={100}
+                step={1}
+              />
+            </div>
+
             {/* Standard Adjustments Section */}
             <div className="space-y-3">
               {/* Brightness */}
