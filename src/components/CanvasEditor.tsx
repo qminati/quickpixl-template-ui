@@ -312,47 +312,6 @@ const CanvasEditor: React.FC<CanvasEditorProps> = ({
 
   return (
     <div ref={containerRef} className="flex-1 bg-background relative overflow-hidden">
-      {/* Toolbar */}
-      <div className="absolute top-4 left-4 z-10 flex items-center space-x-2 bg-card border border-panel-border rounded-lg p-2 shadow-lg">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleZoomOut}
-          title="Zoom Out"
-          aria-label="Zoom Out"
-        >
-          <ZoomOut className="w-4 h-4" />
-        </Button>
-        <span className="text-xs text-muted-foreground px-2">
-          {Math.round(zoom * 100)}%
-        </span>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleZoomIn}
-          title="Zoom In"
-          aria-label="Zoom In"
-        >
-          <ZoomIn className="w-4 h-4" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleResetZoom}
-          title="Reset Zoom"
-          aria-label="Reset Zoom"
-        >
-          <Maximize2 className="w-4 h-4" />
-        </Button>
-      </div>
-
-      {/* Canvas Info */}
-      <div className="absolute top-4 right-4 z-10 bg-card border border-panel-border rounded-lg p-2 shadow-lg">
-        <div className="text-xs text-muted-foreground">
-          {canvasWidth} × {canvasHeight}px
-        </div>
-      </div>
-
       {/* Canvas Area */}
       <div className="flex flex-col h-full">
         {/* Top Ruler */}
