@@ -67,6 +67,22 @@ const ImageInputPlugin: React.FC<ImageInputPluginProps> = ({
     onSettingsChange({ ...settings, selectedKnockoutImages: (settings.selectedKnockoutImages || []).filter(x => x !== file) });
   };
 
+  const handleClearAll = () => {
+    // Clean up blob URLs for all images
+    if (settings.selectedImages) {
+      settings.selectedImages.forEach(revokeBlobUrl);
+    }
+    if (settings.selectedKnockoutImages) {
+      settings.selectedKnockoutImages.forEach(revokeBlobUrl);
+    }
+    // Clear both arrays
+    onSettingsChange({ 
+      ...settings, 
+      selectedImages: [], 
+      selectedKnockoutImages: [] 
+    });
+  };
+
   useEffect(() => {
     return () => {
       // Clean up blob URLs on unmount
@@ -127,17 +143,27 @@ const ImageInputPlugin: React.FC<ImageInputPluginProps> = ({
               <div className="flex-1 min-w-0">
                 {((settings.selectedImages?.length || 0) > 0) || ((settings.selectedKnockoutImages?.length || 0) > 0) ? (
                   <div className="h-full flex flex-col">
-                    <div className="flex items-center mb-2 gap-4">
-                      {(settings.selectedImages?.length || 0) > 0 && (
-                        <span className="text-xs font-medium text-foreground">
-                          Images ({settings.selectedImages.length})
-                        </span>
-                      )}
-                      {(settings.selectedKnockoutImages?.length || 0) > 0 && (
-                        <span className="text-xs font-medium text-foreground">
-                          Knockout ({settings.selectedKnockoutImages.length})
-                        </span>
-                      )}
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-4">
+                        {(settings.selectedImages?.length || 0) > 0 && (
+                          <span className="text-xs font-medium text-foreground">
+                            Images ({settings.selectedImages.length})
+                          </span>
+                        )}
+                        {(settings.selectedKnockoutImages?.length || 0) > 0 && (
+                          <span className="text-xs font-medium text-foreground">
+                            Knockout ({settings.selectedKnockoutImages.length})
+                          </span>
+                        )}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleClearAll}
+                        className="text-xs text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded hover:bg-secondary/50"
+                        title="Clear all images"
+                      >
+                        Clear All
+                      </button>
                     </div>
                     <div className="flex-1 overflow-y-auto">
                       <div className="grid grid-cols-12 gap-0.5">
