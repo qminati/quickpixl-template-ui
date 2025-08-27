@@ -441,8 +441,7 @@ const ImageColorFillPlugin: React.FC<ImageColorFillPluginProps> = ({
           <Button
             onClick={onAddVariation}
             size="sm"
-            variant="secondary"
-            className="w-full h-6 text-xs"
+            className="w-full h-6 text-xs bg-orange-500 hover:bg-orange-600 text-white"
           >
             <Plus className="w-3 h-3 mr-1" />
             Add Variation
