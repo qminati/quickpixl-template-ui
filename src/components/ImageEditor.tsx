@@ -3,9 +3,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ChevronLeft, ChevronRight, Settings as SettingsIcon, Copy, Plus, Minus, Trash2, Target, ImageIcon } from 'lucide-react';
-import { ImageInput, ImageInputSettings } from '@/types/interfaces';
-import { getBlobUrl } from '@/utils/imageUtils';
+import { ImageInput } from '@/types/interfaces';
 import ImageInputPlugin from './ImageInputPlugin';
+import { getBlobUrl, createImageFallback } from '@/utils/imageUtils';
+import ImageErrorBoundary from './ImageErrorBoundary';
 
 interface ImageEditorProps {
   onSubmitVariation: (images: File[][]) => void;
@@ -38,9 +39,10 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
     }
   }, [imageInputs, currentInputIndex]);
 
-  // Get images from current input index
+  // Get images from current input index with null check
   const getCurrentInputImages = (): File[] => {
-    return imageInputs[currentInputIndex]?.selectedImages || [];
+    const currentInput = imageInputs[currentInputIndex];
+    return currentInput?.selectedImages || [];
   };
 
   // Get all images from all inputs for preview
@@ -50,7 +52,8 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
 
   const currentInputImages = getCurrentInputImages();
   const allImages = getAllImages();
-  const currentPreviewImage = currentInputIndex < imageInputs.length
+  const currentInput = imageInputs[currentInputIndex];
+  const currentPreviewImage = currentInput && currentInputIndex < imageInputs.length
     ? currentInputImages[currentPreviewIndex] 
     : allImages[currentPreviewIndex];
 
@@ -141,7 +144,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
       return getBlobUrl(file);
     } catch (error) {
       console.error('Failed to create blob URL:', error);
-      return '';
+      return createImageFallback();
     }
   };
 
@@ -200,7 +203,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
               <div className="flex items-center space-x-1">
                 {currentInputImages.slice(0, 5).map((image, index) => (
                   <button
-                    key={`thumb-${index}`}
+                    key={`thumb-${image.name}-${image.size}-${index}`}
                     onClick={() => setCurrentPreviewIndex(index)}
                     className={`w-px h-px rounded border overflow-hidden transition-all ${
                       index === currentPreviewIndex 
@@ -230,27 +233,29 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
           
           {/* Canvas Content */}
           <div className="relative bg-muted/10 overflow-hidden" style={{ height: 'calc(100% - 40px)' }}>
-            {currentPreviewImage ? (
-              <img
-                src={getBlobUrlSafe(currentPreviewImage)}
-                alt="Preview"
-                className="absolute inset-0 w-full h-full object-contain"
-                draggable={false}
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.style.display = 'none';
-                }}
-              />
-            ) : (
-              <div className="absolute inset-0 flex items-center justify-center text-center text-muted-foreground">
-                <div>
-                  <div className="w-16 h-16 mx-auto mb-2 rounded-lg bg-muted flex items-center justify-center">
-                    <span className="text-2xl">🖼️</span>
+            <ImageErrorBoundary>
+              {currentPreviewImage ? (
+                <img
+                  src={getBlobUrlSafe(currentPreviewImage)}
+                  alt="Preview"
+                  className="absolute inset-0 w-full h-full object-contain"
+                  draggable={false}
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'none';
+                  }}
+                />
+              ) : (
+                <div className="absolute inset-0 flex items-center justify-center text-center text-muted-foreground">
+                  <div>
+                    <div className="w-16 h-16 mx-auto mb-2 rounded-lg bg-muted flex items-center justify-center">
+                      <span className="text-2xl">🖼️</span>
+                    </div>
+                    <p className="text-sm">No images selected</p>
                   </div>
-                  <p className="text-sm">No images selected</p>
                 </div>
-              </div>
-            )}
+              )}
+            </ImageErrorBoundary>
           </div>
         </div>
       </div>
@@ -263,9 +268,11 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
             <ImageInputPlugin
               isExpanded={isImageInputExpanded}
               onToggleExpanded={() => setIsImageInputExpanded(!isImageInputExpanded)}
-              settings={imageInputs[currentInputIndex]}
+              settings={currentInput || { id: '', selectedImages: [], selectionMode: 'multiple' }}
               onSettingsChange={(settings) => {
-                updateImageInput(imageInputs[currentInputIndex].id, settings.selectedImages, settings.selectionMode);
+                if (currentInput) {
+                  updateImageInput(currentInput.id, settings.selectedImages, settings.selectionMode);
+                }
               }}
             />
           </div>
@@ -334,7 +341,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
                       <div className="grid grid-cols-3 gap-2">
                         {input.selectedImages.slice(0, 5).map((img, i) => (
                           <button 
-                            key={i} 
+                            key={`input-${input.id}-img-${img.name}-${img.size}-${i}`} 
                             onClick={() => {
                               setCurrentInputIndex(index);
                               setCurrentPreviewIndex(i);

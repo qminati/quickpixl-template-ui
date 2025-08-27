@@ -2761,7 +2761,13 @@ const QuickPixl = () => {
                 onImageInputsChange={setImageInputs}
                 onSubmitVariation={(imageArrays) => {
                   // Handle image variation submission logic here
-                  console.log('Image variations submitted:', imageArrays);
+                  // Process variations for further use
+                  setImageInputVariations(prev => [...prev, ...imageArrays.map((images, index) => ({
+                    id: `image-variation-${Date.now()}-${index}`,
+                    colors: [], // Empty colors array for image-only variations
+                    images,
+                    description: `${images.length} image${images.length !== 1 ? 's' : ''}`
+                  }))]);
                 }}
                 onFocusInputTab={(inputId) => {
                   const index = imageInputs.findIndex(input => input.id === inputId);

@@ -14,7 +14,7 @@ import { Slider } from '@/components/ui/slider';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { validateImage } from '@/utils/imageUtils';
+import { validateImage, getBlobUrl, handleImageError } from '@/utils/imageUtils';
 import { DropShadowSettings } from '@/types/interfaces';
 
 interface DropShadowPluginProps {
@@ -566,9 +566,10 @@ const DropShadowPlugin: React.FC<DropShadowPluginProps> = ({
                     {shadow.images.map((image: File, index: number) => (
                       <div key={`shadow-image-${image.name}-${image.size}-${index}`} className="relative group">
                         <img
-                          src={URL.createObjectURL(image)}
+                          src={getBlobUrl(image)}
                           alt={`Shadow ${index + 1}`}
                           className="w-full h-8 object-cover rounded border"
+                          onError={handleImageError}
                         />
                         <Button
                           variant="ghost"

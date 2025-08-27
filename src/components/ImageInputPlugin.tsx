@@ -51,7 +51,7 @@ const ImageInputPlugin: React.FC<ImageInputPluginProps> = ({
         settings.selectedImages.forEach(revokeBlobUrl);
       }
     };
-  }, []); // cleanup on unmount
+  }, [settings.selectedImages]); // Include settings.selectedImages in dependency array
 
   return (
     <div className="bg-card border border-panel-border rounded-lg shadow-sm">

@@ -15,7 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
-import { validateImage } from '@/utils/imageUtils';
+import { validateImage, getBlobUrl, handleImageError } from '@/utils/imageUtils';
 import { StrokeSettings } from '@/types/interfaces';
 
 interface StrokesPluginProps {
@@ -552,9 +552,10 @@ const StrokesPlugin: React.FC<StrokesPluginProps> = ({
                     {stroke.images.map((img: File, index: number) => (
                       <div key={`stroke-image-${img.name}-${img.size}-${index}`} className="relative">
                         <img
-                          src={URL.createObjectURL(img)}
+                          src={getBlobUrl(img)}
                           alt={`Stroke image ${index + 1}`}
                           className="w-full h-12 object-cover rounded border"
+                          onError={handleImageError}
                         />
                         <Button
                           variant="ghost"

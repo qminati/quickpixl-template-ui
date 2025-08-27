@@ -14,7 +14,7 @@ import { Slider } from '@/components/ui/slider';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { validateImage } from '@/utils/imageUtils';
+import { validateImage, getBlobUrl, handleImageError } from '@/utils/imageUtils';
 import { ColorFillSettings } from '@/types/interfaces';
 
 interface ColorFillPluginProps {
@@ -655,9 +655,10 @@ const ColorFillPlugin: React.FC<ColorFillPluginProps> = ({
                     {settings.image.images.map((image, index) => (
                       <div key={`fill-image-${image.name}-${image.size}-${index}`} className="relative group aspect-square">
                         <img
-                          src={URL.createObjectURL(image)}
+                          src={getBlobUrl(image)}
                           alt={`Image ${index + 1}`}
                           className="w-full h-full object-cover rounded border"
+                          onError={handleImageError}
                         />
                         <button 
                           className="absolute -top-1 -right-1 w-3 h-3 bg-destructive rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center"
