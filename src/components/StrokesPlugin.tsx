@@ -47,7 +47,7 @@ const StrokesPlugin: React.FC<StrokesPluginProps> = ({
   // Regular Stroke Functions
   const addRegularStroke = useCallback(() => {
     const newStroke = {
-      id: Date.now().toString(),
+      id: crypto.randomUUID(),
       width: 2,
       offset: 0,
       blur: 0,
@@ -94,7 +94,7 @@ const StrokesPlugin: React.FC<StrokesPluginProps> = ({
   // Character Stroke Functions
   const addCharacterStroke = useCallback(() => {
     const newStroke = {
-      id: Date.now().toString(),
+      id: crypto.randomUUID(),
       width: 2,
       offset: 0,
       blur: 0,
@@ -144,7 +144,7 @@ const StrokesPlugin: React.FC<StrokesPluginProps> = ({
   // Container Stroke Functions
   const addContainerStroke = useCallback(() => {
     const newStroke = {
-      id: Date.now().toString(),
+      id: crypto.randomUUID(),
       width: 2,
       offset: 0,
       blur: 0,
@@ -191,7 +191,7 @@ const StrokesPlugin: React.FC<StrokesPluginProps> = ({
   // Gradient Functions
   const addGradientStop = useCallback((strokeType: 'regular' | 'character' | 'container', strokeId: string) => {
     const newStop = {
-      id: Date.now().toString(),
+      id: crypto.randomUUID(),
       color: '#808080',
       position: 50
     };

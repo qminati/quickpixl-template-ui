@@ -39,7 +39,7 @@ const ImageDropShadowPlugin: React.FC<ImageDropShadowPluginProps> = ({
   // Shadow Functions
   const addShadow = useCallback(() => {
     const newShadow = {
-      id: Date.now().toString(),
+      id: crypto.randomUUID(),
       offsetX: 5,
       offsetY: 5,
       blur: 10,
@@ -81,7 +81,7 @@ const ImageDropShadowPlugin: React.FC<ImageDropShadowPluginProps> = ({
   // Gradient Functions
   const addGradientStop = useCallback((shadowId: string) => {
     const newStop = {
-      id: Date.now().toString(),
+      id: crypto.randomUUID(),
       color: '#808080',
       position: 50
     };
@@ -481,12 +481,14 @@ const ImageDropShadowPlugin: React.FC<ImageDropShadowPluginProps> = ({
 
             {settings.shadows.length > 0 ? (
               <div className="space-y-2">
-                {settings.shadows.map((shadow) =>
-                  renderShadowControls(
-                    shadow,
-                    (updates) => updateShadow(shadow.id, updates)
-                  )
-                )}
+                {settings.shadows.map((shadow) => (
+                  <React.Fragment key={shadow.id}>
+                    {renderShadowControls(
+                      shadow,
+                      (updates) => updateShadow(shadow.id, updates)
+                    )}
+                  </React.Fragment>
+                ))}
               </div>
             ) : (
               <div className="text-center py-4 text-xs text-muted-foreground">

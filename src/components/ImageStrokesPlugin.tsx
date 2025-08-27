@@ -47,7 +47,7 @@ const ImageStrokesPlugin: React.FC<ImageStrokesPluginProps> = ({
   // Regular Stroke Functions
   const addRegularStroke = useCallback(() => {
     const newStroke = {
-      id: Date.now().toString(),
+      id: crypto.randomUUID(),
       width: 2,
       offset: 0,
       blur: 0,
@@ -94,7 +94,7 @@ const ImageStrokesPlugin: React.FC<ImageStrokesPluginProps> = ({
   // Container Stroke Functions
   const addContainerStroke = useCallback(() => {
     const newStroke = {
-      id: Date.now().toString(),
+      id: crypto.randomUUID(),
       width: 2,
       offset: 0,
       blur: 0,
@@ -141,7 +141,7 @@ const ImageStrokesPlugin: React.FC<ImageStrokesPluginProps> = ({
   // Gradient Functions
   const addGradientStop = useCallback((strokeType: 'regular' | 'container', strokeId: string) => {
     const newStop = {
-      id: Date.now().toString(),
+      id: crypto.randomUUID(),
       color: '#808080',
       position: 50
     };

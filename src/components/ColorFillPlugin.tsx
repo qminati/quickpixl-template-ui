@@ -77,7 +77,7 @@ const ColorFillPlugin: React.FC<ColorFillPluginProps> = ({
   // Gradient functions
   const addGradientStop = () => {
     const newStop = {
-      id: Date.now().toString(),
+      id: crypto.randomUUID(),
       color: '#808080',
       position: 50
     };
@@ -87,7 +87,12 @@ const ColorFillPlugin: React.FC<ColorFillPluginProps> = ({
 
   const removeGradientStop = (id: string) => {
     const newStops = settings.gradient.stops.filter(stop => stop.id !== id);
-    updateModeSettings('gradient', { stops: newStops });
+    // Ensure at least 2 stops remain, re-seed if empty
+    const finalStops = newStops.length < 2 ? [
+      { id: crypto.randomUUID(), color: '#808080', position: 0 },
+      { id: crypto.randomUUID(), color: '#808080', position: 100 }
+    ] : newStops.sort((a, b) => a.position - b.position);
+    updateModeSettings('gradient', { stops: finalStops });
   };
 
   const updateGradientStop = (id: string, updates: Partial<{ color: string; position: number }>) => {
@@ -100,7 +105,7 @@ const ColorFillPlugin: React.FC<ColorFillPluginProps> = ({
   // Palette functions
   const addPaletteColorManual = (color: string) => {
     const newColor = {
-      id: Date.now().toString(),
+      id: crypto.randomUUID(),
       value: color,
       type: 'manual' as const
     };
@@ -110,7 +115,7 @@ const ColorFillPlugin: React.FC<ColorFillPluginProps> = ({
 
   const addPaletteColorComponent = () => {
     const newColor = {
-      id: Date.now().toString(),
+      id: crypto.randomUUID(),
       value: settings.palette.colors.length + 1,
       type: 'component' as const
     };
@@ -121,7 +126,7 @@ const ColorFillPlugin: React.FC<ColorFillPluginProps> = ({
   const addExtractedColors = () => {
     const extractedColors = mockExtractColors();
     const newColors = extractedColors.map((color, index) => ({
-      id: `extracted-${Date.now()}-${index}`,
+      id: crypto.randomUUID(),
       value: color,
       type: 'extracted' as const
     }));

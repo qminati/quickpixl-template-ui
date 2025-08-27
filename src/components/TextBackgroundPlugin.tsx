@@ -57,7 +57,7 @@ const TextBackgroundPlugin: React.FC<TextBackgroundPluginProps> = ({
     }
 
     const variation: Variation = {
-      id: Date.now().toString(),
+      id: crypto.randomUUID(),
       colors,
       images,
       description,

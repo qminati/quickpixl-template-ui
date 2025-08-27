@@ -71,7 +71,7 @@ const ImageColorFillPlugin: React.FC<ImageColorFillPluginProps> = ({
   // Gradient functions
   const addGradientStop = () => {
     const newStop = {
-      id: Date.now().toString(),
+      id: crypto.randomUUID(),
       color: '#808080',
       position: 50
     };
@@ -81,7 +81,12 @@ const ImageColorFillPlugin: React.FC<ImageColorFillPluginProps> = ({
 
   const removeGradientStop = (id: string) => {
     const newStops = settings.gradient.stops.filter(stop => stop.id !== id);
-    updateModeSettings('gradient', { stops: newStops });
+    // Ensure at least 2 stops remain, re-seed if empty
+    const finalStops = newStops.length < 2 ? [
+      { id: crypto.randomUUID(), color: '#808080', position: 0 },
+      { id: crypto.randomUUID(), color: '#808080', position: 100 }
+    ] : newStops.sort((a, b) => a.position - b.position);
+    updateModeSettings('gradient', { stops: finalStops });
   };
 
   const updateGradientStop = (id: string, updates: Partial<{ color: string; position: number }>) => {

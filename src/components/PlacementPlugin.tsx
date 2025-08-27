@@ -56,7 +56,7 @@ const PlacementPlugin: React.FC<PlacementPluginProps> = ({
 
   const addContainer = () => {
     const newContainer: Container = {
-      id: `container-${Date.now()}`,
+        id: crypto.randomUUID(),
       x: 50,
       y: 50,
       width: 200,
@@ -81,7 +81,7 @@ const PlacementPlugin: React.FC<PlacementPluginProps> = ({
     if (container) {
       const newContainer: Container = {
         ...container,
-        id: `container-${Date.now()}`,
+        id: crypto.randomUUID(),
         x: container.x + 20,
         y: container.y + 20,
         name: `${container.name} Copy`

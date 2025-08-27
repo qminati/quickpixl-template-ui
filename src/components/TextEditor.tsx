@@ -327,7 +327,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
               <div className="overflow-x-auto flex-1 min-h-[300px]">
                 <textarea
                   placeholder="Enter multiple texts, one per line..."
-                  className="w-full h-full p-3 bg-background border border-input rounded-md resize-none"
+                  className="w-full min-h-[360px] h-auto p-3 bg-background border border-input rounded-md resize-y"
                 />
               </div>
             </div>
@@ -383,7 +383,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
                         placeholder="Type your text here..."
                         value={input.text}
                         onChange={(e) => updateListInput(input.id, e.target.value)}
-                        className="flex-1 min-h-[250px] w-full p-3 bg-background border border-input rounded-md resize-none text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                        className="flex-1 min-h-[250px] w-full p-3 bg-background border border-input rounded-md resize-y text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                       />
                     </div>
                   ))}

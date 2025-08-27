@@ -44,7 +44,7 @@ const DropShadowPlugin: React.FC<DropShadowPluginProps> = ({
   // Regular Shadow Functions
   const addRegularShadow = useCallback(() => {
     const newShadow = {
-      id: Date.now().toString(),
+      id: crypto.randomUUID(),
       offsetX: 5,
       offsetY: 5,
       blur: 10,
@@ -92,10 +92,10 @@ const DropShadowPlugin: React.FC<DropShadowPluginProps> = ({
   // Character Shadow Functions
   const addCharacterConfiguration = useCallback(() => {
     const newCharacter = {
-      id: Date.now().toString(),
+      id: crypto.randomUUID(),
       characterIndex: 0, // Will be calculated based on position in array
       shadows: [{
-        id: `${Date.now()}-shadow`,
+        id: crypto.randomUUID(),
         offsetX: 5,
         offsetY: 5,
         blur: 10,
@@ -133,7 +133,7 @@ const DropShadowPlugin: React.FC<DropShadowPluginProps> = ({
 
   const addShadowToCharacter = useCallback((characterId: string) => {
     const newShadow = {
-      id: Date.now().toString(),
+      id: crypto.randomUUID(),
       offsetX: 5,
       offsetY: 5,
       blur: 10,
@@ -196,7 +196,7 @@ const DropShadowPlugin: React.FC<DropShadowPluginProps> = ({
   // Gradient Functions
   const addGradientStop = useCallback((shadowType: 'regular' | 'character', shadowId: string, characterId?: string) => {
     const newStop = {
-      id: Date.now().toString(),
+      id: crypto.randomUUID(),
       color: '#808080',
       position: 50
     };
@@ -668,13 +668,15 @@ const DropShadowPlugin: React.FC<DropShadowPluginProps> = ({
 
             {settings.regular.shadows.length > 0 ? (
               <div className="space-y-2">
-                {settings.regular.shadows.map((shadow) =>
-                  renderShadowControls(
-                    shadow,
-                    'regular',
-                    (updates) => updateRegularShadow(shadow.id, updates)
-                  )
-                )}
+                {settings.regular.shadows.map((shadow) => (
+                  <React.Fragment key={shadow.id}>
+                    {renderShadowControls(
+                      shadow,
+                      'regular',
+                      (updates) => updateRegularShadow(shadow.id, updates)
+                    )}
+                  </React.Fragment>
+                ))}
               </div>
             ) : (
               <div className="text-center py-4 text-xs text-muted-foreground">
@@ -735,14 +737,16 @@ const DropShadowPlugin: React.FC<DropShadowPluginProps> = ({
 
                     {character.shadows.length > 0 ? (
                       <div className="space-y-2 pl-2">
-                        {character.shadows.map((shadow) =>
-                          renderShadowControls(
-                            shadow,
-                            'character',
-                            (updates) => updateCharacterShadow(character.id, shadow.id, updates),
-                            character.id
-                          )
-                        )}
+                        {character.shadows.map((shadow) => (
+                          <React.Fragment key={shadow.id}>
+                            {renderShadowControls(
+                              shadow,
+                              'character',
+                              (updates) => updateCharacterShadow(character.id, shadow.id, updates),
+                              character.id
+                            )}
+                          </React.Fragment>
+                        ))}
                       </div>
                     ) : (
                       <div className="text-center py-2 text-xs text-muted-foreground">

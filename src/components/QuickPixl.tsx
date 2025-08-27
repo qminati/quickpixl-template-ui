@@ -523,7 +523,7 @@ const QuickPixl = () => {
     if (addedTemplates.length === 0) return;
     
     const newVariation: TemplateVariation = {
-      id: `template-variation-${Date.now()}`,
+      id: crypto.randomUUID(),
       templates: [...addedTemplates],
       description: `${addedTemplates.length} template${addedTemplates.length > 1 ? 's' : ''}`
     };
@@ -754,7 +754,7 @@ const QuickPixl = () => {
     
     try {
       const newVariation: Variation = {
-        id: Date.now().toString(),
+        id: crypto.randomUUID(),
         colors: [...selectedColors],
         images: [...selectedImages],
         description: `${selectedColors.length} colors, ${selectedImages.length} images`
@@ -792,7 +792,7 @@ const QuickPixl = () => {
     if (selectedFonts.length === 0) return;
     
     const newFontVariation: FontVariation = {
-      id: `font-variation-${Date.now()}`,
+      id: crypto.randomUUID(),
       fonts: [...selectedFonts],
       description: `${selectedFonts.length} font${selectedFonts.length > 1 ? 's' : ''}`
     };
@@ -822,7 +822,7 @@ const QuickPixl = () => {
 
   const handleAddTypographyVariation = useCallback(() => {
     const newVariation: TypographyVariation = {
-      id: `typography-variation-${Date.now()}`,
+      id: crypto.randomUUID(),
       settings: { ...typographySettings },
       description: generateTypographyDescription(typographySettings)
     };
@@ -904,7 +904,7 @@ const QuickPixl = () => {
 
   const handleAddTextShapeVariation = () => {
     const newVariation: TextShapeVariation = {
-      id: `text-shape-variation-${Date.now()}`,
+      id: crypto.randomUUID(),
       shape: selectedShape,
       settings: selectedShape === 'none' ? null : shapeSettings[selectedShape],
       description: generateTextShapeDescription(selectedShape, selectedShape === 'none' ? null : shapeSettings[selectedShape])
@@ -959,7 +959,7 @@ const QuickPixl = () => {
 
   const handleAddRotateFlipVariation = () => {
     const newVariation: RotateFlipVariation = {
-      id: `rotate-flip-variation-${Date.now()}`,
+      id: crypto.randomUUID(),
       settings: { ...rotateFlipSettings },
       description: generateRotateFlipDescription(rotateFlipSettings)
     };
@@ -993,7 +993,7 @@ const QuickPixl = () => {
 
   const handleAddStrokesVariation = useCallback(() => {
     const newVariation: StrokesVariation = {
-      id: `strokes-variation-${Date.now()}`,
+      id: crypto.randomUUID(),
       settings: { ...strokesSettings },
       description: generateStrokesDescription(strokesSettings)
     };
@@ -1018,7 +1018,7 @@ const QuickPixl = () => {
 
   const handleAddDropShadowVariation = useCallback(() => {
     const newVariation: DropShadowVariation = {
-      id: `drop-shadow-variation-${Date.now()}`,
+      id: crypto.randomUUID(),
       settings: { ...dropShadowSettings },
       description: generateDropShadowDescription(dropShadowSettings)
     };
@@ -1043,7 +1043,7 @@ const QuickPixl = () => {
 
   const handleAddCharacterEffectsVariation = useCallback(() => {
     const newVariation: CharacterEffectsVariation = {
-      id: `character-effects-variation-${Date.now()}`,
+      id: crypto.randomUUID(),
       settings: { ...characterEffectsSettings },
       description: generateCharacterEffectsDescription(characterEffectsSettings)
     };
@@ -1069,7 +1069,7 @@ const QuickPixl = () => {
 
   const handleAddImageEffectsVariation = useCallback(() => {
     const newVariation: ImageEffectsVariation = {
-      id: `image-effects-variation-${Date.now()}`,
+      id: crypto.randomUUID(),
       settings: { ...imageEffectsSettings },
       description: generateImageEffectsDescription(imageEffectsSettings)
     };
@@ -1080,7 +1080,7 @@ const QuickPixl = () => {
 
   const handleAddImageColorFillVariation = useCallback(() => {
     const newVariation: ImageColorFillVariation = {
-      id: `image-color-fill-variation-${Date.now()}`,
+      id: crypto.randomUUID(),
       settings: { ...imageColorFillSettings },
       description: generateImageColorFillDescription(imageColorFillSettings)
     };
@@ -1113,7 +1113,7 @@ const QuickPixl = () => {
 
   const handleAddImageStrokesVariation = useCallback(() => {
     const newVariation: ImageStrokesVariation = {
-      id: `image-strokes-variation-${Date.now()}`,
+      id: crypto.randomUUID(),
       settings: { ...imageStrokesSettings },
       description: generateImageStrokesDescription(imageStrokesSettings)
     };
@@ -1142,7 +1142,7 @@ const QuickPixl = () => {
 
   const handleAddImageRotateFlipVariation = useCallback(() => {
     const newVariation: RotateFlipVariation = {
-      id: `image-rotate-flip-variation-${Date.now()}`,
+      id: crypto.randomUUID(),
       settings: { ...imageRotateFlipSettings },
       description: generateImageRotateFlipDescription(imageRotateFlipSettings)
     };
@@ -1177,7 +1177,7 @@ const QuickPixl = () => {
     }
 
     const newVariation: Variation = {
-      id: `image-input-variation-${Date.now()}`,
+      id: crypto.randomUUID(),
       colors: [],
       images: [...allImages],
       description: `${allImages.length} image${allImages.length > 1 ? 's' : ''} from ${imageInputs.length} input${imageInputs.length > 1 ? 's' : ''}`
@@ -1187,7 +1187,7 @@ const QuickPixl = () => {
     toast.success('Image input variation added');
     
     // Auto-scroll to bottom of variations
-    setTimeout(() => {
+    requestAnimationFrame(() => {
       const targets = [leftSettingsRef.current, variationsRef.current];
       targets.forEach((el) => {
         if (!el) return;
@@ -1228,7 +1228,7 @@ const QuickPixl = () => {
 
   const handleAddImageDropShadowVariation = useCallback(() => {
     const newVariation: ImageDropShadowVariation = {
-      id: `image-dropshadow-variation-${Date.now()}`,
+      id: crypto.randomUUID(),
       settings: { ...imageDropShadowSettings },
       description: generateImageDropShadowDescription(imageDropShadowSettings)
     };
@@ -1281,7 +1281,7 @@ const QuickPixl = () => {
 
   const handleAddColorFillVariation = () => {
     const newVariation: ColorFillVariation = {
-      id: `color-fill-variation-${Date.now()}`,
+      id: crypto.randomUUID(),
       settings: { ...colorFillSettings },
       description: generateColorFillDescription(colorFillSettings)
     };
@@ -1399,7 +1399,7 @@ const QuickPixl = () => {
     if (selectedVariation && selectedVariationType) {
       const duplicatedVariation = {
         ...selectedVariation,
-        id: `${selectedVariationType}-variation-${Date.now()}`,
+        id: crypto.randomUUID(),
         description: `${selectedVariation.description} (Copy)`
       };
 
@@ -3453,7 +3453,7 @@ const QuickPixl = () => {
                   // Handle image variation submission logic here
                   // Process variations for further use
                   setImageInputVariations(prev => [...prev, ...imageArrays.map((images, index) => ({
-                    id: `image-variation-${Date.now()}-${index}`,
+                    id: crypto.randomUUID(),
                     colors: [], // Empty colors array for image-only variations
                     images,
                     description: `${images.length} image${images.length !== 1 ? 's' : ''}`

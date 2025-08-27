@@ -198,7 +198,7 @@ const CanvasEditor: React.FC<CanvasEditorProps> = ({
     } else {
       // Create new container with bounds checking
       const newContainer: Container = {
-        id: `container-${Date.now()}`,
+        id: crypto.randomUUID(),
         x: coords.x - 50,
         y: coords.y - 50,
         width: 100,
