@@ -303,13 +303,13 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
             />
           </div>
           
-          {/* Manage Image Inputs - 3-Column Grid */}
-          <div className="p-4">
-            <div className="mb-4">
-              <h3 className="text-base font-medium text-foreground">Manage Image Inputs</h3>
+          {/* Manage Image Inputs - Compact 3-Column Grid */}
+          <div className="p-3">
+            <div className="mb-3">
+              <h3 className="text-sm font-medium text-foreground">Manage Image Inputs</h3>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 max-h-96 overflow-y-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 max-h-80 overflow-y-auto">
               {imageInputs.map((input, index) => (
                 <Card 
                   key={input.id} 
@@ -319,12 +319,12 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
                       : ''
                   }`}
                 >
-                  <CardHeader className="p-3">
+                  <CardHeader className="p-2">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium truncate">Image Input {index + 1}</span>
-                      </div>
                       <div className="flex items-center gap-1">
+                        <span className="text-xs font-medium truncate">Image Input {index + 1}</span>
+                      </div>
+                      <div className="flex items-center gap-0.5">
                         <Button 
                           variant="ghost" 
                           size="icon" 
@@ -332,39 +332,39 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
                             setCurrentInputIndex(index);
                             onFocusInputTab?.(input.id);
                           }} 
-                          className="h-6 w-6"
+                          className="h-5 w-5"
                           aria-label="Settings"
                         >
-                          <SettingsIcon className="h-3 w-3" />
+                          <SettingsIcon className="h-2.5 w-2.5" />
                         </Button>
                         <Button 
                           variant="ghost" 
                           size="icon" 
                           onClick={() => duplicateImageInput(input.id)} 
-                          className="h-6 w-6"
+                          className="h-5 w-5"
                           aria-label="Duplicate"
                         >
-                          <Copy className="h-3 w-3" />
+                          <Copy className="h-2.5 w-2.5" />
                         </Button>
                         {imageInputs.length > 1 && (
                           <Button 
                             variant="ghost" 
                             size="icon" 
                             onClick={() => removeImageInput(input.id)} 
-                            className="h-6 w-6 text-destructive hover:text-destructive"
+                            className="h-5 w-5 text-destructive hover:text-destructive"
                             aria-label="Delete"
                           >
-                            <Trash2 className="h-3 w-3" />
+                            <Trash2 className="h-2.5 w-2.5" />
                           </Button>
                         )}
                       </div>
                     </div>
                   </CardHeader>
 
-                  <CardContent className="p-3 space-y-3">
+                  <CardContent className="p-2 space-y-2">
                     {/* Thumbnails */}
                     {input.selectedImages?.length > 0 ? (
-                      <div className="grid grid-cols-3 gap-2">
+                      <div className="grid grid-cols-3 gap-1">
                         {input.selectedImages.slice(0, 5).map((img, i) => (
                           <button 
                             key={`input-${input.id}-img-${img.name}-${img.size}-${i}`} 
@@ -372,12 +372,12 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
                               setCurrentInputIndex(index);
                               setCurrentPreviewIndex(i);
                             }}
-                            className="relative rounded-md overflow-hidden border hover:border-primary"
+                            className="relative rounded overflow-hidden border hover:border-primary"
                             aria-label={`Select image ${i + 1}`}
                           >
                             <img 
                               src={getBlobUrlSafe(img)} 
-                              className="h-16 w-full object-cover" 
+                              className="h-12 w-full object-cover"
                               alt=""
                               onError={(e) => {
                                 const target = e.target as HTMLImageElement;
@@ -399,8 +399,8 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
                         )}
                       </div>
                     ) : (
-                      <div className="h-16 bg-muted/40 rounded-lg flex items-center justify-center">
-                        <div className="text-xs text-muted-foreground">No images yet</div>
+                      <div className="h-12 flex items-center justify-center border border-dashed border-input rounded text-xs text-muted-foreground">
+                        No images
                       </div>
                     )}
 
@@ -410,7 +410,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
                         variant="outline" 
                         size="sm" 
                         onClick={() => setCurrentInputIndex(index)}
-                        className="text-xs"
+                        className="text-xs h-6"
                       >
                         Add images
                       </Button>
@@ -425,10 +425,10 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
               {/* Add Image Input Tile */}
               <button 
                 onClick={addImageInput}
-                className="h-full min-h-[220px] border-2 border-dashed rounded-xl flex flex-col items-center justify-center hover:bg-muted/30 transition-colors group"
+                className="h-full min-h-[120px] border-2 border-dashed rounded-lg flex flex-col items-center justify-center hover:bg-muted/30 transition-colors group"
               >
-                <div className="text-3xl mb-2 group-hover:scale-110 transition-transform">＋</div>
-                <div className="text-sm font-medium">Add Image Input</div>
+                <div className="text-xl mb-1 group-hover:scale-110 transition-transform">＋</div>
+                <div className="text-xs font-medium">Add Image Input</div>
               </button>
             </div>
           </div>
