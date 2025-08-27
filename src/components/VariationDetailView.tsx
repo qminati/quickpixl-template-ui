@@ -26,13 +26,14 @@ import {
   ColorFillVariation,
   ImageColorFillVariation,
   StrokesVariation,
+  ImageStrokesVariation,
   CharacterEffectsVariation,
   ImageEffectsVariation,
   DropShadowVariation
 } from '@/types/interfaces';
 
 type AnyVariation = Variation | TemplateVariation | FontVariation | TypographyVariation | 
-  TextShapeVariation | RotateFlipVariation | ColorFillVariation | ImageColorFillVariation | StrokesVariation | CharacterEffectsVariation | ImageEffectsVariation | DropShadowVariation;
+  TextShapeVariation | RotateFlipVariation | ColorFillVariation | ImageColorFillVariation | StrokesVariation | ImageStrokesVariation | CharacterEffectsVariation | ImageEffectsVariation | DropShadowVariation;
 
 interface VariationDetailViewProps {
   variation: AnyVariation | null;

@@ -240,9 +240,28 @@ export interface StrokeSettings {
   };
 }
 
+export interface ImageStrokeSettings {
+  regular: {
+    strokes: SingleStroke[];
+  };
+  container: {
+    strokes: SingleStroke[];
+  };
+  knockout: {
+    enabled: boolean;
+    size: number;
+  };
+}
+
 export interface StrokesVariation {
   id: string;
   settings: StrokeSettings;
+  description: string;
+}
+
+export interface ImageStrokesVariation {
+  id: string;
+  settings: ImageStrokeSettings;
   description: string;
 }
 
@@ -357,4 +376,5 @@ export type AnyVariation =
   | CharacterEffectsVariation 
   | ImageEffectsVariation 
   | DropShadowVariation
-  | ImageColorFillVariation;
+  | ImageColorFillVariation
+  | ImageStrokesVariation;
