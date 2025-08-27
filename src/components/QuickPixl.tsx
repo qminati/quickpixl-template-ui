@@ -2582,6 +2582,52 @@ const QuickPixl = () => {
                   onAddVariation={handleAddImageEffectsVariation}
                 />
                 
+                {/* Image Effects Variation Cards */}
+                {imageEffectsVariations.length > 0 && (
+                  <div className="bg-card border border-panel-border rounded-lg p-4">
+                    <h4 className="text-sm font-medium text-foreground mb-3 flex items-center space-x-2">
+                      <Sliders className="w-4 h-4 text-primary" />
+                      <span>Image Effects Variations</span>
+                      <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
+                        {imageEffectsVariations.length}
+                      </span>
+                    </h4>
+                    <div className="space-y-2">
+                      {imageEffectsVariations.map((variation) => (
+                        <div 
+                          key={variation.id} 
+                          className="bg-secondary/30 rounded-lg p-3 cursor-pointer hover:bg-secondary/50 transition-colors"
+                        >
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-xs font-medium text-foreground">{variation.description}</span>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleRemoveImageEffectsVariation(variation.id);
+                              }}
+                              className="p-1 text-muted-foreground hover:text-destructive"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </Button>
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            {variation.settings.brightness !== 0 && `Brightness: ${variation.settings.brightness > 0 ? '+' : ''}${variation.settings.brightness} `}
+                            {variation.settings.contrast !== 0 && `Contrast: ${variation.settings.contrast > 0 ? '+' : ''}${variation.settings.contrast} `}
+                            {variation.settings.saturation !== 0 && `Saturation: ${variation.settings.saturation > 0 ? '+' : ''}${variation.settings.saturation} `}
+                            {variation.settings.vibrance !== 0 && `Vibrance: ${variation.settings.vibrance > 0 ? '+' : ''}${variation.settings.vibrance} `}
+                            {variation.settings.hue !== 0 && `Hue: ${variation.settings.hue > 0 ? '+' : ''}${variation.settings.hue}° `}
+                            {variation.settings.colorize && 'Colorize '}
+                            {variation.settings.grayscale && 'Grayscale '}
+                            {variation.settings.invert && 'Invert'}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
                 {/* Image Input Variation Cards */}
                 {imageInputVariations.length > 0 && (
                   <div className="bg-card border border-panel-border rounded-lg p-4">
