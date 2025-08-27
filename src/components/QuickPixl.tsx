@@ -48,7 +48,7 @@ import TextEditor from './TextEditor';
 import ImageEditor from './ImageEditor';
 import { validateImage, handleImageError, createImageFallback } from '@/utils/imageUtils';
 import { toast } from 'sonner';
-import { Container, Variation, Template, TemplateVariation, FontVariation, TypographySettings, TypographyVariation, ShapeSettings, TextShapeVariation, RotateFlipSettings, RotateFlipVariation, ColorFillSettings, ColorFillVariation, ImageColorFillSettings, ImageColorFillVariation, StrokeSettings, StrokesVariation, ImageStrokeSettings, ImageStrokesVariation, CharacterEffectsSettings, CharacterEffectsVariation, ImageEffectsSettings, ImageEffectsVariation, DropShadowSettings, DropShadowVariation, ImageInput, ImageInputSettings, AnyVariation } from '@/types/interfaces';
+import { Container, Variation, Template, TemplateVariation, FontVariation, TypographySettings, TypographyVariation, ShapeSettings, TextShapeVariation, RotateFlipSettings, RotateFlipVariation, ColorFillSettings, ColorFillVariation, ImageColorFillSettings, ImageColorFillVariation, StrokeSettings, StrokesVariation, ImageStrokeSettings, ImageStrokesVariation, CharacterEffectsSettings, CharacterEffectsVariation, ImageEffectsSettings, ImageEffectsVariation, DropShadowSettings, DropShadowVariation, ImageDropShadowSettings, ImageDropShadowVariation, ImageInput, ImageInputSettings, AnyVariation } from '@/types/interfaces';
 import TypographyPlugin from './TypographyPlugin';
 import TextShapePlugin from './TextShapePlugin';
 import RotateFlipPlugin from './RotateFlipPlugin';
@@ -62,6 +62,7 @@ import ImageColorFillPlugin from './ImageColorFillPlugin';
 import ImageStrokesPlugin from './ImageStrokesPlugin';
 import ImageRotateFlipPlugin from './ImageRotateFlipPlugin';
 import ImageBackgroundPlugin from './ImageBackgroundPlugin';
+import ImageDropShadowPlugin from './ImageDropShadowPlugin';
 import VariationDetailView from './VariationDetailView';
 
 // Import merchandise-style template images
@@ -373,6 +374,13 @@ const QuickPixl = () => {
   // Image Background Plugin State
   const [isImageBackgroundExpanded, setIsImageBackgroundExpanded] = useState(true);
   const [imageBackgroundVariations, setImageBackgroundVariations] = useState<Variation[]>([]);
+  
+  // Image Drop Shadow Plugin State
+  const [isImageDropShadowExpanded, setIsImageDropShadowExpanded] = useState(true);
+  const [imageDropShadowSettings, setImageDropShadowSettings] = useState<ImageDropShadowSettings>({
+    shadows: []
+  });
+  const [imageDropShadowVariations, setImageDropShadowVariations] = useState<ImageDropShadowVariation[]>([]);
   
   // Search State
   const [isSearchVisible, setIsSearchVisible] = useState(false);
@@ -708,6 +716,7 @@ const QuickPixl = () => {
     imageEffectsVariations.length,
     imageRotateFlipVariations.length,
     imageBackgroundVariations.length,
+    imageDropShadowVariations.length,
     imageInputVariations.length,
     dropShadowVariations.length
   ]);
@@ -918,7 +927,8 @@ const QuickPixl = () => {
                          imageColorFillVariations.length > 0 ||
           imageStrokesVariations.length > 0 ||
           imageRotateFlipVariations.length > 0 ||
-          imageBackgroundVariations.length > 0;
+          imageBackgroundVariations.length > 0 ||
+          imageDropShadowVariations.length > 0;
     
     if (hasVariations) {
       scrollNewCardIntoView();
@@ -1212,6 +1222,31 @@ const QuickPixl = () => {
   const handleRemoveImageBackgroundVariation = useCallback((variationId: string) => {
     setImageBackgroundVariations(prev => prev.filter(v => v.id !== variationId));
     toast.success('Image background variation removed');
+  }, []);
+
+  const handleAddImageDropShadowVariation = useCallback(() => {
+    const newVariation: ImageDropShadowVariation = {
+      id: `image-dropshadow-variation-${Date.now()}`,
+      settings: { ...imageDropShadowSettings },
+      description: generateImageDropShadowDescription(imageDropShadowSettings)
+    };
+    
+    setImageDropShadowVariations(prev => [...prev, newVariation]);
+    toast.success('Image drop shadow variation added');
+  }, [imageDropShadowSettings]);
+
+  const generateImageDropShadowDescription = (settings: ImageDropShadowSettings): string => {
+    if (settings.shadows.length === 0) {
+      return 'No shadows';
+    }
+    
+    const shadowCount = settings.shadows.length;
+    return `${shadowCount} shadow${shadowCount > 1 ? 's' : ''}`;
+  };
+
+  const handleRemoveImageDropShadowVariation = useCallback((variationId: string) => {
+    setImageDropShadowVariations(prev => prev.filter(v => v.id !== variationId));
+    toast.success('Image drop shadow variation removed');
   }, []);
 
   const handleRemoveImageInputVariation = useCallback((variationId: string) => {
@@ -1729,6 +1764,7 @@ const QuickPixl = () => {
     setIsImageStrokesExpanded(false);
     setIsImageRotateFlipExpanded(false);
     setIsImageBackgroundExpanded(false);
+    setIsImageDropShadowExpanded(false);
   };
 
   const handleImageShowAll = () => {
@@ -1737,6 +1773,7 @@ const QuickPixl = () => {
     setIsImageStrokesExpanded(true);
     setIsImageRotateFlipExpanded(true);
     setIsImageBackgroundExpanded(true);
+    setIsImageDropShadowExpanded(true);
   };
 
   const renderSettingsPanel = () => {
@@ -2645,6 +2682,46 @@ const QuickPixl = () => {
                   </div>
                 )}
                 
+                {imageDropShadowVariations.length > 0 && (
+                  <div className="bg-card border border-panel-border rounded-lg p-4">
+                    <h4 className="text-sm font-medium text-foreground mb-3 flex items-center space-x-2">
+                      <Droplets className="w-4 h-4 text-primary" />
+                      <span>Image Drop Shadow Variations</span>
+                      <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
+                        {imageDropShadowVariations.length}
+                      </span>
+                    </h4>
+                    <div className="space-y-2">
+                      {imageDropShadowVariations.map((variation) => (
+                        <div 
+                          key={variation.id} 
+                          className={`bg-secondary/30 rounded-lg p-3 cursor-pointer hover:bg-secondary/50 transition-colors ${
+                            selectedVariation?.id === variation.id && selectedVariationType === 'Image Drop Shadow'
+                              ? 'ring-2 ring-primary bg-secondary/60' 
+                              : ''
+                          }`}
+                          onClick={() => handleVariationSelect(variation, 'Image Drop Shadow')}
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium text-foreground">{variation.description}</span>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleRemoveImageDropShadowVariation(variation.id);
+                              }}
+                              className="p-1 text-muted-foreground hover:text-destructive"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
                 {imageInputVariations.length > 0 && (
                   <div className="bg-card border border-panel-border rounded-lg p-4">
                     <h4 className="text-sm font-medium text-foreground mb-3 flex items-center space-x-2">
@@ -2754,7 +2831,7 @@ const QuickPixl = () => {
                   </div>
                 )}
                 
-                {backgroundVariations.length === 0 && templateVariations.length === 0 && fontVariations.length === 0 && typographyVariations.length === 0 && textShapeVariations.length === 0 && rotateFlipVariations.length === 0 && colorFillVariations.length === 0 && strokesVariations.length === 0 && dropShadowVariations.length === 0 && characterEffectsVariations.length === 0 && imageEffectsVariations.length === 0 && imageColorFillVariations.length === 0 && imageStrokesVariations.length === 0 && imageRotateFlipVariations.length === 0 && imageBackgroundVariations.length === 0 && imageInputVariations.length === 0 && (
+                {backgroundVariations.length === 0 && templateVariations.length === 0 && fontVariations.length === 0 && typographyVariations.length === 0 && textShapeVariations.length === 0 && rotateFlipVariations.length === 0 && colorFillVariations.length === 0 && strokesVariations.length === 0 && dropShadowVariations.length === 0 && characterEffectsVariations.length === 0 && imageEffectsVariations.length === 0 && imageColorFillVariations.length === 0 && imageStrokesVariations.length === 0 && imageRotateFlipVariations.length === 0 && imageBackgroundVariations.length === 0 && imageDropShadowVariations.length === 0 && imageInputVariations.length === 0 && (
                  <div className="bg-card border border-panel-border rounded-lg p-4 text-center">
                    <Shuffle className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
                    <p className="text-sm text-muted-foreground mb-2">No variations created yet</p>
@@ -2956,6 +3033,15 @@ const QuickPixl = () => {
                   onAddVariation={handleAddImageBackgroundVariation}
                 />
                 
+                {/* Image Drop Shadow Plugin */}
+                <ImageDropShadowPlugin
+                  isExpanded={isImageDropShadowExpanded}
+                  onToggleExpanded={() => setIsImageDropShadowExpanded(!isImageDropShadowExpanded)}
+                  settings={imageDropShadowSettings}
+                  onSettingsChange={setImageDropShadowSettings}
+                  onAddVariation={handleAddImageDropShadowVariation}
+                />
+                
                 {/* Image Effects Variation Cards */}
                 {imageEffectsVariations.length > 0 && (
                   <div className="bg-card border border-panel-border rounded-lg p-4">
@@ -3108,6 +3194,44 @@ const QuickPixl = () => {
                   </div>
                 )}
                 
+                {/* Image Drop Shadow Variation Cards */}
+                {imageDropShadowVariations.length > 0 && (
+                  <div className="bg-card border border-panel-border rounded-lg p-4">
+                    <h4 className="text-sm font-medium text-foreground mb-3 flex items-center space-x-2">
+                      <Droplets className="w-4 h-4 text-primary" />
+                      <span>Image Drop Shadow Variations</span>
+                      <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
+                        {imageDropShadowVariations.length}
+                      </span>
+                    </h4>
+                    <div className="grid gap-2">
+                      {imageDropShadowVariations.map((variation) => (
+                        <div
+                          key={variation.id}
+                          className="flex items-center justify-between p-2 bg-muted rounded-lg cursor-pointer hover:bg-muted/80"
+                          onClick={() => {
+                            setSelectedVariation(variation);
+                            setSelectedVariationType('Image Drop Shadow');
+                          }}
+                        >
+                          <span className="text-xs text-muted-foreground">{variation.description}</span>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-6 w-6 p-0"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRemoveImageDropShadowVariation(variation.id);
+                            }}
+                          >
+                            <X className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
                 {/* Image Input Variation Cards */}
                 {imageInputVariations.length > 0 && (
                   <div className="bg-card border border-panel-border rounded-lg p-4">
@@ -3220,7 +3344,7 @@ const QuickPixl = () => {
                 Send to Render Queue
               </Button>
               <p className="text-center text-xs text-muted-foreground mt-2">
-                Total: {backgroundVariations.length + templateVariations.length + fontVariations.length + typographyVariations.length + textShapeVariations.length + rotateFlipVariations.length + colorFillVariations.length + strokesVariations.length + characterEffectsVariations.length + imageEffectsVariations.length + imageColorFillVariations.length + imageStrokesVariations.length + imageRotateFlipVariations.length + imageBackgroundVariations.length + imageInputVariations.length} variations
+                Total: {backgroundVariations.length + templateVariations.length + fontVariations.length + typographyVariations.length + textShapeVariations.length + rotateFlipVariations.length + colorFillVariations.length + strokesVariations.length + characterEffectsVariations.length + imageEffectsVariations.length + imageColorFillVariations.length + imageStrokesVariations.length + imageRotateFlipVariations.length + imageBackgroundVariations.length + imageDropShadowVariations.length + imageInputVariations.length} variations
                 {hasUnsavedChanges && <span className="text-destructive"> • Save changes first</span>}
               </p>
             </div>

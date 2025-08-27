@@ -346,6 +346,16 @@ export interface DropShadowVariation {
   description: string;
 }
 
+export interface ImageDropShadowSettings {
+  shadows: DropShadow[];
+}
+
+export interface ImageDropShadowVariation {
+  id: string;
+  settings: ImageDropShadowSettings;
+  description: string;
+}
+
 export interface ImageInputSettings {
   selectedImages: File[];
   selectionMode: 'single' | 'multiple';
@@ -377,4 +387,5 @@ export type AnyVariation =
   | ImageEffectsVariation 
   | DropShadowVariation
   | ImageColorFillVariation
-  | ImageStrokesVariation;
+  | ImageStrokesVariation
+  | ImageDropShadowVariation;
