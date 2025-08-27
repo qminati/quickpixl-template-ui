@@ -47,7 +47,7 @@ import TextEditor from './TextEditor';
 import ImageEditor from './ImageEditor';
 import { validateImage, handleImageError, createImageFallback } from '@/utils/imageUtils';
 import { toast } from 'sonner';
-import { Container, Variation, Template, TemplateVariation, FontVariation, TypographySettings, TypographyVariation, ShapeSettings, TextShapeVariation, RotateFlipSettings, RotateFlipVariation, ColorFillSettings, ColorFillVariation, StrokeSettings, StrokesVariation, CharacterEffectsSettings, CharacterEffectsVariation, ImageEffectsSettings, ImageEffectsVariation, DropShadowSettings, DropShadowVariation, ImageInput, ImageInputSettings, AnyVariation } from '@/types/interfaces';
+import { Container, Variation, Template, TemplateVariation, FontVariation, TypographySettings, TypographyVariation, ShapeSettings, TextShapeVariation, RotateFlipSettings, RotateFlipVariation, ColorFillSettings, ColorFillVariation, ImageColorFillSettings, ImageColorFillVariation, StrokeSettings, StrokesVariation, CharacterEffectsSettings, CharacterEffectsVariation, ImageEffectsSettings, ImageEffectsVariation, DropShadowSettings, DropShadowVariation, ImageInput, ImageInputSettings, AnyVariation } from '@/types/interfaces';
 import TypographyPlugin from './TypographyPlugin';
 import TextShapePlugin from './TextShapePlugin';
 import RotateFlipPlugin from './RotateFlipPlugin';
@@ -57,6 +57,7 @@ import DropShadowPlugin from './DropShadowPlugin';
 import TextBackgroundPlugin from './TextBackgroundPlugin';
 import CharacterEffectsPlugin from './CharacterEffectsPlugin';
 import ImageEffectsPlugin from './ImageEffectsPlugin';
+import ImageColorFillPlugin from './ImageColorFillPlugin';
 import VariationDetailView from './VariationDetailView';
 
 // Import merchandise-style template images
@@ -324,6 +325,28 @@ const QuickPixl = () => {
     invert: false
   });
   const [imageEffectsVariations, setImageEffectsVariations] = useState<ImageEffectsVariation[]>([]);
+  
+  // Image Color & Fill Plugin State
+  const [isImageColorFillExpanded, setIsImageColorFillExpanded] = useState(true);
+  const [imageColorFillSettings, setImageColorFillSettings] = useState<ImageColorFillSettings>({
+    mode: 'solid',
+    solid: { color: '#000000' },
+    gradient: {
+      type: 'linear',
+      angle: 0,
+      stops: [
+        { id: '1', color: '#000000', position: 0 },
+        { id: '2', color: '#ffffff', position: 100 }
+      ]
+    },
+    image: {
+      mode: 'single',
+      images: [],
+      opacity: 100,
+      randomize: false
+    }
+  });
+  const [imageColorFillVariations, setImageColorFillVariations] = useState<ImageColorFillVariation[]>([]);
   
   // Search State
   const [isSearchVisible, setIsSearchVisible] = useState(false);
@@ -863,7 +886,8 @@ const QuickPixl = () => {
                          fontVariations.length > 0 ||
                          templateVariations.length > 0 ||
                          characterEffectsVariations.length > 0 ||
-                         imageEffectsVariations.length > 0;
+                         imageEffectsVariations.length > 0 ||
+                         imageColorFillVariations.length > 0;
     
     if (hasVariations) {
       scrollNewCardIntoView();
@@ -879,6 +903,7 @@ const QuickPixl = () => {
     templateVariations.length,
     characterEffectsVariations.length,
     imageEffectsVariations.length,
+    imageColorFillVariations.length,
     scrollNewCardIntoView
   ]);
 
@@ -1008,6 +1033,39 @@ const QuickPixl = () => {
     toast.success('Visual effects variation added');
   }, [imageEffectsSettings, generateImageEffectsDescription]);
 
+  const handleAddImageColorFillVariation = useCallback(() => {
+    const newVariation: ImageColorFillVariation = {
+      id: `image-color-fill-variation-${Date.now()}`,
+      settings: { ...imageColorFillSettings },
+      description: generateImageColorFillDescription(imageColorFillSettings)
+    };
+    
+    setImageColorFillVariations(prev => [...prev, newVariation]);
+    toast.success('Image color & fill variation added');
+  }, [imageColorFillSettings]);
+
+  const generateImageColorFillDescription = (settings: ImageColorFillSettings): string => {
+    const parts = [];
+    
+    switch (settings.mode) {
+      case 'solid':
+        parts.push(`Solid: ${settings.solid.color}`);
+        break;
+      case 'gradient':
+        parts.push(`${settings.gradient.type} gradient (${settings.gradient.stops.length} stops)`);
+        break;
+      case 'image':
+        if (settings.image.images.length > 0) {
+          parts.push(`Image (${settings.image.opacity}% opacity)`);
+        } else {
+          parts.push('Image (no image selected)');
+        }
+        break;
+    }
+    
+    return parts.join(', ') || 'Image Color & Fill';
+  };
+
   const handleAddImageInputVariation = useCallback(() => {
     const allImages = imageInputs.flatMap(input => input.selectedImages);
     if (allImages.length === 0) {
@@ -1038,6 +1096,11 @@ const QuickPixl = () => {
   const handleRemoveImageEffectsVariation = useCallback((variationId: string) => {
     setImageEffectsVariations(prev => prev.filter(v => v.id !== variationId));
     toast.success('Visual effects variation removed');
+  }, []);
+
+  const handleRemoveImageColorFillVariation = useCallback((variationId: string) => {
+    setImageColorFillVariations(prev => prev.filter(v => v.id !== variationId));
+    toast.success('Image color & fill variation removed');
   }, []);
 
   const handleRemoveImageInputVariation = useCallback((variationId: string) => {
@@ -2582,6 +2645,15 @@ const QuickPixl = () => {
                   onAddVariation={handleAddImageEffectsVariation}
                 />
                 
+                {/* Image Color & Fill Plugin */}
+                <ImageColorFillPlugin
+                  isExpanded={isImageColorFillExpanded}
+                  onToggleExpanded={() => setIsImageColorFillExpanded(!isImageColorFillExpanded)}
+                  settings={imageColorFillSettings}
+                  onSettingsChange={setImageColorFillSettings}
+                  onAddVariation={handleAddImageColorFillVariation}
+                />
+                
                 {/* Image Effects Variation Cards */}
                 {imageEffectsVariations.length > 0 && (
                   <div className="bg-card border border-panel-border rounded-lg p-4">
@@ -2592,8 +2664,84 @@ const QuickPixl = () => {
                         {imageEffectsVariations.length}
                       </span>
                     </h4>
-                    <div className="space-y-2">
+                    <div className="grid gap-2">
                       {imageEffectsVariations.map((variation) => (
+                        <div
+                          key={variation.id}
+                          className="flex items-center justify-between p-2 bg-muted rounded-lg cursor-pointer hover:bg-muted/80"
+                          onClick={() => {
+                            setSelectedVariation(variation);
+                            setSelectedVariationType('Image Effects');
+                          }}
+                        >
+                          <span className="text-xs text-muted-foreground">{variation.description}</span>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-6 w-6 p-0"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRemoveImageEffectsVariation(variation.id);
+                            }}
+                          >
+                            <X className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Image Color & Fill Variation Cards */}
+                {imageColorFillVariations.length > 0 && (
+                  <div className="bg-card border border-panel-border rounded-lg p-4">
+                    <h4 className="text-sm font-medium text-foreground mb-3 flex items-center space-x-2">
+                      <Palette className="w-4 h-4 text-primary" />
+                      <span>Image Color & Fill Variations</span>
+                      <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
+                        {imageColorFillVariations.length}
+                      </span>
+                    </h4>
+                    <div className="grid gap-2">
+                      {imageColorFillVariations.map((variation) => (
+                        <div
+                          key={variation.id}
+                          className="flex items-center justify-between p-2 bg-muted rounded-lg cursor-pointer hover:bg-muted/80"
+                          onClick={() => {
+                            setSelectedVariation(variation);
+                            setSelectedVariationType('Image Color & Fill');
+                          }}
+                        >
+                          <span className="text-xs text-muted-foreground">{variation.description}</span>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-6 w-6 p-0"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRemoveImageColorFillVariation(variation.id);
+                            }}
+                          >
+                            <X className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {/* Image Input Variation Cards */}
+                {imageInputVariations.length > 0 && (
+                  <div className="bg-card border border-panel-border rounded-lg p-4">
+                    <h4 className="text-sm font-medium text-foreground mb-3 flex items-center space-x-2">
+                      <ImageIcon className="w-4 h-4 text-primary" />
+                      <span>Image Input Variations</span>
+                      <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
+                        {imageInputVariations.length}
+                      </span>
+                    </h4>
+                    <div className="space-y-2">
+                      {imageInputVariations.map((variation) => (
                         <div 
                           key={variation.id} 
                           className="bg-secondary/30 rounded-lg p-3 cursor-pointer hover:bg-secondary/50 transition-colors"
@@ -2605,31 +2753,32 @@ const QuickPixl = () => {
                               size="sm"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                handleRemoveImageEffectsVariation(variation.id);
+                                handleRemoveImageInputVariation(variation.id);
                               }}
                               className="p-1 text-muted-foreground hover:text-destructive"
                             >
                               <Trash2 className="w-3 h-3" />
                             </Button>
                           </div>
-                          <div className="text-xs text-muted-foreground">
-                            {variation.settings.brightness !== 0 && `Brightness: ${variation.settings.brightness > 0 ? '+' : ''}${variation.settings.brightness} `}
-                            {variation.settings.contrast !== 0 && `Contrast: ${variation.settings.contrast > 0 ? '+' : ''}${variation.settings.contrast} `}
-                            {variation.settings.saturation !== 0 && `Saturation: ${variation.settings.saturation > 0 ? '+' : ''}${variation.settings.saturation} `}
-                            {variation.settings.vibrance !== 0 && `Vibrance: ${variation.settings.vibrance > 0 ? '+' : ''}${variation.settings.vibrance} `}
-                            {variation.settings.hue !== 0 && `Hue: ${variation.settings.hue > 0 ? '+' : ''}${variation.settings.hue}° `}
-                            {variation.settings.colorize && 'Colorize '}
-                            {variation.settings.grayscale && 'Grayscale '}
-                            {variation.settings.invert && 'Invert'}
+                          <div className="text-xs text-muted-foreground space-x-1 space-y-1">
+                            {variation.images.slice(0, 3).map((image, index) => (
+                              <img
+                                key={index}
+                                src={getBlobUrl(image)}
+                                alt={`Image ${index + 1}`}
+                                className="inline-block w-6 h-6 object-cover rounded border mr-1"
+                                onError={handleImageError}
+                              />
+                            ))}
+                            {variation.images.length > 3 && (
+                              <span className="text-xs">+{variation.images.length - 3} more</span>
+                            )}
                           </div>
                         </div>
                       ))}
                     </div>
                   </div>
                 )}
-                
-                {/* Image Input Variation Cards */}
-                {imageInputVariations.length > 0 && (
                   <div className="bg-card border border-panel-border rounded-lg p-4">
                     <h4 className="text-sm font-medium text-foreground mb-3 flex items-center space-x-2">
                       <ImageIcon className="w-4 h-4 text-primary" />
@@ -2681,12 +2830,12 @@ const QuickPixl = () => {
             ) : (
               <div className="text-muted-foreground">
                 <p className="text-sm">Settings panel ready for {activeSection} configuration.</p>
-              </div>
+              </div>  
             )}
-         </div>
+          </div>
 
           {/* Send to Render Queue Button - Fixed at bottom for variations section */}
-          {activeSection === 'variations' && (backgroundVariations.length > 0 || templateVariations.length > 0 || fontVariations.length > 0 || typographyVariations.length > 0 || textShapeVariations.length > 0 || rotateFlipVariations.length > 0 || colorFillVariations.length > 0 || strokesVariations.length > 0 || characterEffectsVariations.length > 0 || imageEffectsVariations.length > 0 || imageInputVariations.length > 0) && (
+          {activeSection === 'variations' && (backgroundVariations.length > 0 || templateVariations.length > 0 || fontVariations.length > 0 || typographyVariations.length > 0 || textShapeVariations.length > 0 || rotateFlipVariations.length > 0 || colorFillVariations.length > 0 || strokesVariations.length > 0 || characterEffectsVariations.length > 0 || imageEffectsVariations.length > 0 || imageColorFillVariations.length > 0 || imageInputVariations.length > 0) && (
             <div className="flex-shrink-0 mt-6">
               <Button
                 className={`w-full font-medium py-3 ${

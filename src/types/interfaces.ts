@@ -160,9 +160,37 @@ export interface ColorFillSettings {
   };
 }
 
+export interface ImageColorFillSettings {
+  mode: 'solid' | 'gradient' | 'image';
+  solid: {
+    color: string;
+  };
+  gradient: {
+    type: 'linear' | 'radial' | 'conic';
+    angle: number;
+    stops: {
+      id: string;
+      color: string;
+      position: number;
+    }[];
+  };
+  image: {
+    mode: 'single';
+    images: File[];
+    opacity: number;
+    randomize: boolean;
+  };
+}
+
 export interface ColorFillVariation {
   id: string;
   settings: ColorFillSettings;
+  description: string;
+}
+
+export interface ImageColorFillVariation {
+  id: string;
+  settings: ImageColorFillSettings;
   description: string;
 }
 
@@ -328,4 +356,5 @@ export type AnyVariation =
   | StrokesVariation 
   | CharacterEffectsVariation 
   | ImageEffectsVariation 
-  | DropShadowVariation;
+  | DropShadowVariation
+  | ImageColorFillVariation;
