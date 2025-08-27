@@ -280,6 +280,8 @@ const renderVariationContent = (
       return renderColorFillVariation(variation as ColorFillVariation, isEditing);
     case 'Strokes':
       return renderStrokesVariation(variation as StrokesVariation, isEditing);
+    case 'Image Rotate & Flip':
+      return renderRotateFlipVariation(variation as RotateFlipVariation, isEditing);
     case 'Drop Shadow':
       return renderDropShadowVariation(variation as DropShadowVariation, isEditing);
     case 'Character Effects':

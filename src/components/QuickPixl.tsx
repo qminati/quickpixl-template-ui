@@ -60,6 +60,7 @@ import CharacterEffectsPlugin from './CharacterEffectsPlugin';
 import ImageEffectsPlugin from './ImageEffectsPlugin';
 import ImageColorFillPlugin from './ImageColorFillPlugin';
 import ImageStrokesPlugin from './ImageStrokesPlugin';
+import ImageRotateFlipPlugin from './ImageRotateFlipPlugin';
 import VariationDetailView from './VariationDetailView';
 
 // Import merchandise-style template images
@@ -358,6 +359,15 @@ const QuickPixl = () => {
     knockout: { enabled: false, size: 2 }
   });
   const [imageStrokesVariations, setImageStrokesVariations] = useState<ImageStrokesVariation[]>([]);
+  
+  // Image Rotate & Flip Plugin State
+  const [isImageRotateFlipExpanded, setIsImageRotateFlipExpanded] = useState(true);
+  const [imageRotateFlipSettings, setImageRotateFlipSettings] = useState<RotateFlipSettings>({
+    rotation: 0,
+    flipHorizontal: false,
+    flipVertical: false
+  });
+  const [imageRotateFlipVariations, setImageRotateFlipVariations] = useState<RotateFlipVariation[]>([]);
   
   // Search State
   const [isSearchVisible, setIsSearchVisible] = useState(false);
@@ -899,7 +909,8 @@ const QuickPixl = () => {
                          characterEffectsVariations.length > 0 ||
                          imageEffectsVariations.length > 0 ||
                          imageColorFillVariations.length > 0 ||
-                         imageStrokesVariations.length > 0;
+          imageStrokesVariations.length > 0 ||
+          imageRotateFlipVariations.length > 0;
     
     if (hasVariations) {
       scrollNewCardIntoView();
@@ -917,6 +928,7 @@ const QuickPixl = () => {
     imageEffectsVariations.length,
     imageColorFillVariations.length,
     imageStrokesVariations.length,
+    imageRotateFlipVariations.length,
     scrollNewCardIntoView
   ]);
 
@@ -1108,6 +1120,35 @@ const QuickPixl = () => {
     return parts.length > 0 ? parts.join(', ') : 'No strokes';
   };
 
+  const handleAddImageRotateFlipVariation = useCallback(() => {
+    const newVariation: RotateFlipVariation = {
+      id: `image-rotate-flip-variation-${Date.now()}`,
+      settings: { ...imageRotateFlipSettings },
+      description: generateImageRotateFlipDescription(imageRotateFlipSettings)
+    };
+    
+    setImageRotateFlipVariations(prev => [...prev, newVariation]);
+    toast.success('Image rotate & flip variation added');
+  }, [imageRotateFlipSettings]);
+
+  const generateImageRotateFlipDescription = (settings: RotateFlipSettings): string => {
+    const parts = [];
+    
+    if (settings.rotation !== 0) {
+      parts.push(`${settings.rotation}° rotation`);
+    }
+    
+    if (settings.flipHorizontal) {
+      parts.push('horizontal flip');
+    }
+    
+    if (settings.flipVertical) {
+      parts.push('vertical flip');
+    }
+    
+    return parts.join(', ') || 'No transformation';
+  };
+
   const handleAddImageInputVariation = useCallback(() => {
     const allImages = imageInputs.flatMap(input => input.selectedImages);
     if (allImages.length === 0) {
@@ -1148,6 +1189,11 @@ const QuickPixl = () => {
   const handleRemoveImageStrokesVariation = useCallback((variationId: string) => {
     setImageStrokesVariations(prev => prev.filter(v => v.id !== variationId));
     toast.success('Image strokes variation removed');
+  }, []);
+
+  const handleRemoveImageRotateFlipVariation = useCallback((variationId: string) => {
+    setImageRotateFlipVariations(prev => prev.filter(v => v.id !== variationId));
+    toast.success('Image rotate & flip variation removed');
   }, []);
 
   const handleRemoveImageInputVariation = useCallback((variationId: string) => {
@@ -1661,12 +1707,16 @@ const QuickPixl = () => {
   // Functions to handle collapse/expand all for image settings
   const handleImageCollapseAll = () => {
     setIsImageEffectsExpanded(false);
-    // Add other image-related plugin states as needed
+    setIsImageColorFillExpanded(false);
+    setIsImageStrokesExpanded(false);
+    setIsImageRotateFlipExpanded(false);
   };
 
   const handleImageShowAll = () => {
     setIsImageEffectsExpanded(true);
-    // Add other image-related plugin states as needed
+    setIsImageColorFillExpanded(true);
+    setIsImageStrokesExpanded(true);
+    setIsImageRotateFlipExpanded(true);
   };
 
   const renderSettingsPanel = () => {
@@ -2487,8 +2537,48 @@ const QuickPixl = () => {
                              variation.settings.brightness === 0 && variation.settings.contrast === 0 && 
                              variation.settings.saturation === 0 && variation.settings.hue === 0 && (
                               <span>No effects</span>
-                            )}
+                )}
+
+                {imageRotateFlipVariations.length > 0 && (
+                  <div className="bg-card border border-panel-border rounded-lg p-4">
+                    <h4 className="text-sm font-medium text-foreground mb-3 flex items-center space-x-2">
+                      <RotateCw className="w-4 h-4 text-primary" />
+                      <span>Image Rotate & Flip Variations</span>
+                      <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
+                        {imageRotateFlipVariations.length}
+                      </span>
+                    </h4>
+                    <div className="space-y-2">
+                      {imageRotateFlipVariations.map((variation) => (
+                        <div 
+                          key={variation.id} 
+                          className={`bg-secondary/30 rounded-lg p-3 cursor-pointer hover:bg-secondary/50 transition-colors ${
+                            selectedVariation?.id === variation.id && selectedVariationType === 'Image Rotate & Flip'
+                              ? 'ring-2 ring-primary bg-secondary/60' 
+                              : ''
+                          }`}
+                          onClick={() => handleVariationSelect(variation, 'Image Rotate & Flip')}
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-medium text-foreground">{variation.description}</span>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleRemoveImageRotateFlipVariation(variation.id);
+                              }}
+                              className="p-1 text-muted-foreground hover:text-destructive"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </Button>
                           </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
                         </div>
                       ))}
                     </div>
@@ -2604,7 +2694,7 @@ const QuickPixl = () => {
                   </div>
                 )}
                 
-                {backgroundVariations.length === 0 && templateVariations.length === 0 && fontVariations.length === 0 && typographyVariations.length === 0 && textShapeVariations.length === 0 && rotateFlipVariations.length === 0 && colorFillVariations.length === 0 && strokesVariations.length === 0 && dropShadowVariations.length === 0 && characterEffectsVariations.length === 0 && imageEffectsVariations.length === 0 && imageColorFillVariations.length === 0 && imageStrokesVariations.length === 0 && imageInputVariations.length === 0 && (
+                {backgroundVariations.length === 0 && templateVariations.length === 0 && fontVariations.length === 0 && typographyVariations.length === 0 && textShapeVariations.length === 0 && rotateFlipVariations.length === 0 && colorFillVariations.length === 0 && strokesVariations.length === 0 && dropShadowVariations.length === 0 && characterEffectsVariations.length === 0 && imageEffectsVariations.length === 0 && imageColorFillVariations.length === 0 && imageStrokesVariations.length === 0 && imageRotateFlipVariations.length === 0 && imageInputVariations.length === 0 && (
                  <div className="bg-card border border-panel-border rounded-lg p-4 text-center">
                    <Shuffle className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
                    <p className="text-sm text-muted-foreground mb-2">No variations created yet</p>
@@ -2790,6 +2880,15 @@ const QuickPixl = () => {
                   onAddVariation={handleAddImageStrokesVariation}
                 />
                 
+                {/* Image Rotate & Flip Plugin */}
+                <ImageRotateFlipPlugin
+                  isExpanded={isImageRotateFlipExpanded}
+                  onToggleExpanded={() => setIsImageRotateFlipExpanded(!isImageRotateFlipExpanded)}
+                  settings={imageRotateFlipSettings}
+                  onSettingsChange={setImageRotateFlipSettings}
+                  onAddVariation={handleAddImageRotateFlipVariation}
+                />
+                
                 {/* Image Effects Variation Cards */}
                 {imageEffectsVariations.length > 0 && (
                   <div className="bg-card border border-panel-border rounded-lg p-4">
@@ -2946,8 +3045,46 @@ const QuickPixl = () => {
                             ))}
                             {variation.images.length > 3 && (
                               <span className="text-xs">+{variation.images.length - 3} more</span>
-                            )}
-                          </div>
+                  )}
+                
+                {/* Image Rotate & Flip Variation Cards */}
+                {imageRotateFlipVariations.length > 0 && (
+                  <div className="bg-card border border-panel-border rounded-lg p-4">
+                    <h4 className="text-sm font-medium text-foreground mb-3 flex items-center space-x-2">
+                      <RotateCw className="w-4 h-4 text-primary" />
+                      <span>Image Rotate & Flip Variations</span>
+                      <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
+                        {imageRotateFlipVariations.length}
+                      </span>
+                    </h4>
+                    <div className="grid gap-2">
+                      {imageRotateFlipVariations.map((variation) => (
+                        <div
+                          key={variation.id}
+                          className="flex items-center justify-between p-2 bg-muted rounded-lg cursor-pointer hover:bg-muted/80"
+                          onClick={() => {
+                            setSelectedVariation(variation);
+                            setSelectedVariationType('Image Rotate & Flip');
+                          }}
+                        >
+                          <span className="text-xs text-muted-foreground">{variation.description}</span>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-6 w-6 p-0"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRemoveImageRotateFlipVariation(variation.id);
+                            }}
+                          >
+                            <X className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
                         </div>
                       ))}
                     </div>
@@ -2962,7 +3099,7 @@ const QuickPixl = () => {
           </div>
 
           {/* Send to Render Queue Button - Fixed at bottom for variations section */}
-          {activeSection === 'variations' && (backgroundVariations.length > 0 || templateVariations.length > 0 || fontVariations.length > 0 || typographyVariations.length > 0 || textShapeVariations.length > 0 || rotateFlipVariations.length > 0 || colorFillVariations.length > 0 || strokesVariations.length > 0 || characterEffectsVariations.length > 0 || imageEffectsVariations.length > 0 || imageColorFillVariations.length > 0 || imageStrokesVariations.length > 0 || imageInputVariations.length > 0) && (
+          {activeSection === 'variations' && (backgroundVariations.length > 0 || templateVariations.length > 0 || fontVariations.length > 0 || typographyVariations.length > 0 || textShapeVariations.length > 0 || rotateFlipVariations.length > 0 || colorFillVariations.length > 0 || strokesVariations.length > 0 || characterEffectsVariations.length > 0 || imageEffectsVariations.length > 0 || imageColorFillVariations.length > 0 || imageStrokesVariations.length > 0 || imageRotateFlipVariations.length > 0 || imageInputVariations.length > 0) && (
             <div className="flex-shrink-0 mt-6">
               <Button
                 className={`w-full font-medium py-3 ${
@@ -2978,7 +3115,7 @@ const QuickPixl = () => {
                 Send to Render Queue
               </Button>
               <p className="text-center text-xs text-muted-foreground mt-2">
-                Total: {backgroundVariations.length + templateVariations.length + fontVariations.length + typographyVariations.length + textShapeVariations.length + rotateFlipVariations.length + colorFillVariations.length + strokesVariations.length + characterEffectsVariations.length + imageEffectsVariations.length + imageInputVariations.length} variations
+                Total: {backgroundVariations.length + templateVariations.length + fontVariations.length + typographyVariations.length + textShapeVariations.length + rotateFlipVariations.length + colorFillVariations.length + strokesVariations.length + characterEffectsVariations.length + imageEffectsVariations.length + imageColorFillVariations.length + imageStrokesVariations.length + imageRotateFlipVariations.length + imageInputVariations.length} variations
                 {hasUnsavedChanges && <span className="text-destructive"> • Save changes first</span>}
               </p>
             </div>
