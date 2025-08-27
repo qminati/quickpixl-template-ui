@@ -28,7 +28,6 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
   
   const [currentPreviewIndex, setCurrentPreviewIndex] = useState(0);
   const [currentInputIndex, setCurrentInputIndex] = useState(0);
-  const [isImageInputExpanded, setIsImageInputExpanded] = useState(true);
   const [imageBackgroundColor, setImageBackgroundColor] = useState('#000000');
 
   // Use prop inputs if provided, otherwise use internal state
@@ -289,11 +288,9 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
       {/* Scrollable Content Area - Image Upload and Management */}
       <div className="flex-1 min-h-0 overflow-y-auto p-6 pt-4">
         <div className="bg-card border border-input rounded-lg">
-          {/* Image Upload Plugin - Fixed */}
+          {/* Image Upload Plugin - Always Visible */}
           <div className="flex-shrink-0 p-4 border-b border-input">
             <ImageInputPlugin
-              isExpanded={isImageInputExpanded}
-              onToggleExpanded={() => setIsImageInputExpanded(!isImageInputExpanded)}
               settings={currentInput || { id: '', selectedImages: [], selectionMode: 'multiple' }}
               onSettingsChange={(settings) => {
                 if (currentInput) {
