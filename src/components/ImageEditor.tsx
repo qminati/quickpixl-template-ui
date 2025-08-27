@@ -23,7 +23,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
   onImageInputsChange
 }) => {
   const [internalImageInputs, setInternalImageInputs] = useState<ImageInput[]>([
-    { id: crypto.randomUUID(), selectedImages: [], selectionMode: 'multiple' }
+    { id: crypto.randomUUID(), selectedImages: [], selectedKnockoutImages: [], selectionMode: 'multiple' }
   ]);
   
   const [currentPreviewIndex, setCurrentPreviewIndex] = useState(0);
@@ -62,6 +62,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
     const newInput: ImageInput = {
       id: crypto.randomUUID(),
       selectedImages: [],
+      selectedKnockoutImages: [],
       selectionMode: 'multiple'
     };
     if (onImageInputsChange) {
@@ -88,6 +89,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
       const newInput: ImageInput = {
         id: crypto.randomUUID(),
         selectedImages: [...inputToDuplicate.selectedImages], // Copy the images
+        selectedKnockoutImages: [...inputToDuplicate.selectedKnockoutImages], // Copy the knockout images
         selectionMode: inputToDuplicate.selectionMode
       };
       const index = imageInputs.findIndex(input => input.id === id);
@@ -102,11 +104,12 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
     }
   };
 
-  const updateImageInput = (id: string, selectedImages: File[], selectionMode?: 'single' | 'multiple') => {
+  const updateImageInput = (id: string, selectedImages: File[], selectedKnockoutImages: File[], selectionMode?: 'single' | 'multiple') => {
     const updated = imageInputs.map(input => 
       input.id === id ? { 
         ...input, 
         selectedImages,
+        selectedKnockoutImages,
         ...(selectionMode && { selectionMode })
       } : input
     );
@@ -291,10 +294,10 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
           {/* Image Upload Plugin - Always Visible */}
           <div className="flex-shrink-0 p-4 border-b border-input">
             <ImageInputPlugin
-              settings={currentInput || { id: '', selectedImages: [], selectionMode: 'multiple' }}
+              settings={currentInput || { id: '', selectedImages: [], selectedKnockoutImages: [], selectionMode: 'multiple' }}
               onSettingsChange={(settings) => {
                 if (currentInput) {
-                  updateImageInput(currentInput.id, settings.selectedImages, settings.selectionMode);
+                  updateImageInput(currentInput.id, settings.selectedImages, settings.selectedKnockoutImages, settings.selectionMode);
                 }
               }}
             />

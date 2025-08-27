@@ -47,6 +47,7 @@ export interface TextInput {
 export interface ImageInput {
   id: string;
   selectedImages: File[];
+  selectedKnockoutImages: File[];
   selectionMode: 'single' | 'multiple';
 }
 
@@ -360,6 +361,7 @@ export interface ImageDropShadowVariation {
 
 export interface ImageInputSettings {
   selectedImages: File[];
+  selectedKnockoutImages: File[];
   selectionMode: 'single' | 'multiple';
 }
 

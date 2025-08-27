@@ -314,7 +314,7 @@ const QuickPixl = () => {
 
   // Image Input State (for ImageEditor)
   const [imageInputs, setImageInputs] = useState<ImageInput[]>([
-    { id: 'II1', selectedImages: [], selectionMode: 'multiple' }
+    { id: 'II1', selectedImages: [], selectedKnockoutImages: [], selectionMode: 'multiple' }
   ]);
   const [imageInputVariations, setImageInputVariations] = useState<Variation[]>([]);
 
