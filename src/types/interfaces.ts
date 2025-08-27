@@ -378,6 +378,12 @@ export interface ImageTabSettings {
   };
 }
 
+export interface TextInputsVariation {
+  id: string;
+  texts: string[];
+  description: string; // e.g. "3 lines (bulk)"
+}
+
 export type AnyVariation = 
   | Variation
   | TemplateVariation 
@@ -392,4 +398,5 @@ export type AnyVariation =
   | DropShadowVariation
   | ImageColorFillVariation
   | ImageStrokesVariation
-  | ImageDropShadowVariation;
+  | ImageDropShadowVariation
+  | TextInputsVariation;

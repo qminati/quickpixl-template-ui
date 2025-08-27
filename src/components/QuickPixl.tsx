@@ -48,7 +48,7 @@ import TextEditor from './TextEditor';
 import ImageEditor from './ImageEditor';
 import { validateImage, handleImageError, createImageFallback } from '@/utils/imageUtils';
 import { toast } from 'sonner';
-import { Container, Variation, Template, TemplateVariation, FontVariation, TypographySettings, TypographyVariation, ShapeSettings, TextShapeVariation, RotateFlipSettings, RotateFlipVariation, ColorFillSettings, ColorFillVariation, ImageColorFillSettings, ImageColorFillVariation, StrokeSettings, StrokesVariation, ImageStrokeSettings, ImageStrokesVariation, CharacterEffectsSettings, CharacterEffectsVariation, ImageEffectsSettings, ImageEffectsVariation, DropShadowSettings, DropShadowVariation, ImageDropShadowSettings, ImageDropShadowVariation, ImageInput, ImageInputSettings, AnyVariation } from '@/types/interfaces';
+import { Container, Variation, Template, TemplateVariation, FontVariation, TypographySettings, TypographyVariation, ShapeSettings, TextShapeVariation, RotateFlipSettings, RotateFlipVariation, ColorFillSettings, ColorFillVariation, ImageColorFillSettings, ImageColorFillVariation, StrokeSettings, StrokesVariation, ImageStrokeSettings, ImageStrokesVariation, CharacterEffectsSettings, CharacterEffectsVariation, ImageEffectsSettings, ImageEffectsVariation, DropShadowSettings, DropShadowVariation, ImageDropShadowSettings, ImageDropShadowVariation, ImageInput, ImageInputSettings, AnyVariation, TextInputsVariation } from '@/types/interfaces';
 import TypographyPlugin from './TypographyPlugin';
 import TextShapePlugin from './TextShapePlugin';
 import RotateFlipPlugin from './RotateFlipPlugin';
@@ -384,6 +384,14 @@ const QuickPixl = () => {
   });
   const [imageDropShadowVariations, setImageDropShadowVariations] = useState<ImageDropShadowVariation[]>([]);
   
+  // Text Input Variations State
+  const [textInputsVariations, setTextInputsVariations] = useState<TextInputsVariation[]>([]);
+
+  // Render Queue State
+  type RenderQueueItem = { id: string; kind: string; payload: AnyVariation; status: 'queued'|'rendering'|'done' };
+  const [renderQueue, setRenderQueue] = useState<RenderQueueItem[]>([]);
+  const [isRendering, setIsRendering] = useState(false);
+
   // Search State
   const [isSearchVisible, setIsSearchVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -771,7 +779,44 @@ const QuickPixl = () => {
    }, [selectedColors, selectedImages, generateBackgroundVariationDescription]);
 
   const handleSubmitVariation = (texts: string[]) => {
-    // Handle text variation submission logic here
+    const cleaned = texts.map(t => (t ?? '').trim()).filter(Boolean);
+    if (cleaned.length === 0) {
+      toast.error('Please add at least one line of text');
+      return;
+    }
+    const v: TextInputsVariation = {
+      id: crypto.randomUUID(),
+      texts: cleaned,
+      description: `${cleaned.length} line${cleaned.length > 1 ? 's' : ''} (text)`
+    };
+    setTextInputsVariations(prev => [...prev, v]);
+    toast.success('Text inputs variation added');
+  };
+
+  const handleSendToRenderQueue = () => {
+    const item = selectedVariation
+      ? { id: crypto.randomUUID(), kind: selectedVariationType, payload: selectedVariation, status: 'queued' as const }
+      : null;
+    if (!item) { toast.error('Select a variation first'); return; }
+    setRenderQueue(prev => [...prev, item]);
+    toast.success('Added to render queue');
+  };
+
+  const handleClearQueue = () => setRenderQueue([]);
+  const handleRemoveLast = () => setRenderQueue(prev => prev.slice(0, -1));
+
+  const handleStartRendering = async () => {
+    if (renderQueue.length === 0) { toast.error('Queue is empty'); return; }
+    if (isRendering) return;
+    setIsRendering(true);
+    setRenderQueue(prev => prev.map(x => ({...x, status: 'queued'})));
+    for (const item of [...renderQueue]) {
+      setRenderQueue(prev => prev.map(x => x.id === item.id ? {...x, status: 'rendering'} : x));
+      await new Promise(r => setTimeout(r, 350)); // fake work
+      setRenderQueue(prev => prev.map(x => x.id === item.id ? {...x, status: 'done'} : x));
+    }
+    setIsRendering(false);
+    toast.success('Rendering complete');
   };
 
   const handleRemoveVariation = (variationId: string) => {
@@ -2778,6 +2823,44 @@ const QuickPixl = () => {
                   </div>
                 )}
                  
+                {textInputsVariations.length > 0 && (
+                  <div className="bg-card border border-panel-border rounded-lg p-4">
+                    <h4 className="text-sm font-medium text-foreground mb-3 flex items-center space-x-2">
+                      <Type className="w-4 h-4 text-primary" />
+                      <span>Text Input Variations</span>
+                      <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
+                        {textInputsVariations.length}
+                      </span>
+                    </h4>
+                    <div className="space-y-2">
+                      {textInputsVariations.map(v => (
+                        <div
+                          key={v.id}
+                          className={`bg-secondary/30 rounded-lg p-3 cursor-pointer hover:bg-secondary/50 transition-colors ${
+                            selectedVariation?.id === v.id && selectedVariationType === 'textInputs'
+                              ? 'ring-2 ring-primary bg-secondary/60' 
+                              : ''
+                          }`}
+                          onClick={() => handleVariationSelect(v, 'textInputs')}
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium text-foreground">{v.description}</span>
+                            <Button
+                              variant="ghost" size="sm" className="p-1 text-muted-foreground hover:text-destructive"
+                              onClick={(e) => { e.stopPropagation(); setTextInputsVariations(prev => prev.filter(x => x.id !== v.id)); }}
+                            >
+                              <X className="w-4 h-4" />
+                            </Button>
+                          </div>
+                          <div className="text-xs text-muted-foreground truncate">
+                            {v.texts.slice(0,3).join(' • ')}{v.texts.length > 3 ? '…' : ''}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
                 {dropShadowVariations.length > 0 && (
                   <div className="bg-card border border-panel-border rounded-lg p-4">
                     <h4 className="text-sm font-medium text-foreground mb-3 flex items-center space-x-2">
@@ -2833,7 +2916,7 @@ const QuickPixl = () => {
                   </div>
                 )}
                 
-                {backgroundVariations.length === 0 && templateVariations.length === 0 && fontVariations.length === 0 && typographyVariations.length === 0 && textShapeVariations.length === 0 && rotateFlipVariations.length === 0 && colorFillVariations.length === 0 && strokesVariations.length === 0 && dropShadowVariations.length === 0 && characterEffectsVariations.length === 0 && imageEffectsVariations.length === 0 && imageColorFillVariations.length === 0 && imageStrokesVariations.length === 0 && imageRotateFlipVariations.length === 0 && imageBackgroundVariations.length === 0 && imageDropShadowVariations.length === 0 && imageInputVariations.length === 0 && (
+                {backgroundVariations.length === 0 && templateVariations.length === 0 && fontVariations.length === 0 && typographyVariations.length === 0 && textShapeVariations.length === 0 && rotateFlipVariations.length === 0 && colorFillVariations.length === 0 && strokesVariations.length === 0 && dropShadowVariations.length === 0 && characterEffectsVariations.length === 0 && imageEffectsVariations.length === 0 && imageColorFillVariations.length === 0 && imageStrokesVariations.length === 0 && imageRotateFlipVariations.length === 0 && imageBackgroundVariations.length === 0 && imageDropShadowVariations.length === 0 && imageInputVariations.length === 0 && textInputsVariations.length === 0 && (
                  <div className="bg-card border border-panel-border rounded-lg p-4 text-center">
                    <Shuffle className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
                    <p className="text-sm text-muted-foreground mb-2">No variations created yet</p>
@@ -3330,7 +3413,7 @@ const QuickPixl = () => {
           </div>
 
           {/* Send to Render Queue Button - Fixed at bottom for variations section */}
-          {activeSection === 'variations' && (backgroundVariations.length > 0 || templateVariations.length > 0 || fontVariations.length > 0 || typographyVariations.length > 0 || textShapeVariations.length > 0 || rotateFlipVariations.length > 0 || colorFillVariations.length > 0 || strokesVariations.length > 0 || characterEffectsVariations.length > 0 || imageEffectsVariations.length > 0 || imageColorFillVariations.length > 0 || imageStrokesVariations.length > 0 || imageRotateFlipVariations.length > 0 || imageBackgroundVariations.length > 0 || imageInputVariations.length > 0) && (
+          {activeSection === 'variations' && (backgroundVariations.length > 0 || templateVariations.length > 0 || fontVariations.length > 0 || typographyVariations.length > 0 || textShapeVariations.length > 0 || rotateFlipVariations.length > 0 || colorFillVariations.length > 0 || strokesVariations.length > 0 || characterEffectsVariations.length > 0 || imageEffectsVariations.length > 0 || imageColorFillVariations.length > 0 || imageStrokesVariations.length > 0 || imageRotateFlipVariations.length > 0 || imageBackgroundVariations.length > 0 || imageInputVariations.length > 0 || textInputsVariations.length > 0) && (
             <div className="flex-shrink-0 mt-6">
               <Button
                 className={`w-full font-medium py-3 ${
@@ -3339,14 +3422,12 @@ const QuickPixl = () => {
                     : 'bg-primary text-primary-foreground hover:bg-primary/90'
                 }`}
                 disabled={hasUnsavedChanges}
-                onClick={() => {
-                  // TODO: Implement send to render queue functionality
-                }}
+                onClick={handleSendToRenderQueue}
               >
                 Send to Render Queue
               </Button>
               <p className="text-center text-xs text-muted-foreground mt-2">
-                Total: {backgroundVariations.length + templateVariations.length + fontVariations.length + typographyVariations.length + textShapeVariations.length + rotateFlipVariations.length + colorFillVariations.length + strokesVariations.length + characterEffectsVariations.length + imageEffectsVariations.length + imageColorFillVariations.length + imageStrokesVariations.length + imageRotateFlipVariations.length + imageBackgroundVariations.length + imageDropShadowVariations.length + imageInputVariations.length} variations
+                Total: {backgroundVariations.length + templateVariations.length + fontVariations.length + typographyVariations.length + textShapeVariations.length + rotateFlipVariations.length + colorFillVariations.length + strokesVariations.length + characterEffectsVariations.length + imageEffectsVariations.length + imageColorFillVariations.length + imageStrokesVariations.length + imageRotateFlipVariations.length + imageBackgroundVariations.length + imageDropShadowVariations.length + imageInputVariations.length + textInputsVariations.length} variations
                 {hasUnsavedChanges && <span className="text-destructive"> • Save changes first</span>}
               </p>
             </div>
@@ -3668,9 +3749,7 @@ const QuickPixl = () => {
                 variant="outline" 
                 size="sm" 
                 className="flex-1"
-                onClick={() => {
-                  // TODO: Implement clear all functionality  
-                }}
+                onClick={handleClearQueue}
               >
                 Clear All
               </Button>
@@ -3678,9 +3757,7 @@ const QuickPixl = () => {
                 variant="outline" 
                 size="sm" 
                 className="flex-1"
-                onClick={() => {
-                  // TODO: Implement remove last functionality
-                }}
+                onClick={handleRemoveLast}
               >
                 Remove Last
               </Button>
@@ -3724,9 +3801,7 @@ const QuickPixl = () => {
           <div className="flex-shrink-0 mt-6">
             <Button 
               className="w-full bg-green-600 hover:bg-green-600/90 text-white font-medium py-3"
-              onClick={() => {
-                // TODO: Implement start rendering functionality
-              }}
+              onClick={handleStartRendering}
             >
               ▶ Start Rendering
             </Button>

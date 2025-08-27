@@ -30,11 +30,12 @@ import {
   ImageDropShadowVariation,
   CharacterEffectsVariation,
   ImageEffectsVariation,
-  DropShadowVariation
+  DropShadowVariation,
+  TextInputsVariation
 } from '@/types/interfaces';
 
 type AnyVariation = Variation | TemplateVariation | FontVariation | TypographyVariation | 
-  TextShapeVariation | RotateFlipVariation | ColorFillVariation | ImageColorFillVariation | StrokesVariation | ImageStrokesVariation | ImageDropShadowVariation | CharacterEffectsVariation | ImageEffectsVariation | DropShadowVariation;
+  TextShapeVariation | RotateFlipVariation | ColorFillVariation | ImageColorFillVariation | StrokesVariation | ImageStrokesVariation | ImageDropShadowVariation | CharacterEffectsVariation | ImageEffectsVariation | DropShadowVariation | TextInputsVariation;
 
 interface VariationDetailViewProps {
   variation: AnyVariation | null;
@@ -265,6 +266,8 @@ const renderVariationContent = (
   toggleElementSelection: (index: number) => void
 ) => {
   switch (variationType) {
+    case 'textInputs':
+      return renderTextInputsVariation(variation as TextInputsVariation, isEditing);
     case 'Background':
       return renderBackgroundVariation(variation as Variation, isEditing, selectedElements, toggleElementSelection);
     case 'Template':
@@ -712,6 +715,24 @@ const renderDropShadowVariation = (variation: DropShadowVariation, isEditing: bo
   </Card>
 );
 
+const renderTextInputsVariation = (variation: TextInputsVariation, isEditing: boolean) => (
+  <Card className="p-6">
+    <h3 className="text-lg font-semibold mb-4">Text Inputs</h3>
+    <div className="space-y-4">
+      <div className="max-h-40 overflow-auto text-xs bg-secondary/30 rounded p-3">
+        {variation.texts.map((text, index) => (
+          <div key={index} className="py-1 border-b border-muted last:border-0 truncate">
+            {text}
+          </div>
+        ))}
+      </div>
+      <div className="text-sm">
+        <strong>Total Lines:</strong> {variation.texts.length}
+      </div>
+    </div>
+  </Card>
+);
+
 const renderImageDropShadowVariation = (variation: ImageDropShadowVariation, isEditing: boolean) => (
   <Card className="p-6">
     <h3 className="text-lg font-semibold mb-4">Image Drop Shadow</h3>
@@ -753,6 +774,8 @@ const renderImageDropShadowVariation = (variation: ImageDropShadowVariation, isE
 // Helper function to get element count
 const getElementCount = (variation: AnyVariation, variationType: string): number => {
   switch (variationType) {
+    case 'textInputs':
+      return (variation as TextInputsVariation).texts.length;
     case 'Background':
       const bgVar = variation as Variation;
       return bgVar.colors.length + bgVar.images.length;

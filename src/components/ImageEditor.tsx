@@ -40,6 +40,37 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
     }
   }, [imageInputs, currentInputIndex]);
 
+  // Clamp preview index when images for the current input change
+  useEffect(() => {
+    const n = (imageInputs[currentInputIndex]?.selectedImages ?? []).length;
+    setCurrentPreviewIndex(prev => (n === 0 ? 0 : Math.min(prev, n - 1)));
+  }, [currentInputIndex, imageInputs, imageInputs[currentInputIndex]?.selectedImages?.length]);
+
+  // Reset to the first image when switching inputs
+  useEffect(() => { setCurrentPreviewIndex(0); }, [currentInputIndex]);
+
+  // Object URL cleanup on unmount
+  useEffect(() => {
+    return () => {
+      imageInputs.forEach(ii => {
+        (ii.selectedImages || []).forEach(file => {
+          try {
+            URL.revokeObjectURL(getBlobUrl(file));
+          } catch (error) {
+            // Ignore revoke errors
+          }
+        });
+        (ii.selectedKnockoutImages || []).forEach(file => {
+          try {
+            URL.revokeObjectURL(getBlobUrl(file));
+          } catch (error) {
+            // Ignore revoke errors
+          }
+        });
+      });
+    };
+  }, []);
+
   // Get images from current input index with null check
   const getCurrentInputImages = (): File[] => {
     const currentInput = imageInputs[currentInputIndex];
