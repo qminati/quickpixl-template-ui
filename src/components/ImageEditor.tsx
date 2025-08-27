@@ -29,7 +29,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
   const [currentPreviewIndex, setCurrentPreviewIndex] = useState(0);
   const [currentInputIndex, setCurrentInputIndex] = useState(0);
   const [isImageInputExpanded, setIsImageInputExpanded] = useState(true);
-  const [imageBackgroundColor, setImageBackgroundColor] = useState('#ffffff');
+  const [imageBackgroundColor, setImageBackgroundColor] = useState('#000000');
 
   // Use prop inputs if provided, otherwise use internal state
   const imageInputs = propImageInputs || internalImageInputs;
@@ -223,7 +223,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
                         value={imageBackgroundColor}
                         onChange={(e) => setImageBackgroundColor(e.target.value)}
                         className="flex-1 px-2 py-1 text-xs bg-background border border-panel-border rounded"
-                        placeholder="#ffffff"
+                        placeholder="#000000"
                       />
                     </div>
                     <div className="text-xs text-muted-foreground">Image background color</div>
@@ -232,8 +232,8 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
               </Popover>
               <div className="flex items-center space-x-1">
                 {[
-                  { color: '#ffffff', name: 'White' },
                   { color: '#000000', name: 'Black' },
+                  { color: '#ffffff', name: 'White' },
                   { color: '#f3f4f6', name: 'Light Grey' },
                   { color: '#6b7280', name: 'Grey' },
                   { color: '#ef4444', name: 'Red' },
@@ -248,38 +248,6 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
                   />
                 ))}
               </div>
-              
-              {/* Thumbnail Navigation */}
-              {currentInputImages.length > 0 && (
-                <div className="flex items-center space-x-1 ml-4">
-                  {currentInputImages.slice(0, 5).map((image, index) => (
-                    <button
-                      key={`thumb-${image.name}-${image.size}-${index}`}
-                      onClick={() => setCurrentPreviewIndex(index)}
-                      className={`w-6 h-6 rounded border overflow-hidden transition-all ${
-                        index === currentPreviewIndex 
-                          ? 'border-primary' 
-                          : 'border-panel-border hover:border-primary/50'
-                      }`}
-                    >
-                      <img
-                        src={getBlobUrlSafe(image)}
-                        alt={`Thumbnail ${index + 1}`}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.style.display = 'none';
-                        }}
-                      />
-                    </button>
-                  ))}
-                  {currentInputImages.length > 5 && (
-                    <span className="text-xs text-muted-foreground px-2">
-                      +{currentInputImages.length - 5} more
-                    </span>
-                  )}
-                </div>
-              )}
             </div>
           </div>
           
